@@ -5,7 +5,8 @@
    │ 90초 · 점수 = 이동 거리 + 배달한 접시 + 도착 순위 보너스
    └───────────────────────────────────────────────────────── */
 /* 난이도 조절값: STRIDE 한 걸음 힘 · GAP 두 사람 기본 간격 · TOL 놓치는 간격 차이 · WOB 출렁임(속도 차이 · 간격 차이 · 되돌림 · 감쇠) · TRIP 헛발질 출렁임 */
-const SRV={SEC:90,LEN:1200,DISH:6,STRIDE:.55,FRIC:.9,TRIP:.35,GAP:64,TOL:28,
+const SRV={SEC:90,LEN:1200,DISH:6,STRIDE:.55,FRIC:.9,TRIP:.35,GAP:84,TOL:28,   /* GAP: 원본 그림(가로 최대 96) 두 명이 겹치지 않는 간격 */
+ 
   WOB:[.045,.003,.05,.88],TRIPW:.12,
   PUD:[[380,470],[760,850]],PUD_PUSH:.55,PUD_NOISE:.05,   /* 기믹: 물웅덩이 2곳 — 걸음 힘 55%, 선반 출렁임 */
   RESPAWN:90,BOB:6};
@@ -44,10 +45,18 @@ class ServeSim{
     B.d=Math.random()<.03?B.d:(B.d===2?4:2);this.input(t*2+k,{tap:1,d:B.d});B.n=this.f+gap;}
   end(){if(this.ph==='end')return;this.ph='end';this.t=160;this.ev.push('win');}
   snap(){return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,sc:this.sc,ps:this.ps,drops:this.drops,
-    H:this.H.map(h=>({x:h.x.map(v=>Math.round(v*2)/2),d:h.dish,w:Math.round(h.w*100)/100,st:h.st,ft:h.st==='fall'?h.t:0,pud:h.pud?1:0,done:h.done,rank:h.rank,b:h.bob.map(b=>b>2?1:0),fr:h.fr,e:Math.round(h.err||0)})),
+    H:this.H.map(h=>({x:h.x.map(v=>Math.round(v*2)/2),d:h.dish,w:Math.round(h.w*100)/100,st:h.st,ft:h.st==='fall'?h.t:0,pud:h.pud?1:0,done:h.done,rank:h.rank,e:Math.round(h.err||0)})),
     tag:[0,1,2,3].map(i=>(i%2?'선반 뒤쪽':'선반 앞쪽'))};}
   result(){return{sc:this.sc,ps:this.ps,lines:[0,1].map(t=>{const h=this.H[t];return `${h.done?h.rank+'등 도착':'도착 못 함 '+Math.floor(h.x[0]/SRV.LEN*100)+'%'} · 접시 ${h.dish}/${SRV.DISH} · 선반 놓침 ${h.falls}`;})};}
 }
+/* 다리 모션 (화면마다 따로 계산 · 결과엔 영향 없음): 걸은 거리로 발 박자(ph)를 정하고, 속도만큼 휘청임(A)이 커졌다 줄어듦
+   a·b = 두 발 끝이 앞뒤로 나간 도트, st = 다리가 늘어나 몸이 들리는 도트, j = 선반 놓쳤을 때 버둥거림 */
+const SRVL={f:-1,x:[[0,0],[0,0]],A:[[0,0],[0,0]]};
+function srvLegs(t,k,x,fall,f){const V=SRVL;if(f<V.f-5||f>V.f+30){V.x=[[x,x],[x,x]];V.A=[[0,0],[0,0]];}
+  if(t===0&&k===0)V.f=f;const sp=Math.abs(x-V.x[t][k]);V.x[t][k]=x;const A=V.A[t][k]=V.A[t][k]+(Math.min(1,sp/.35)-V.A[t][k])*.15;
+  if(fall){const q=(f>>2)&1;return{a:q?-5:-3,b:q?4:6,st:0,j:q?1:-1};}   /* 놓쳤을 땐 다리를 쩍 벌리고 버둥 */
+  const ph=x*.55+k*1.3,w=Math.sin(ph),wob=Math.sin(ph*2.3+t+k*2);   /* 2.3배 박자로 한 번 더 꺾여서 어설프게 */
+  return{a:Math.round(A*(7*w+3*wob)),b:Math.round(A*(-7*w+3*wob)),st:Math.round(A*6*Math.abs(Math.cos(ph))),j:0};}
 function srvDraw(g,S,pd,me,f){
   for(const t of [0,1]){const H=S.H[t],oy=t?136:0,mid=(H.x[0]+H.x[1])/2,cam=clamp(mid-150,0,SRV.LEN-300),gy=oy+112;
     g.save();g.beginPath();g.rect(0,oy,480,134);g.clip();
@@ -55,24 +64,24 @@ function srvDraw(g,S,pd,me,f){
     R(0,gy,480,22,MAP.mint);R(0,gy,480,2,MAP.blue);for(let x=-(cam%32);x<480;x+=32){R(x,gy+2,16,20,MAP.green);R(x,gy+2,16,1,'#fff');}   // 바닥: 민트 · 연두 바둑판
     const tx=Math.round(SRV.LEN-cam+12);R(tx-1,gy-27,62,10,MAP.ink);R(tx,gy-26,60,8,MAP.yellow);R(tx,gy-26,60,2,'#fff');R(tx+6,gy-18,4,18,MAP.ink);R(tx+50,gy-18,4,18,MAP.ink);K('테이블',tx+30,gy-40,MAP.blue,'center',8);   // 도착 테이블
     for(const[a,b2]of SRV.PUD){const px=Math.round(a-cam);if(px>480||b2-cam<0)continue;const w=b2-a;R(px+4,gy+2,w-8,4,MAP.blue);R(px,gy+4,w,6,MAP.blue);R(px+8,gy+3,10,2,'#fff');R(px+w-30,gy+6,14,2,'#fff');}   /* 물웅덩이 (파랑) */
-    for(const d of S.drops)if(d.team===t){const dx=Math.round(d.x-cam+d.dir*d.t*1.6),dy=Math.round(gy-34+d.t*d.t*.06);if(dy<gy+10){R(dx-6,dy,12,3,'#fff');R(dx-4,dy-2,8,2,'#e8a040');}}
+    for(const d of S.drops)if(d.team===t){const dx=Math.round(d.x-cam+d.dir*d.t*1.6),dy=Math.round(gy-80+d.t*d.t*.06);if(dy<gy+10){R(dx-6,dy,12,3,'#fff');R(dx-4,dy-2,8,2,'#e8a040');}}
     const XF=Math.round(H.x[0]-cam),XB=Math.round(H.x[1]-cam),fall=H.st==='fall',col=TEAM[t].col;
-    // 두 쿵야 (걸을 때마다 발 프레임 교대 · 1도트 들썩)
-    koong(t*2+1,XB,gy+1-H.b[1],{s:1,fr:fall?6:H.fr[1]?1:2});koong(t*2,XF,gy+1-H.b[0],{s:1,fr:fall?6:H.fr[0]?1:2});
-    // 긴 선반: 출렁임(w)만큼 기울여 픽셀 단위로 그림
-    const x0=XB-12,x1=XF+12,len=x1-x0,tilt=fall?0:Math.round(H.w*4);
-    const by=fall?gy-4:gy-25,ya=by+tilt-H.b[1],yb=by-tilt-H.b[0],py=x=>Math.round(ya+(yb-ya)*(x-x0)/len);
-    if(!fall){for(const[X,bb]of[[XB,H.b[1]],[XF,H.b[0]]]){const top=py(X)+5,h=gy-14-bb-top;if(h>0){R(X-7,top,2,h,MAP.ink);R(X+5,top,2,h,MAP.ink);}}}   // 받쳐 든 손
+    // 두 쿵야: 몸통은 그대로 미끄러지듯 이동, 다리만 휘청휘청 (CLOP 느낌) — 모든 좌표 정수라 도트가 깨지지 않음
+    const LG=[0,1].map(k=>srvLegs(t,k,H.x[k],fall,f)),SZ=[koongSize(t*2),koongSize(t*2+1)];
+    for(const k of [1,0]){const lg=LG[k];koongWalk(t*2+k,(k?XB:XF)+lg.j,gy+1,lg.a,lg.b,lg.st);}
+    // 긴 선반: 두 사람 머리 위에 이고 감 · 출렁임(w)만큼 기울이고, 다리가 늘어나 몸이 들리면 그쪽 끝도 같이 들림
+    const x0=XB-Math.floor(SZ[1].w/2)+2,x1=XF+Math.ceil(SZ[0].w/2)-2,len=x1-x0,tilt=fall?0:Math.round(H.w*4);
+    const top=k=>gy+1-SZ[k].h-LG[k].st-6,ya=fall?gy-4:top(1)+tilt,yb=fall?gy-4:top(0)-tilt,   /* 각자 머리 꼭대기에 얹힘 (키 차이만큼 기울어짐) */py=x=>Math.round(ya+(yb-ya)*(x-x0)/len);
     for(let x=x0;x<x1;x+=2){const y=py(x);R(x,y-1,2,1,MAP.ink);R(x,y,2,5,'#c8a070');R(x,y,2,1,'#f0d8a8');R(x,y+4,2,1,'#8a6040');R(x,y+5,2,1,col);R(x,y+6,2,1,MAP.ink);}   // 선반 + 팀 색 줄
     // 접시: 세 군데에 쌓고, 출렁이면 미끄러짐
     for(let k=0;k<H.d;k++){const s=k%3,lv=Math.floor(k/3),cx=Math.round(x0+len*(.25+s*.25)+(fall?0:H.w*(3+lv*2))),y=(fall?gy-4:py(cx))-4-lv*4;
       R(cx-7,y,14,3,'#fff');R(cx-7,y+2,14,1,'#a8b8c8');R(cx-5,y-2,10,2,['#e84a3a','#f8d84a','#6ab84a'][k%3]);}
-    if(me===t*2||me===t*2+1)meMark(me===t*2?XF:XB,gy-48);
+    if(me===t*2||me===t*2+1){const k=me===t*2?0:1;meMark(k?XB:XF,gy-Math.max(SZ[0].h,SZ[1].h)-26);}
     K(`${TEAM[t].name}  ${Math.floor(H.x[0]/SRV.LEN*100)}%  접시 ${H.d}`,8,oy+4,col,'left',9);
     if(H.done)K(`${H.rank}등 도착!`,240,oy+40,'#fff419','center',16);
-    else if(fall)K('앗! 선반을 놓쳤다',(XF+XB)/2,gy-64,'#ff8a8a','center',10);
-    else if(Math.abs(H.e)>SRV.TOL*.55&&(f>>3)&1)K(H.e>0?'너무 멀어요!':'너무 붙었어요!',(XF+XB)/2,gy-64,'#ff8a8a','center',10);
-    else if(H.pud&&(f>>3)&1)K('미끌미끌!',(XF+XB)/2,gy-64,'#7fd0ff','center',10);
+    else if(fall)K('앗! 선반을 놓쳤다',(XF+XB)/2,oy+18,'#ff8a8a','center',10);
+    else if(Math.abs(H.e)>SRV.TOL*.55&&(f>>3)&1)K(H.e>0?'너무 멀어요!':'너무 붙었어요!',(XF+XB)/2,oy+18,'#ff8a8a','center',10);
+    else if(H.pud&&(f>>3)&1)K('미끌미끌!',(XF+XB)/2,oy+18,'#7fd0ff','center',10);
     g.restore();}
   R(0,134,480,2,MAP.blue);
   const sec=Math.max(0,Math.ceil(S.tm/60));R(214,124,52,20,MAP.ink);txt(String(sec),240,129,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);

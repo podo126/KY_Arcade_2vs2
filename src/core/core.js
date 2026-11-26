@@ -17,9 +17,9 @@ const teamOf=i=>i<2?0:1;
 /* 맵 색: 진한 색 = 포인트, 연한 색 = 바탕 (logo_yellow · logo_blue · restaurant_floor01/02 · restaurant_wall) */
 const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:'#fefcdd',shade:'#f0edc7',hi:'#fffef0',ink:'#2a3a48'};
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
-/* 캐릭터: q = 게임용 작은 스프라이트 키, big = 선택 화면용 정면 그림. q가 없는 캐릭터는 게임에서 바운딩 박스(자리 표시)로 그림 */
-const CHARS=[{id:'yk',name:'양파쿵야',short:'양',q:'ykQ',big:'big_yk'},{id:'jm',name:'주먹밥쿵야',short:'주',q:'jmQ',big:'big_jm'},
-  {id:'sk',name:'샐쿵',short:'샐',q:null,big:'big_sk'},{id:'mk',name:'무쿵',short:'무',q:null,big:'big_mk'},{id:'bk',name:'반계',short:'반',q:null,big:'big_bk'}];
+/* 캐릭터: big = 비율 조정한 원본 그림 (선택 화면 · 게임 속 모두 이 그림 하나) */
+const CHARS=[{id:'yk',name:'양파쿵야',short:'양',big:'big_yk'},{id:'jm',name:'주먹밥쿵야',short:'주',big:'big_jm'},
+  {id:'sk',name:'샐쿵',short:'샐',big:'big_sk'},{id:'mk',name:'무쿵',short:'무',big:'big_mk'},{id:'bk',name:'반계',short:'반',big:'big_bk'}];
 const charOf=id=>CHARS.find(c=>c.id===id)||CHARS[0];
 /* ---------- 이미지 (core/assets.js 의 CHS) ---------- */
 const IMG={};for(const k in CHS){const v=CHS[k],im=new Image();im.src=typeof v==='string'?v:v.src;IMG[k]=im;}
@@ -32,13 +32,26 @@ function outlined(key,sx,sy,w,h,col,tint){const k=[key,sx,sy,w,h,col,tint].join(
   if(col){const s=document.createElement('canvas');s.width=w;s.height=h;const s2=s.getContext('2d');s2.drawImage(im,sx,sy,w,h,0,0,w,h);s2.globalCompositeOperation='source-in';s2.fillStyle=col;s2.fillRect(0,0,w,h);
     for(const[dx,dy]of[[0,1],[2,1],[1,0],[1,2]])x.drawImage(s,dx,dy);}
   x.drawImage(m,1,1);return OUTL[k]=c;}
-/* 쿵야 그리기: i=슬롯(0·2=양파쿵야, 1·3=주먹밥쿵야), 팀 색 테두리. o={s:배율, fr:프레임, flip, rot, sx·sy:찌그러짐, a:투명도} */
-function koong(i,x,y,o={}){const sl=GAME&&GAME.slots&&GAME.slots[i],C=charOf(sl&&sl.ch||(i%2?'jm':'yk')),s=Math.max(1,Math.round(o.s||1)),col=TEAM[teamOf(i)].col;
-  g.save();g.translate(Math.round(x),Math.round(y));if(o.rot)g.rotate(o.rot);if(o.a!=null)g.globalAlpha=o.a;
-  if(C.q){const Q=CHS[C.q],c=outlined(C.q,(o.fr||0)*Q.w,0,Q.w,Q.h,col);if(c){g.scale(o.flip?-s:s,s);g.drawImage(c,-Math.round(c.width/2),-c.height);}}
-  else{const w=16*s,h=18*s;g.fillStyle=col;g.fillRect(-w/2-s,-h-s,w+2*s,h+2*s);g.fillStyle='#1a2030';g.fillRect(-w/2,-h,w,h);   /* 바운딩 박스: 작은 리소스가 생기면 자동 교체 */
-    g.fillStyle=col;g.fillRect(-w/2,-h,w,s);g.font=`bold ${12*s}px Galmuri11,sans-serif`;g.textAlign='left';g.textBaseline='top';const tw=Math.round(g.measureText(C.short).width);g.fillText(C.short,-Math.round(tw/2),-h+3*s);}
-  g.restore();}
+/* 쿵야 그리기: 모든 게임에서 비율 조정한 원본 그림(big_*)을 1배로 · 팀 색 테두리 · 발 밑 가운데가 (x,y).
+   o={tint:덧칠 색, a:투명도, flip} (원본은 프레임이 1장이라 움직임은 위치·다리 모션으로 표현) */
+function koongC(i){const sl=GAME&&GAME.slots&&GAME.slots[i];return charOf(sl&&sl.ch||(i%2?'jm':'yk'));}
+function koongCv(i,tint){const C=koongC(i),B=CHS[C.big];return outlined(C.big,0,0,B.w,B.h,TEAM[teamOf(i)].col,tint);}
+function koongSize(i){const B=CHS[koongC(i).big];return{w:B.w+2,h:B.h+2};}
+function koong(i,x,y,o={}){const c=koongCv(i,o.tint);if(!c)return;g.save();if(o.a!=null)g.globalAlpha=o.a;
+  if(o.flip){g.translate(Math.round(x),0);g.scale(-1,1);g.drawImage(c,-Math.round(c.width/2),Math.round(y)-c.height);}
+  else g.drawImage(c,Math.round(x)-Math.round(c.width/2),Math.round(y)-c.height);g.restore();}
+/* 다리 정보: 아래쪽에서 두 발이 갈라져 있는 줄들(top~끝)과 두 발을 나누는 세로 줄(split) — 테두리 그림 기준, 처음 한 번만 계산 */
+function legInfo(c){if(c._leg)return c._leg;
+  const W=c.width,H=c.height,D=c.getContext('2d').getImageData(0,0,W,H).data,runs=y=>{const R=[];let s=-1;for(let x=0;x<=W;x++){const on=x<W&&D[(y*W+x)*4+3]>0;if(on&&s<0)s=x;if(!on&&s>=0){R.push([s,x]);s=-1;}}return R;};
+  let bot=H-1;while(bot>0&&!runs(bot).length)bot--;let top=bot;while(top>0&&runs(top-1).length>=2)top--;
+  const r=runs(bot),mid=W/2;let split=Math.round(mid);if(r.length>=2){let best=1e9;for(let k=0;k<r.length-1;k++){const gx=Math.round((r[k][1]+r[k+1][0])/2);if(Math.abs(gx-mid)<best){best=Math.abs(gx-mid);split=gx;}}}
+  if(bot-top<2)top=Math.max(0,bot-4);return c._leg={top,bot,split};}
+/* 걷는 쿵야: 몸통은 그대로, 다리만 따로 휘청 (CLOP 느낌) — 다리 줄마다 1도트씩만 어긋나게 기울여서 몸통과 다리가 끊어지지 않음.
+   sw0·sw1 = 두 발 끝이 앞뒤로 나간 도트 수, st = 다리가 늘어나는 도트 수(몸통이 그만큼 들림) · 모두 정수 */
+function koongWalk(i,x,y,sw0,sw1,st,o={}){const c=koongCv(i,o.tint);if(!c)return;const L=legInfo(c),X=Math.round(x)-Math.round(c.width/2),Y=Math.round(y)-c.height,lh=L.bot-L.top+1;
+  st=Math.max(0,st|0);g.drawImage(c,0,0,c.width,L.top,X,Y-st,c.width,L.top);   /* 몸통 */
+  const n=lh+st;for(let r=0;r<n;r++){const sy=r<st?L.top:L.top+r-st,dy=Y-st+L.top+r,k=n>1?r/(n-1):1;   /* 늘어난 만큼 다리 첫 줄을 반복 */
+    for(const[sx,sw,ww]of[[0,sw0,L.split],[L.split,sw1,c.width-L.split]]){const off=Math.round(sw*k*k);g.drawImage(c,sx,sy,ww,1,X+sx+off,dy,ww,1);}}}
 function meMark(x,y){R(x-3,y,7,2,'#fff419');R(x-2,y+2,5,1,'#fff419');R(x-1,y+3,3,1,'#fff419');R(x,y+4,1,1,'#fff419');}
 /* ---------- 화면 맞춤: 무대 1280x720, 게임 캔버스 960x540 (도트 480x270 → 4K 6배 · 1080p 3배) ---------- */
 let CS=4,FS=1;const gc=$('gc');let g=gc.getContext('2d');
@@ -192,7 +205,7 @@ function act(a){switch(a){
 /* 캐릭터 선택: 메인 → (닉네임) → 캐릭터 고르기 → 대기방 만들기 / 방 코드 입장 / 혼자 연습 */
 let CHAR_NEXT=null,charSel=0;
 function openChar(next){if(!needName())return;CHAR_NEXT=next;charSel=Math.max(0,CHARS.findIndex(c=>c.id===CFG.char));show('char');renderChar();}
-function renderChar(){$('charList').innerHTML=CHARS.map((c,i)=>{const B=CHS[c.big];return `<div class="ch ${i===charSel?'fr-on on':'fr-item'}" data-i="${i}"><div class="chimg"><img src="${B.src}" style="width:${B.w*2}px;height:${B.h*2}px"></div><b class="ol2">${esc(c.name)}</b>${c.q?'':'<small>게임 속 그림 준비 중</small>'}</div>`;}).join('');}
+function renderChar(){$('charList').innerHTML=CHARS.map((c,i)=>{const B=CHS[c.big];return `<div class="ch ${i===charSel?'fr-on on':'fr-item'}" data-i="${i}"><div class="chimg"><img src="${B.src}" style="width:${B.w*2}px;height:${B.h*2}px"></div><b class="ol2">${esc(c.name)}</b></div>`;}).join('');}
 function pickChar(i){charSel=(i+CHARS.length)%CHARS.length;AU.sfx('move');renderChar();}
 function confirmChar(){CFG.char=CHARS[charSel].id;LS.set('char',CFG.char);AU.sfx('ok');const n=CHAR_NEXT;CHAR_NEXT=null;
   if(n==='create')createRoom();else if(n==='join'){show('join');$('codeIn').value='';}else if(n==='local'&&typeof initLocalRoom==='function')initLocalRoom();}
@@ -236,7 +249,7 @@ function renderLobby(){const L=LOBBY,T=(L&&L.teams)||DEF_TEAMS();
     $('tc'+t).classList.toggle('ro',!canEditTeam(t));$('tcb'+t).hidden=!canEditTeam(t);}
   $('gCard').innerHTML=`<div><div class="gt ol">미니게임 ${GAMES.length}종</div></div><div class="gn">게임 설명 버튼에서<br>←→로 3개 모두 보기</div>`;
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i];el.className='slot '+(s&&s.id===myId()?'fr-on me':'fr-item')+(s?'':' empty');
-    el.innerHTML=s?`<span class="sw" style="background:${T[teamOf(i)].col}"></span><span class="nm">${esc(s.name)}${s.id===myId()?' (나)':''} <small class="chn">${esc(charOf(s.ch).name)}</small></span><span class="st ${s.ready?'ok':'wait'}">${isLocal()?'':s.ready?'준비 완료':'대기 중'}</span>`:'빈 자리 · 시작하면 AI가 들어갑니다';}
+    el.innerHTML=s?`<span class="sw" style="background:${T[teamOf(i)].col}"></span><span class="nm">${esc(s.name)}${s.id===myId()?' (나)':''} <small class="chn">${esc(charOf(s.ch).name)}</small></span><span class="st ${s.ready?'ok':'wait'}">${isLocal()?'':s.ready?'준비 완료':'대기 중'}</span>`:'Empty';}
   const host=amHost(),amP=isLocal()||NET.role==='player';$('bTeam').hidden=!amP;$('bReady').hidden=!amP||host;$('bStart').hidden=!host;
   const me=L&&L.slots.find(s=>s&&s.id===myId());$('bReady').textContent=me&&me.ready?'준비 해제':'준비';
   $('lbHint').innerHTML='<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 버튼 이동 · <span class="kk">Enter</span> 결정'+(amP?' · 팀은 "팀 바꾸기" 버튼으로':'')+(host?' · 팀 이름 칸을 눌러 이름 입력':'');
@@ -339,8 +352,8 @@ function howFlip(d){HOW_I=(HOW_I+d+GAMES.length)%GAMES.length;AU.sfx('move');ope
 function openHow(keep){if(!keep)HOW_I=0;const G=GAMES[HOW_I];HOW_ON=true;$('how').hidden=false;$('howBody').innerHTML=`<div class="intro-m">◀ ${HOW_I+1} / ${GAMES.length} ▶ (←→로 넘기기)</div>`+howHTML(G);
   const slots=[0,1,2,3].map(i=>({id:0,name:charOf(CHARS[i%CHARS.length].id).name,bot:true,ch:CHARS[i%CHARS.length].id}));HOW={G,sim:demoSim(G,slots),slots,t:performance.now()};
   const q=SC*(devicePixelRatio||1);HOW.cs=Math.max(1,Math.ceil(640/GW*q-1e-6));hc.width=GW*HOW.cs;hc.height=GH*HOW.cs;hc.style.width='640px';hc.style.height='360px';}
-/* 예시 화면은 카운트다운 없이 바로 플레이 장면부터 */
-function demoSim(G,slots){const m=G.newSim(slots.map(s=>({...s})),{local:true,demo:true});if(m.ph==='cd')m.t=1;return m;}
+/* 예시 화면은 카운트다운 없이 바로 플레이 장면부터 (demoSkip: 첫 장면이 빌 때 미리 돌려 둘 프레임 수) */
+function demoSim(G,slots){const m=G.newSim(slots.map(s=>({...s})),{local:true,demo:true});if(m.ph==='cd')m.t=1;for(let k=0;k<(G.demoSkip||0);k++){m.step();if(m.ev)m.ev.length=0;}return m;}
 function closeHow(){HOW_ON=false;HOW=null;$('how').hidden=true;}
 function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-HOW.t)/16.67));HOW.t+=n*16.67;const sim=HOW.sim;
   while(n-->0){sim.step();if(sim.ev)sim.ev.length=0;if(sim.done){HOW.sim=demoSim(HOW.G,HOW.slots);break;}}

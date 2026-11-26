@@ -41,16 +41,17 @@ function punDraw(g,S,pd,me,f){
   for(const t of [0,1]){const x=t?250:10,w=220,v=S.hp[t]/PUN.HP;R(x-1,21,w+2,12,MAP.ink);R(x,22,w,10,MAP.shade);R(t?x+w-w*v:x,22,w*v,10,S.hurt[t]&&(f&2)?'#fff':TEAM[t].col);
     txt(TEAM[t].name,t?x+w:x,10,TEAM[t].col,t?'right':'left',8);txt(String(S.hp[t]),t?x+w:x,35,'#fff',t?'right':'left',8);}
   const sec=Math.max(0,Math.ceil(S.tm/60));txt(String(sec),240,12,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',16);
-  // 선수 (3배 크기) · 때리면 앞으로 튀어나감 · 맞은 팀은 흔들림
-  const POS=[[150,1],[104,1],[330,0],[376,0]];
-  /* 모션: 예비 동작(뒤로 3도트) → 펀치(앞으로 최대 16도트) → 복귀 · 맞은 팀은 뒤로 밀렸다 돌아옴 · 대기 중엔 1도트 숨쉬기 */
+  // 선수 (원본 그림 1배) · 때리면 앞으로 튀어나감 · 맞은 팀은 흔들림
+  const POS=[[162,1],[82,1],[318,0],[398,0]];   /* 샐쿵(가로 94)도 옆 사람과 겹치지 않는 간격 */
+  /* 모션: 예비 동작(뒤로 3도트) → 펀치(앞으로 최대 16도트, 다리가 뒤로 끌림) → 복귀 · 맞은 팀은 뒤로 밀리며 하얗게 번쩍 · 대기 중엔 1도트 숨쉬기 */
   POS.forEach(([x,face],i)=>{const t=teamOf(i),a=S.anim[i],h=S.hurt[t],dir=face?1:-1,G=S.G[i];
     let off=0,fr=0,bob=((f>>5)+i)%2?-1:0;
     if(a>9)off=-3;else if(a>4)off=Math.round(16*Math.sin((10-a)/6*Math.PI/2));else if(a>0)off=Math.round(16*a/5);
     if(a>0){fr=a>9?0:3;bob=0;}
     if(h>0&&!(a>0)){off=-(h>5?5:Math.round(h));fr=h>4?5:0;bob=0;}
     if(G.st==='stun'){fr=5;off+=((f>>3)&1)?1:-1;bob=0;}
-    koong(i,x+dir*off,166+bob,{s:3,fr,flip:!face});
+    const tint=(fr===5&&(f&4))?'#ffffff':G.st==='stun'?'#8a9ab0':null,leg=a>0&&a<=9?-dir*Math.round(off/4):h>0&&!(a>0)?dir*2:0;   /* 다리는 몸통 반대쪽으로 끌림 */
+    koongWalk(i,x+dir*off,166+bob,leg,leg,0,{tint});
     if(i===me)meMark(x,96);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',x,172,TEAM[t].col,'center',8);});
   if(S.anim.some(a=>a>3&&a<10)){const cx=240,cy=120,r=(f>>1)%2?28:24;R(cx-10,cy-10,20,20,MAP.yellow);R(cx-6,cy-6,12,12,MAP.blue);   /* POW: 도트 격자 별 (노랑 + 파랑) */
     for(let k=1;k<=Math.round(r/4);k++){const d=10+k*4-4,sz=Math.max(2,8-k*2);R(cx-sz/2,cy-d-4,sz,4,'#fff419');R(cx-sz/2,cy+d,sz,4,'#fff419');R(cx-d-4,cy-sz/2,4,sz,'#fff419');R(cx+d,cy-sz/2,4,sz,'#fff419');
