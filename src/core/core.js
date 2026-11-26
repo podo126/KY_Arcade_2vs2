@@ -234,11 +234,11 @@ function openSettings(keep){if(!keep&&screen!=='settings')SET_BACK=screen==='lob
    · 사람 모두 READY → 3초 카운트 → 게임 3종 연속 시작 (빈 자리는 AI)
    · 온라인(방장이 관리) / 연습(LOBBY.local, 서버 없이 AI와) ---------- */
 const COUNT_SEC=3;
-/* ★ 테스트 기간 스위치 ★ TEST_AI = true  → 사람 2명 이상 모두 READY 하면 시작 · 빈 자리는 AI가 채움 (테스트 2주 동안)
+/* ★ 테스트 기간 스위치 ★ TEST_AI = true  → 1명부터 READY 하면 시작 · 빈 자리는 AI가 채움 (테스트 2주 동안, 혼자서도 테스트 가능)
                          TEST_AI = false → 사람 4명이 모두 들어와 READY 해야 시작 · AI 없음 (실제 행사)
-   어느 쪽이든 혼자 실수로 READY 눌러서 시작되지는 않음 · 혼자 연습(test.html)은 1명 + AI 3명 */
+   (행사 때 false 로 바꾸면 혼자 실수로 READY 눌러도 시작되지 않음) */
 const TEST_AI=true;
-const MIN_HUMANS=TEST_AI?2:4;
+const MIN_HUMANS=TEST_AI?1:4;
 const needHumans=()=>isLocal()?1:MIN_HUMANS;
 let LOBBY=null,CD_END=0,LAST_CD=0;
 const isLocal=()=>!!(LOBBY&&LOBBY.local);
@@ -256,7 +256,7 @@ function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});ren
 function charImg(id,k=2){const B=CHS[charOf(id).big];return `<img src="${B.src}" style="width:${B.w*k}px;height:${B.h*k}px">`;}
 function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   const hn=L?L.slots.filter(s=>s&&!s.bot).length:0,need=needHumans();
-  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와':need>1?`${need}명 이상 들어와`:''} 모두 <b>READY</b> 하면 3초 뒤 시작`+(need<4?' · 빈 자리는 AI':'')+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
+  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와 ':need>1?`${need}명 이상 들어와 `:''}모두 <b>READY</b> 하면 3초 뒤 시작`+(need<4?' · 빈 자리는 AI':'')+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId());
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
