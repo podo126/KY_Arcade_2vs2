@@ -14,7 +14,8 @@ function qkRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(s
 /* 접시 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 접시가 놓인 쪽 2(▶) / 4(◀) · r = 반대 접시 · g = 황금 접시 */
 function qkChart(seed){const r=qkRng(seed),N=[];for(let k=0;k<QK.LEN;k++){const rv=k>=QK.REV_FROM&&r()<QK.REV;N.push({d:r()<.5?4:2,r:rv?1:0,g:!rv&&k>10&&r()<QK.GOLD?1:0});}return N;}
 class QuickSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=QK.SEC*60;
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=300;   /* 시작 카운트다운 5초 */
+    this.tm=QK.SEC*60;
     this.seed=(Math.random()*1e9)|0;this.N=qkChart(this.seed);this.k=[0,0,0,0];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.miss=[0,0,0,0];this.st=[-99,-99,-99,-99];
     this.fx=[];this.bt=[0,0,0,0];this.my={k:0,stun:-99,fx:[]};}
   get pd(){return{N:this.N,my:this.my};}
@@ -23,7 +24,7 @@ class QuickSim{
     if(!e.ok||e.d!==qkWant(no)){this.combo[i]=0;this.miss[i]++;this.ps[i]=Math.max(0,this.ps[i]-QK.MISS);this.st[i]=this.f;this.fx.push([i,0,this.f,e.d,0]);return;}
     this.k[i]++;this.combo[i]++;this.best[i]=Math.max(this.best[i],this.combo[i]);this.ps[i]+=qkPts(this.combo[i],no.g);this.fx.push([i,1,this.f,no.d,no.g]);}
   step(){this.f++;this.fx=this.fx.filter(x=>this.f-x[2]<14);
-    if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
+    if(this.ph==='cd'){if(this.t%60===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
     if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
     if(--this.tm<=0){this.ph='end';this.t=150;this.ev.push('win','shake:5');return;}
     // AI: 각자 연타 속도로 두다다다 (가끔 틀림, 반대 접시는 더 자주 틀림)
@@ -59,9 +60,8 @@ function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
     const c=S.combo[i];if(c>=5)K(`${c} COMBO`,cx,QB+4,c>=50?'#fff419':'#fff','center',c>=50?11:9);
     if(stun)K('와장창!',cx,QB+20,'#ff5a5a','center',11);
     quadFrame(i,S,me);}
-  if(S.ph==='cd'){R(50,80,380,104,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,88,'#fff419','center',16);K('맨 아래 접시가 놓인 쪽 버튼을 두다다다!',240,112,'#fff','center',11);
-    K('빨간 반대 접시는 반대쪽 · 틀리면 와장창 멈춤',240,130,'#ffb0b0','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,160,'#fff','center',14);}
-  if(S.ph==='end'){R(110,112,260,46,'rgba(42,58,72,.92)');K('그만!',240,124,'#fff419','center',16);}}
+  if(S.ph==='cd')banner([['쿵야 순발력!','#fff419',16],['맨 아래 접시가 놓인 쪽 버튼을 두다다다!','#fff',11],['빨간 반대 접시는 반대쪽 · 틀리면 와장창 멈춤','#ffb0b0',10],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]]);
+  if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
 regGame({id:'quick',title:'쿵야 순발력',icon:'①',
   ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','맨 아래 접시가 놓인 쪽을 <b>두다다다</b> 연타!','틀리면 와장창 — 0.6초 멈추고 콤보 끊김'],
   gimmick:'<b>빨간 반대 접시</b> — 반대쪽 버튼! · <b>황금 접시</b> 3배 점수',

@@ -21,7 +21,9 @@ function quadFrame(i,S,me){const x=qx(i),y=qy(i),c=PCOL[i],sl=GAME&&GAME.slots&&
   R(x,y,QW,QB,MAP.ink);R(x+4,y+4,6,6,c);K(sl?sl.name.slice(0,6):'',x+QW/2+3,y+2,c,'center',8);
   if(i===me)txt('YOU',x+5,y+16,MAP.yellow,'left',8);txt(String(S.ps?S.ps[i]:0),x+QW-5,y+16,'#fff','right',8);
   R(x,y,QW,1,c);R(x,y+QH-1,QW,1,c);R(x,y,1,QH,c);R(x+QW-1,y,1,QH,c);R(x,y+QB,QW,1,c);
-  if(i===me){R(x+1,y+QH-3,QW-2,2,MAP.yellow);R(x+1,y+QB+1,2,QH-QB-2,MAP.yellow);R(x+QW-3,y+QB+1,2,QH-QB-2,MAP.yellow);}}
+  if(me>=0&&i!==me)R(x+1,y+QB+1,QW-2,QH-QB-2,'rgba(20,30,40,.14)');   /* 내 칸이 있으면 다른 칸은 살짝 어둡게 */
+  if(i===me){const Y=MAP.yellow;R(x,y,QW,4,Y);R(x,y+QH-4,QW,4,Y);R(x,y,4,QH,Y);R(x+QW-4,y,4,QH,Y);   /* 내 칸: 노란 굵은 테두리(4도트) + 안쪽 진한 선 */
+    R(x+4,y+QB,QW-8,1,MAP.ink);R(x+4,y+QH-5,QW-8,1,MAP.ink);R(x+4,y+QB,1,QH-QB-4,MAP.ink);R(x+QW-5,y+QB,1,QH-QB-4,MAP.ink);}}
 /* 맵 색: 진한 색 = 포인트, 연한 색 = 바탕 (logo_yellow · logo_blue · restaurant_floor01/02 · restaurant_wall) */
 const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:'#fefcdd',shade:'#f0edc7',hi:'#fffef0',ink:'#2a3a48'};
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
@@ -76,10 +78,42 @@ function R(x,y,w,h,c){const X=Math.round(x),Y=Math.round(y);g.fillStyle=c;g.fill
 /* 픽셀 폰트 크기 고정: Press Start 2P 8의 배수, 갈무리9(10px) · 갈무리11(12px)의 정수배 → 글자 도트도 정사각 */
 function pxFont(sz,kr,str){if(!kr){const n=sz<12?8:sz<20?16:24;return[n+'px "Press Start 2P",monospace',n];}
   if(/[^\x00-\x7F]/.test(str||'')){return sz<=18?['bold 12px Galmuri11,sans-serif',12]:['bold 24px Galmuri11,sans-serif',24];}   /* 한글: 갈무리11만 (갈무리9에는 한글이 없음) */
-  if(sz<=10)return['10px Galmuri9,sans-serif',10];if(sz<=14)return['bold 12px Galmuri11,sans-serif',12];if(sz<=21)return['20px Galmuri9,sans-serif',20];return['bold 24px Galmuri11,sans-serif',24];}
-function txt(s,x,y,c='#fff',al='left',sz=8,kr){const[f]=pxFont(sz,kr,String(s));g.font=f;g.textAlign='left';g.textBaseline='top';s=String(s);
-  const w=Math.round(g.measureText(s).width),X=Math.round(al==='center'?x-w/2:al==='right'?x-w:x),Y=Math.round(y);   /* 가운데 정렬도 정수 위치에서 시작 */
-  g.fillStyle='#000';for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])g.fillText(s,X+dx,Y+dy);g.fillStyle=c;g.fillText(s,X,Y);}
+  return sz<=14?['bold 12px Galmuri11,sans-serif',12]:['bold 24px Galmuri11,sans-serif',24];}   /* 영문 · 숫자도 갈무리11 (갈무리9는 도트 격자가 화면 픽셀과 맞지 않음) */
+/* 글씨 도트 그림: 글자를 8배 크기로 그린 뒤 도트 한 칸마다 가운데 한 점만 읽어 칠함/안 칠함을 정함 → 1:1 정사각 도트 · 획이 빠지지 않음
+   (브라우저는 픽셀 폰트도 가장자리를 반투명하게 그려서, 1배로 그려 자르면 획이 지워짐) · 폰트마다 도트 격자 위치는 처음 한 번 자동으로 맞춤
+   + 검정 테두리 1도트 → 캔버스 정수 배율로 찍어서 어느 화면에서도 깨짐 없음 · 같은 글씨는 저장해 두고 다시 씀 */
+const TXC=new Map(),PXC=document.createElement('canvas').getContext('2d',{willReadFrequently:true}),TXS=8,TXPH={};
+function pxRGB(c){PXC.fillStyle='#000';PXC.fillStyle=c;const v=PXC.fillStyle;if(v[0]==='#')return[parseInt(v.slice(1,3),16),parseInt(v.slice(3,5),16),parseInt(v.slice(5,7),16)];const m=v.match(/[\d.]+/g)||[0,0,0];return[+m[0],+m[1],+m[2]];}
+const bigFont=(font,n)=>font.replace(n+'px',n*TXS+'px');
+function txBig(s,font,n){PXC.font=font;const tw=Math.max(1,Math.ceil(PXC.measureText(s).width)),W=tw+4,H=n+Math.ceil(n/2)+4;
+  const cv=document.createElement('canvas');cv.width=W*TXS;cv.height=H*TXS;const x=cv.getContext('2d',{willReadFrequently:true});x.font=bigFont(font,n);x.textBaseline='top';x.fillStyle='#fff';x.fillText(s,2*TXS,2*TXS);
+  return{tw,W,H,a:x.getImageData(0,0,cv.width,cv.height).data,BW:cv.width};}
+/* 도트 격자 위치(칸 안 어느 점을 읽을지): 읽은 값이 반투명인 경우가 가장 적은 위치 */
+function txPhase(font,n){if(TXPH[font])return TXPH[font];const T=txBig('맨 아래 틀리면 ABC 12?',font,n);let best=[TXS>>1,TXS>>1],bc=1e9;
+  for(let py=0;py<TXS;py++)for(let px=0;px<TXS;px++){let c=0;for(let y=0;y<T.H;y++)for(let x=0;x<T.W;x++){const v=T.a[((y*TXS+py)*T.BW+x*TXS+px)*4+3];if(v>40&&v<215)c++;}if(c<bc){bc=c;best=[px,py];}}
+  if(!document.fonts||document.fonts.check(font))TXPH[font]=best;return best;}
+function textBmp(s,font,n,col,ol=true){const key=font+'|'+col+'|'+(ol?1:0)+'|'+s,hit=TXC.get(key);if(hit)return hit;
+  const T=txBig(s,font,n),[px,py]=txPhase(font,n),W=T.W,H=T.H,M=new Uint8Array(W*H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)M[y*W+x]=T.a[((y*TXS+py)*T.BW+x*TXS+px)*4+3]>=128?1:0;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d'),D=x.createImageData(W,H),a=D.data,[r,gg,b]=pxRGB(col);
+  for(let yy=0;yy<H;yy++)for(let xx=0;xx<W;xx++){const i=yy*W+xx,o=i*4;
+    if(M[i]){a[o]=r;a[o+1]=gg;a[o+2]=b;a[o+3]=255;}
+    else if(ol&&((xx>0&&M[i-1])||(xx<W-1&&M[i+1])||(yy>0&&M[i-W])||(yy<H-1&&M[i+W]))){a[o+3]=255;}}
+  x.putImageData(D,0,0);cv.tw=T.tw;if(!document.fonts||document.fonts.check(font)){if(TXC.size>4000)TXC.clear();TXC.set(key,cv);}return cv;}   /* 폰트가 다 불러와진 뒤에만 저장 */
+function txt(s,x,y,c='#fff',al='left',sz=8,kr){s=String(s);const[f,n]=pxFont(sz,kr,s),b=textBmp(s,f,n,c),w=b.tw;
+  const X=Math.round(al==='center'?x-w/2:al==='right'?x-w:x),Y=Math.round(y);g.drawImage(b,X-2,Y-2);}   /* 가운데 정렬도 정수 위치 */
+/* 딤드 안내 창: 글자 크기에 맞춰 상자 크기를 정함 · lines = [[글, 색, 크기, 한글?(기본 true)], …] · (cx, cy) 가 가운데 */
+function banner(lines,cx=240,cy=135){const B=lines.map(([t,c,sz,kr=true])=>{t=String(t);const[f,n]=pxFont(sz,kr,t);return{t,c,sz,kr,n,w:textBmp(t,f,n,c).tw};});
+  const gap=6,px=14,py=10,w=Math.max(...B.map(b=>b.w))+px*2,h=B.reduce((a,b)=>a+b.n,0)+gap*(B.length-1)+py*2,x0=Math.round(cx-w/2);let y=Math.round(cy-h/2);
+  R(x0-1,y-1,w+2,h+2,MAP.ink);R(x0,y,w,h,'rgba(42,58,72,.92)');y+=py;for(const b of B){txt(b.t,cx,y,b.c,'center',b.sz,b.kr);y+=b.n+gap;}}
+/* DOM 에 쓰는 큰 도트 글자(대기방 빈 자리 ? · 시작 카운트다운): Press Start 2P 8도트로 그린 그림을 정수배로 확대한 이미지 → 눌림 · 번짐 없음 */
+const GLY={};
+function glyphImg(t,k,col){const F='8px "Press Start 2P"',key=t+'|'+k+'|'+col;let G=GLY[key];
+  if(!G){const b=textBmp(String(t),F,8,col,false);G={u:b.toDataURL(),w:b.width,h:b.height-2};if(!document.fonts||document.fonts.check(F))GLY[key]=G;}   /* 테두리 없이 (획 사이 1도트 틈이 메워지지 않게) */
+  const sh=Math.max(4,Math.round(k*.75));   /* 대신 딱딱한 그림자 (번짐 0) */
+  return `<img class="pxg" src="${G.u}" style="width:${G.w*k}px;height:${G.h*k}px;filter:drop-shadow(${sh}px ${sh}px 0 rgba(0,20,40,.6))" alt="${esc(t)}">`;}
+/* 폰트를 다 불러오면 저장해 둔 글씨를 지우고 다시 그림 */
+if(document.fonts)Promise.all(['8px "Press Start 2P"','16px "Press Start 2P"','24px "Press Start 2P"','bold 12px Galmuri11','bold 24px Galmuri11'].map(f=>document.fonts.load(f))).then(()=>{TXC.clear();for(const k in TXPH)delete TXPH[k];for(const k in GLY)delete GLY[k];if(typeof screen!=='undefined'&&screen==='lobby')renderLobby();}).catch(()=>{});
 const K=(s,x,y,c,al,sz=12)=>txt(s,x,y,c,al,sz,true);
 /* ---------- 소리 ---------- */
 const AU=(()=>{let ac=null,master=null,bgmG=null,bgmS=null,want=false;const BUF={};
@@ -260,9 +294,9 @@ function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId());
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
-      `<div class="pc">${s?charImg(s.ch):'<span class="q ol2">?</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
+      `<div class="pc">${s?charImg(s.ch):'<span class="q">'+glyphImg('?',7,'#7fe0ff')+'</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
       (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${s.ready?'READY!':'READY'}</div>`:`<div class="rst${s&&s.ready?' on':''}">${s?(s.ready?'READY!':'대기 중'):''}</div>`);}
-  const cd=L&&L.cd||0;$('lbCd').hidden=!cd;$('lbCd').textContent=cd;if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
+  const cd=L&&L.cd||0;$('lbCd').hidden=!cd;if(cd&&$('lbCd').dataset.v!==String(cd)){$('lbCd').dataset.v=cd;$('lbCd').innerHTML=glyphImg(String(cd),18,'#fff419');}if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
   if(!btns()[sel])sel=0;paintSel();}
 /* 처음 대기방에 들어오면 내 READY 버튼에 커서 */
 function focusMain(){const L=btns(),i=L.findIndex(b=>b.dataset.act==='ready');sel=i<0?0:i;paintSel();}
@@ -353,7 +387,7 @@ function viewState(){const b=GAME.buf;if(!b.length)return null;if(!GDEF.lerp)ret
   return GDEF.lerp(a,c,c._at>a._at?clamp((rtm-a._at)/(c._at-a._at),0,1):1);}
 /* 효과: 'shake:세기' 'flash' 그 밖에는 소리 이름 */
 let SHAKE=0,FLASH=0;
-function fx(e){if(e.startsWith('shake')){SHAKE=Math.max(SHAKE,+(e.split(':')[1]||4));return;}if(e==='flash')return;AU.sfx(e);}   /* 섬광 효과는 쓰지 않음 */
+function fx(e){if(e.startsWith('shake')){const[v,who]=e.slice(6).split('@');if(who!=null&&!who.split(',').includes(String(viewIndex())))return;SHAKE=Math.max(SHAKE,+(v||4));return;}   /* '@번호' 가 붙으면 그 플레이어 화면만 흔들림 */if(e==='flash')return;AU.sfx(e);}   /* 섬광 효과는 쓰지 않음 */
 function toGame(){show('game');fit();showIntro();AU.bgm(GDEF.bgm!==false);$('gTitle').textContent=GDEF.title;$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'';$('gHint').innerHTML=GDEF.controls.hint||'';
   document.body.classList.toggle('needA',!!GDEF.controls.a);document.body.classList.toggle('needDir',!!GDEF.controls.dir);buildBoard();
   if(isSpec())$('gHint').innerHTML='관전 중 · <span class="kk">←</span><span class="kk">→</span> 또는 화면을 눌러 볼 플레이어 바꾸기 · <span class="kk">1</span>~<span class="kk">4</span> 바로 선택';renderSpec();}
@@ -378,7 +412,7 @@ function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-H
   try{g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;HOW.G.draw(g,HOW.sim.snap(false),HOW.sim.pd||HOW.sim,-1,now/16.67|0);}finally{g=og;CS=ocs;GAME=oG;GDEF=oD;}}
 /* ---------- 개인 점수표 (게임 화면 옆): 위에서부터 남은 시간 · 실시간 개인 순위 ---------- */
 /* 점수 자릿수가 늘어 칸을 넘으면 글자를 8의 배수(Press Start 2P 도트 크기)로 줄임 */
-function fitText(el,max,min){let z=max;el.style.fontSize=z+'px';while(z>min&&el.scrollWidth>el.clientWidth+1){z=z>16?16:z>12?12:z-2;el.style.fontSize=z+'px';}}
+function fitText(el,max,min){let z=max;el.style.fontSize=z+'px';while(z>min&&el.scrollWidth>el.clientWidth+1){z=Math.max(min,z-8);el.style.fontSize=z+'px';}}   /* Press Start 2P 8의 배수로만 */
 let BOARD_T=0;
 function buildBoard(){$('bdRows').innerHTML=[0,1,2,3].map(i=>`<div class="bd-row" id="bd${i}" style="transform:translateY(${i*62}px)"><b class="rk">${i+1}</b><span class="sw" style="background:${PCOL[i]}"></span><span class="nm">${esc(GAME&&GAME.slots[i]?GAME.slots[i].name:"")}</span><span class="tg"></span><span class="pt"></span></div>`).join('');}
 function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOARD_T<100)return;BOARD_T=now;const me=viewIndex();
@@ -386,7 +420,7 @@ function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOAR
   order.forEach((i,r)=>{const el=$('bd'+i),s=GAME.slots[i];el.style.transform=`translateY(${r*62}px)`;el.classList.toggle('me',i===me);el.classList.toggle('top',r===0&&S.ps[i]>0);
     const sub=s&&s.left?'연결 끊김 · AI 대행':S.tag?S.tag[i]||'':'';el.classList.toggle('ai',!!(s&&s.left));
     el.querySelector('.rk').textContent=r+1;el.querySelector('.nm').textContent=s?s.name:'';el.querySelector('.tg').textContent=sub;
-    const pt=el.querySelector('.pt'),v=S.ps[i];if(pt.dataset.v!==String(v)){pt.dataset.v=v;pt.textContent=v.toLocaleString();fitText(pt,14,8);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}});
+    const pt=el.querySelector('.pt'),v=S.ps[i];if(pt.dataset.v!==String(v)){pt.dataset.v=v;pt.textContent=v.toLocaleString();fitText(pt,16,8);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}});
   const sec=Math.max(0,Math.ceil((S.tm||0)/60));$('bdTime').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;}
 /* ---------- 결과 ---------- */
 let LAST_RESULT=null,RES_AT=0;
@@ -408,7 +442,7 @@ function showFinal(F){LAST_RESULT=F;AU.bgm(false);AU.sfx('win');show('result');c
   $('resNote').textContent=RESULT_SEC+'초 뒤 대기방으로 돌아갑니다';
   if(GAME&&GAME.local)GAME=null;MATCH=null;}
 /* 결과 화면: RESULT_SEC 초 뒤 모두 대기방으로 (방장 기기가 판정) */
-function resultTick(now){if(screen!=='result'||!RES_AT)return;const left=Math.max(0,Math.ceil(RESULT_SEC-(now-RES_AT)/1000));$('resNote').textContent=left+'초 뒤 대기방으로 돌아갑니다';
+function resultTick(now){if(screen!=='result'||!RES_AT)return;const left=clamp(Math.ceil(RESULT_SEC-(now-RES_AT)/1000),0,RESULT_SEC);$('resNote').textContent=left+'초 뒤 대기방으로 돌아갑니다';
   if(left<=0&&amHost()){RES_AT=0;backToRoom();}}
 /* ---------- 메인 루프 ---------- */
 let acc=0,lastT=performance.now(),FR=0;

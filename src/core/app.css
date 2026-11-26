@@ -6,14 +6,15 @@ body{font:700 24px/1.2 var(--kr);user-select:none;-webkit-user-select:none;-webk
 .bgck{position:absolute;inset:0;background:conic-gradient(#0b84b8 25%,transparent 0 50%,#0b84b8 0 75%,transparent 0) 0 0/64px 64px}
 .fr,.fr-item,.fr-on,.fr-warn,.fr-dark{border:16px solid transparent;border-image-slice:4 fill;border-image-width:16px;border-image-repeat:stretch;image-rendering:pixelated;box-sizing:border-box;background:none}
 .fr{border-image-source:var(--f-panel)}.fr-item{border-image-source:var(--f-item)}.fr-on{border-image-source:var(--f-on)}.fr-warn{border-image-source:var(--f-warn)}.fr-dark{border-image-source:var(--f-dark)}
-.ol{text-shadow:3px 0 #000,-3px 0 #000,0 3px #000,0 -3px #000,3px 3px #000,-3px 3px #000,3px -3px #000,-3px -3px #000}
-.ol2{text-shadow:2px 0 #000,-2px 0 #000,0 2px #000,0 -2px #000}
+/* 글자 테두리 = 글자 도트 1칸 (Galmuri11 은 12px 의 배수로만 쓰므로 1/12em = 정확히 1도트) */
+.ol{--o:calc(1em/12);text-shadow:var(--o) 0 #000,calc(var(--o)*-1) 0 #000,0 var(--o) #000,0 calc(var(--o)*-1) #000,var(--o) var(--o) #000,calc(var(--o)*-1) var(--o) #000,var(--o) calc(var(--o)*-1) #000,calc(var(--o)*-1) calc(var(--o)*-1) #000}
+.ol2{--o:calc(1em/12);text-shadow:var(--o) 0 #000,calc(var(--o)*-1) 0 #000,0 var(--o) #000,0 calc(var(--o)*-1) #000}
 @keyframes blink{50%{opacity:0}}
 .scr{position:absolute;inset:0;display:none}.scr.on{display:block}
 .center{position:absolute;left:50%;transform:translateX(-50%)}
 #logo{position:absolute;left:50%;top:26px;width:330px;height:180px;margin-left:-165px;image-rendering:pixelated}
-h1.title{position:absolute;top:168px;left:0;right:0;text-align:center;margin:0;font-size:40px;color:var(--yellow)}
-h1.title small{display:block;font:14px var(--pf);color:var(--dim);margin-top:10px}
+h1.title{position:absolute;top:168px;left:0;right:0;text-align:center;margin:0;font-size:36px;color:var(--yellow)}
+h1.title small{display:block;font:16px var(--pf);color:var(--dim);margin-top:10px}
 /* 메인 타이틀: 갈무리11 4배(48px) · 테두리 = 글자 도트 1칸(4px) 검정 + 아래 진한 그림자 → 글씨와 틀이 뭉치지 않게 */
 #scr-main h1.title{top:164px;font-size:48px;line-height:1;letter-spacing:4px;
   text-shadow:4px 0 #000,-4px 0 #000,0 4px #000,0 -4px #000,4px 4px #000,-4px 4px #000,4px -4px #000,-4px -4px #000,0 8px #000,4px 8px #000,-4px 8px #000,0 12px #06507a,4px 12px #06507a,-4px 12px #06507a}
@@ -28,62 +29,62 @@ body.touch .hint{display:none}
 .btn.sel::before{content:"▶ "}
 .row{display:flex;gap:10px}.row>.btn{flex:1}
 .field{display:flex;align-items:center;gap:12px;padding:6px 16px}
-.field label{font-size:18px;color:var(--dim);white-space:nowrap}
-.field input{flex:1;min-width:0;font:700 26px var(--kr);color:#fff;background:#064f75;border:3px solid #7fe0ff;padding:6px 10px;outline:none;text-align:center}
+.field label{font-size:24px;color:var(--dim);white-space:nowrap}
+.field input{flex:1;min-width:0;font:700 24px var(--kr);color:#fff;background:#064f75;border:3px solid #7fe0ff;padding:6px 10px;outline:none;text-align:center}
 .field input:focus{border-color:var(--yellow)}
-.field input.code{font:28px var(--pf);letter-spacing:12px;text-transform:uppercase}
-.hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:16px;color:var(--dim)}
-.kk{display:inline-flex;align-items:center;justify-content:center;min-width:1.5em;height:1.5em;padding:0 .25em;border:2px solid currentColor;border-radius:3px;font-size:.75em;line-height:1;margin:0 4px;vertical-align:middle;box-sizing:border-box}
-#toast{position:absolute;left:50%;top:36px;transform:translateX(-50%);z-index:60;padding:10px 24px;font-size:20px;display:none}
+.field input.code{font:32px var(--pf);letter-spacing:12px;text-transform:uppercase}
+.hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:12px;color:var(--dim)}
+.kk{display:inline-flex;align-items:center;justify-content:center;min-width:1.5em;height:1.5em;padding:0 .25em;border:2px solid currentColor;border-radius:3px;font-size:12px;line-height:1;margin:0 4px;vertical-align:middle;box-sizing:border-box}
+#toast{position:absolute;left:50%;top:36px;transform:translateX(-50%);z-index:60;padding:10px 24px;font-size:24px;display:none}
 #scr-game.on~#netst,body.ingame #netst{display:none}
-#netst{position:absolute;right:18px;top:14px;font:12px var(--pf);color:var(--dim);z-index:5}
+#netst{position:absolute;right:18px;top:14px;font:16px var(--pf);color:var(--dim);z-index:5}
 /* 로비 */
 .code-big{position:absolute;top:28px;left:0;right:0;text-align:center}
 .code-big b{display:block;font:56px var(--pf);color:var(--yellow);letter-spacing:14px;margin-top:10px}
-.code-big span{font-size:20px;color:var(--dim)}
+.code-big span{font-size:24px;color:var(--dim)}
 .teams{position:absolute;top:170px;left:70px;right:70px;display:flex;gap:40px}
 .team{flex:1;padding:18px 22px}
-.team h3{margin:0 0 12px;font-size:28px;text-align:center}
+.team h3{margin:0 0 12px;font-size:24px;text-align:center}
 .team.t0 h3{color:var(--cyan)}.team.t1 h3{color:var(--yellow)}
-.team .role{font-size:16px;color:var(--dim);text-align:center;margin:-6px 0 12px}
+.team .role{font-size:12px;color:var(--dim);text-align:center;margin:-6px 0 12px}
 .slot{display:flex;align-items:center;gap:10px;height:64px;padding:0 14px;margin-bottom:10px;font-size:24px}
 .slot .sw{width:14px;height:14px;border:3px solid #000}
 .slot .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.slot .st{font-size:16px}.slot .st.ok{color:#58d838}.slot .st.wait{color:var(--dim)}
+.slot .st{font-size:12px}.slot .st.ok{color:#58d838}.slot .st.wait{color:var(--dim)}
 .slot.me{border-image-source:var(--f-on);color:#000}.slot.me .st.wait{color:#5a4a00}
-.slot.empty{color:var(--dim);font-size:18px}
+.slot.empty{color:var(--dim);font-size:24px}
 .lob-btns{position:absolute;bottom:64px;left:50%;width:900px;margin-left:-450px}
-.specs{position:absolute;top:140px;left:0;right:0;text-align:center;font-size:16px;color:var(--dim)}
+.specs{position:absolute;top:140px;left:0;right:0;text-align:center;font-size:12px;color:var(--dim)}
 /* 게임: 게임 화면 960x540 (도트 480x270의 2배 → 4K 6배) + 개인 점수표 */
 #gHead{position:absolute;left:12px;right:12px;top:30px;height:44px;display:flex;align-items:center;justify-content:space-between}
-#gTitle{font-size:30px;color:var(--yellow)}#gRoom{font:14px var(--pf);color:var(--dim)}
+#gTitle{font-size:36px;color:var(--yellow)}#gRoom{font:16px var(--pf);color:var(--dim)}
 /* 관전 시점 바꾸기 (관전자만) */
-#gSpec{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-size:22px;z-index:8}
+#gSpec{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-size:24px;z-index:8}
 #gSpec[hidden]{display:none}
-#gSpec .sd{display:flex;align-items:center;justify-content:center;width:44px;height:40px;background:#fff;color:#000;border:3px solid #000;cursor:pointer;font-size:20px;box-sizing:border-box}
+#gSpec .sd{display:flex;align-items:center;justify-content:center;width:44px;height:40px;background:#fff;color:#000;border:3px solid #000;cursor:pointer;font-size:24px;box-sizing:border-box}
 #gSpec .sd:active{background:var(--yellow)}
 #gSpecN{min-width:240px;text-align:center;white-space:nowrap}
 #gc{position:absolute;left:12px;top:90px;width:960px;height:540px;image-rendering:pixelated;background:#000;outline:4px solid #000}
 #board{position:absolute;left:984px;top:82px;width:284px;height:556px;padding:10px 12px}
 #bdTime{font:24px var(--pf);color:#fff;text-align:center;padding:4px 0 10px}
 .bd-sc{display:flex;gap:8px}
-.bd-t{flex:1 1 0;min-width:0;text-align:center;background:#064f75;border:3px solid #000;padding:6px 4px;font-size:15px}
+.bd-t{flex:1 1 0;min-width:0;text-align:center;background:#064f75;border:3px solid #000;padding:6px 4px;font-size:12px}
 .bd-t span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bd-t b{display:block;font:20px var(--pf);margin-top:6px;overflow:hidden;white-space:nowrap}
-.bd-cap{font-size:14px;color:var(--dim);text-align:center;margin:14px 0 8px;border-top:2px solid #7fe0ff;padding-top:8px}
+.bd-t b{display:block;font:24px var(--pf);margin-top:6px;overflow:hidden;white-space:nowrap}
+.bd-cap{font-size:12px;color:var(--dim);text-align:center;margin:14px 0 8px;border-top:2px solid #7fe0ff;padding-top:8px}
 #bdRows{position:relative;height:248px}
 .bd-row{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#085a84;border:3px solid #000;transition:transform .35s cubic-bezier(.2,.8,.3,1.2);box-sizing:border-box}
-.bd-row .rk{font:18px var(--pf);width:22px;color:var(--dim)}.bd-row.top .rk{color:var(--yellow)}
+.bd-row .rk{font:16px var(--pf);width:22px;color:var(--dim)}.bd-row.top .rk{color:var(--yellow)}
 .bd-row .sw{width:10px;height:10px;border:2px solid #000}
-.bd-row .nm{flex:1;min-width:0;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bd-row .tg{font-size:11px;color:var(--dim);position:absolute;left:58px;bottom:3px}
-.bd-row .pt{font:14px var(--pf);color:#fff;flex:0 1 auto;min-width:0;max-width:96px;overflow:hidden;white-space:nowrap;text-align:right}
+.bd-row .nm{flex:1;min-width:0;font-size:24px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd-row .tg{font-size:12px;color:var(--dim);position:absolute;left:58px;bottom:3px}
+.bd-row .pt{font:16px var(--pf);color:#fff;flex:0 1 auto;min-width:0;max-width:96px;overflow:hidden;white-space:nowrap;text-align:right}
 .bd-row.me{background:var(--yellow);color:#000}.bd-row.me .pt,.bd-row.me .rk,.bd-row.me .tg{color:#000}
 .bd-row.bump .pt{animation:bump .25s}
 @keyframes bump{40%{transform:scale(1.35);color:var(--yellow)}}
-#gHint{position:absolute;left:12px;width:960px;top:646px;text-align:center;font-size:18px;color:#fff}
+#gHint{position:absolute;left:12px;width:960px;top:646px;text-align:center;font-size:24px;color:#fff}
 #pad{position:absolute;left:28px;bottom:100px;width:240px;height:240px;display:none;z-index:6;opacity:.55}
-#pad div{position:absolute;width:80px;height:80px;background:#fff;border:4px solid #000;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#000;font-size:34px}
+#pad div{position:absolute;width:80px;height:80px;background:#fff;border:4px solid #000;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#000;font-size:36px}
 #pad .u{left:80px;top:0}#pad .d{left:80px;top:160px}#pad .l{left:0;top:80px}#pad .r{left:160px;top:80px}
 #pad div.on,#abtn.on{background:var(--yellow)}
 #abtn{position:absolute;right:300px;bottom:110px;width:150px;height:150px;border-radius:50%;background:#fff;border:5px solid #000;display:none;align-items:center;justify-content:center;font:48px var(--pf);color:#000;opacity:.7;z-index:6}
@@ -91,49 +92,49 @@ body.touch.needDir #scr-game.on #pad{display:block}
 body.touch.needA #scr-game.on #abtn{display:flex}
 /* 결과·랭킹 */
 .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:720px;padding:22px 34px;text-align:center}
-.panel h2{margin:0 0 14px;font-size:40px;color:var(--yellow)}
+.panel h2{margin:0 0 14px;font-size:36px;color:var(--yellow)}
 .res{display:flex;gap:24px;justify-content:center;margin:10px 0 16px}
 .res .tb{width:300px;padding:12px}
 .res .tb .sc{font:40px var(--pf);margin:12px 0}
 .res .tb.t0 .sc{color:var(--cyan)}.res .tb.t1 .sc{color:var(--yellow)}
-.res .tb .nm{font-size:18px;color:var(--dim)}
-.res .tb .rd{font-size:16px;color:var(--dim);margin-top:6px}
-#resPs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;font-size:18px}
+.res .tb .nm{font-size:24px;color:var(--dim)}
+.res .tb .rd{font-size:12px;color:var(--dim);margin-top:6px}
+#resPs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;font-size:24px}
 #resPs span{padding:4px 10px;background:#085a84;border:2px solid #000}#resPs span.mvp{background:var(--yellow);color:#000}
 #resPs i{display:inline-block;width:10px;height:10px;border:2px solid #000;margin-right:6px}
 .res .tb.win{border-image-source:var(--f-on);color:#000}.res .tb.win .sc,.res .tb.win div:first-child{color:#000!important;text-shadow:none}.res .tb.win .nm,.res .tb.win .rd{color:#3a3000}
-table.rk{border-collapse:collapse;margin:0 auto;font-size:22px;min-width:620px}
-table.rk th{font-size:14px;color:var(--dim);padding:4px 10px;border-bottom:2px solid #7fe0ff}
+table.rk{border-collapse:collapse;margin:0 auto;font-size:24px;min-width:620px}
+table.rk th{font-size:12px;color:var(--dim);padding:4px 10px;border-bottom:2px solid #7fe0ff}
 table.rk td{padding:4px 10px;text-align:center}table.rk td.n{text-align:left;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-table.rk td.s{color:var(--yellow);font-family:var(--pf);font-size:16px}
+table.rk td.s{color:var(--yellow);font-family:var(--pf);font-size:12px}
 table.rk tr.hi td{background:var(--yellow);color:#000}
-.small{font-size:16px;color:var(--dim)}
-#rot{display:none;position:fixed;inset:0;z-index:99;background:#0a8fc6;color:#fff;font:700 22px Galmuri11,sans-serif;align-items:center;justify-content:center;text-align:center;line-height:1.6}
+.small{font-size:12px;color:var(--dim)}
+#rot{display:none;position:fixed;inset:0;z-index:99;background:#0a8fc6;color:#fff;font:700 24px Galmuri11,sans-serif;align-items:center;justify-content:center;text-align:center;line-height:1.6}
 @media (orientation:portrait){body.touch #rot{display:flex}}
 
 /* v3: 대기방 · 게임 카드 · 랭킹 탭 · 설정 */
 .rm-head{position:absolute;top:22px;left:0;right:0;display:flex;align-items:baseline;justify-content:center;gap:18px}
-.rm-head .ol{font-size:28px;color:#fff}.rm-head b{font:44px var(--pf);color:var(--yellow);letter-spacing:10px;text-shadow:3px 3px #000}
+.rm-head .ol{font-size:24px;color:#fff}.rm-head b{font:48px var(--pf);color:var(--yellow);letter-spacing:10px;text-shadow:3px 3px #000}
 .teams{top:96px;left:40px;right:40px;gap:24px}
 .team{padding:12px 18px}.team h3{margin:0 0 10px;font-size:24px}
-.slot{height:56px;margin-bottom:8px;font-size:22px}
+.slot{height:56px;margin-bottom:8px;font-size:24px}
 .gcard{position:absolute;left:40px;right:40px;top:330px;height:150px;display:flex;gap:22px;align-items:center;padding:12px 22px}
-.gcard .gi{font:22px var(--pf);color:var(--yellow);min-width:110px;text-align:center;flex:none}
-.gcard .gt{font-size:30px;color:#fff}.gcard .gd{font-size:17px;color:var(--dim);line-height:1.5;margin-top:6px}
-.gcard .gn{font-size:14px;color:var(--yellow);margin-left:auto;text-align:right;line-height:1.6}
-.members{position:absolute;left:40px;right:40px;top:492px;font-size:15px;color:var(--dim);text-align:center}
+.gcard .gi{font:24px var(--pf);color:var(--yellow);min-width:110px;text-align:center;flex:none}
+.gcard .gt{font-size:36px;color:#fff}.gcard .gd{font-size:12px;color:var(--dim);line-height:1.5;margin-top:6px}
+.gcard .gn{font-size:12px;color:var(--yellow);margin-left:auto;text-align:right;line-height:1.6}
+.members{position:absolute;left:40px;right:40px;top:492px;font-size:12px;color:var(--dim);text-align:center}
 .lob-btns{bottom:60px;width:1100px;margin-left:-550px}
-.lob-btns .btn{font-size:20px}
-.rk-tabs{display:flex;justify-content:center;align-items:center;gap:14px;margin:-4px 0 8px;font-size:22px;color:var(--yellow)}
+.lob-btns .btn{font-size:24px}
+.rk-tabs{display:flex;justify-content:center;align-items:center;gap:14px;margin:-4px 0 8px;font-size:24px;color:var(--yellow)}
 #scr-settings .btn{margin-bottom:8px}
-#resGame{font-size:16px}
+#resGame{font-size:12px}
 
 /* 팀 이름·색 */
 .thead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .team{min-width:0;flex:1 1 0}
-.tname{flex:1;min-width:0;width:0;font:700 26px var(--kr);background:#064f75;border:3px solid #7fe0ff;padding:2px 10px;outline:none;text-align:center}
+.tname{flex:1;min-width:0;width:0;font:700 24px var(--kr);background:#064f75;border:3px solid #7fe0ff;padding:2px 10px;outline:none;text-align:center}
 .tname:focus{border-color:var(--yellow)}.tname:disabled{background:transparent;border-color:transparent}
-.tcb{width:auto!important;flex:none;font-size:16px!important;padding:0 10px!important}
+.tcb{width:auto!important;flex:none;font-size:12px!important;padding:0 10px!important}
 .chips{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
 .chips i{width:22px;height:22px;border:3px solid #000;cursor:pointer;box-sizing:border-box}
 .chips i.on{outline:3px solid #fff;outline-offset:1px}.chips i.x{opacity:.25;cursor:not-allowed}
@@ -152,21 +153,21 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 #charList{position:absolute;top:170px;left:40px;right:40px;display:flex;gap:16px;justify-content:center}
 .ch{width:218px;height:330px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;padding-bottom:18px;cursor:pointer}
 .ch .chimg{height:190px;display:flex;align-items:flex-end}.ch img{image-rendering:pixelated}
-.ch b{font-size:24px}.ch small{font-size:13px;color:var(--dim)}.ch.on b{color:#000;text-shadow:none}.ch.on small{color:#5a4a00}
-.chn{font-size:14px;color:var(--dim)}.slot.me .chn{color:#5a4a00}
+.ch b{font-size:24px}.ch small{font-size:12px;color:var(--dim)}.ch.on b{color:#000;text-shadow:none}.ch.on small{color:#5a4a00}
+.chn{font-size:12px;color:var(--dim)}.slot.me .chn{color:#5a4a00}
 /* 게임 설명 창 (대기방) · 게임 시작 전 설명창 */
 #how{position:absolute;inset:0;background:rgba(0,10,30,.7);z-index:20}
 .how-in{position:absolute;left:30px;right:30px;top:70px;bottom:70px;display:flex;flex-direction:column;padding:18px 22px}
 .how-top{display:flex;gap:26px;flex:1;min-height:0}
 .how-l{flex:none;width:640px}#howCv{width:640px;height:360px;image-rendering:pixelated;display:block;outline:3px solid #000;margin:0 auto}
-.how-r{flex:1;min-width:0;font-size:20px;line-height:1.5;overflow:hidden}
-.how-r h3,#introBody h3{margin:0 0 10px;font-size:30px;color:var(--yellow)}
-.how-r ol,#introBody ol{margin:0 0 10px;padding-left:24px}.how-r p,#introBody p{margin:6px 0;font-size:17px}
+.how-r{flex:1;min-width:0;font-size:24px;line-height:1.5;overflow:hidden}
+.how-r h3,#introBody h3{margin:0 0 10px;font-size:36px;color:var(--yellow)}
+.how-r ol,#introBody ol{margin:0 0 10px;padding-left:24px}.how-r p,#introBody p{margin:6px 0;font-size:12px}
 .hw-c b,.hw-s b,.hw-t b{color:var(--yellow);margin-right:6px}
 .how-x{flex:none;display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px}
 /* 게임 설명 창 버튼 (마우스 · 터치): 이전 · 다음 · 닫기 */
 .how-x .keys{margin-right:auto}
-.hbtn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:44px;padding:0 14px;background:#fff;color:#000;border:3px solid #000;font-size:18px;cursor:pointer;box-sizing:border-box}
+.hbtn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:44px;padding:0 14px;background:#fff;color:#000;border:3px solid #000;font-size:24px;cursor:pointer;box-sizing:border-box}
 .hbtn:active{background:var(--yellow)}.hbtn.x{background:var(--yellow)}
 .intro-m .hf{display:inline-block;padding:0 10px;cursor:pointer}
 body.touch .how-x .keys{display:none}
@@ -174,40 +175,40 @@ body.touch .how-x .keys{display:none}
 
 #intro{position:absolute;left:12px;top:90px;width:960px;height:540px;background:rgba(0,10,30,.72);z-index:7;display:flex;align-items:center;justify-content:center}
 #intro[hidden]{display:none}
-.intro-in{width:820px;padding:22px 30px;font-size:21px;line-height:1.6}
-.intro-f{margin-top:14px;text-align:center;font-size:18px;color:var(--dim)}.intro-f b{font:28px var(--pf);color:var(--yellow);margin-right:4px}
+.intro-in{width:820px;padding:22px 30px;font-size:24px;line-height:1.6}
+.intro-f{margin-top:14px;text-align:center;font-size:24px;color:var(--dim)}.intro-f b{font:32px var(--pf);color:var(--yellow);margin-right:4px}
 
 /* 설명 칸: 조작 · 기믹 · 승리조건 */
-.hw{margin:0 0 12px}.hw>b{display:inline-block;background:var(--yellow);color:#000;font-size:16px;padding:1px 10px;margin-bottom:6px}
-.hw ul{margin:0;padding-left:22px}.hw li{margin:2px 0}.hw p{margin:0;font-size:20px}
-#introBody .hw p,#introBody .hw li{font-size:21px}
+.hw{margin:0 0 12px}.hw>b{display:inline-block;background:var(--yellow);color:#000;font-size:12px;padding:1px 10px;margin-bottom:6px}
+.hw ul{margin:0;padding-left:22px}.hw li{margin:2px 0}.hw p{margin:0;font-size:24px}
+#introBody .hw p,#introBody .hw li{font-size:24px}
 
-.intro-m{font-size:18px;color:var(--yellow);margin:-4px 0 8px;text-align:center}
+.intro-m{font-size:24px;color:var(--yellow);margin:-4px 0 8px;text-align:center}
 .res .tb .rd{line-height:1.7}
 
 /* 메인: 닉네임 · Password · 입장 · 관전 · 설정 */
 #scr-main h1.title{top:166px}
 #scr-main .menu{top:236px;gap:6px}
 #scr-main .field{padding:4px 16px}#scr-main .field label{min-width:92px;text-align:left}
-#scr-main .field input{font-size:22px;padding:4px 10px}
-#scr-main .btn{padding:0 14px;font-size:22px}
+#scr-main .field input{font-size:24px;padding:4px 10px}
+#scr-main .btn{padding:0 14px;font-size:24px}
 #passIn{letter-spacing:4px}
 
 /* 대기방 (개인전): 화면을 크게 4칸 · 칸마다 위에서부터 닉네임 / 캐릭터 / READY */
-.lb-info{position:absolute;top:66px;left:0;right:0;text-align:center;font-size:17px;color:var(--dim)}.lb-info b{color:var(--yellow)}
+.lb-info{position:absolute;top:66px;left:0;right:0;text-align:center;font-size:12px;color:var(--dim)}.lb-info b{color:var(--yellow)}
 .pslots{position:absolute;top:96px;left:24px;right:24px;bottom:130px;display:flex;gap:14px}
 .pslot{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;padding:12px 10px}
 .pslot .pn{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;min-width:0}
-.pslot .pp{flex:none;font:12px var(--pf);color:#000;padding:5px 6px;border:3px solid #000}
+.pslot .pp{flex:none;font:16px var(--pf);color:#000;padding:5px 6px;border:3px solid #000}
 .pslot .pn b{font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pslot .pn small{flex:none;font-size:13px;background:var(--yellow);color:#000;padding:1px 6px;border:2px solid #000}
+.pslot .pn small{flex:none;font-size:12px;background:var(--yellow);color:#000;padding:1px 6px;border:2px solid #000}
 .pslot .pc{flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:0;padding-bottom:6px}
 .pslot .pc img{image-rendering:pixelated;max-width:100%}
 .pslot .pc .q{font:64px var(--pf);color:#7fe0ff;margin-bottom:40px}
-.pslot .pcn{font-size:16px;color:var(--dim);margin-bottom:10px}
+.pslot .pcn{font-size:12px;color:var(--dim);margin-bottom:10px}
 .pslot.empty{opacity:.55}
 .pslot.me{border-image-source:var(--f-on)}.pslot.me .pcn{color:#000}.pslot.me .pn b{color:#000;text-shadow:none}
-.pslot .rdy{width:92%;font:20px var(--pf);padding:8px 0}
+.pslot .rdy{width:92%;font:24px var(--pf);padding:8px 0}
 .pslot .rdy.on{color:#000;background:#58d838}
 .pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
 .pslot .rst.on{color:#000;background:#58d838;border-color:#000}
@@ -219,12 +220,31 @@ body.touch .how-x .keys{display:none}
 /* 최종 결과 (개인 순위) */
 #scr-result .panel{min-width:980px;padding:18px 30px}
 #resBox{display:flex;flex-direction:column;gap:8px;margin:8px 0 14px}
-.rrow{display:flex;align-items:center;gap:12px;padding:6px 14px;background:#085a84;border:3px solid #000;text-align:left;font-size:20px;height:74px;box-sizing:border-box}
+.rrow{display:flex;align-items:center;gap:12px;padding:6px 14px;background:#085a84;border:3px solid #000;text-align:left;font-size:24px;height:74px;box-sizing:border-box}
 .rrow.win{background:var(--yellow);color:#000}
 .rrow .rk{font:24px var(--pf);width:34px}
 .rrow .sw{width:14px;height:14px;border:3px solid #000;flex:none}
 .rrow .ci{width:100px;display:flex;justify-content:center;align-items:flex-end;height:66px;overflow:hidden}.rrow .ci img{image-rendering:pixelated}
 .rrow .nm{width:170px;font-size:24px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:2px 0 #000,-2px 0 #000,0 2px #000,0 -2px #000}
-.rrow .gs{flex:1;font-size:15px;color:var(--dim)}.rrow .gs b{color:#fff}
+.rrow .gs{flex:1;font-size:12px;color:var(--dim)}.rrow .gs b{color:#fff}
 .rrow.win .gs,.rrow.win .gs b{color:#3a3000}
-.rrow .pt{font:22px var(--pf);color:var(--yellow)}.rrow.win .pt{color:#000}
+.rrow .pt{font:24px var(--pf);color:var(--yellow)}.rrow.win .pt{color:#000}
+
+/* 도트 글자 이미지 (대기방 빈 자리 ? · 시작 카운트다운): 정수배 확대 · 번짐 없음 */
+.pxg{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+.pslot .pc .q{margin-bottom:34px}
+#lbCd{font:0/0 a;z-index:55}   /* 화면 필터(줄무늬) 위에 올려서 눌려 보이지 않게 */
+/* 점수표 한 줄: 왼쪽 순위 · 색 / 오른쪽 위 = 이름(24) · 아래 = 태그(12) + 점수 → 글씨를 키워도 이름이 잘리지 않음 */
+.bd-row{display:grid;grid-template-columns:24px 12px 1fr auto;grid-template-rows:28px 18px;column-gap:6px;row-gap:0;align-content:center;padding:0 10px}
+.bd-row .rk{grid-row:1/3;grid-column:1}.bd-row .sw{grid-row:1/3;grid-column:2}
+.bd-row .nm{grid-row:1;grid-column:3/5;line-height:28px}
+.bd-row .tg{position:static;grid-row:2;grid-column:3;line-height:18px;overflow:hidden;white-space:nowrap}
+.bd-row .pt{grid-row:2;grid-column:4;max-width:none;line-height:18px}
+/* 대기방 빈 자리 ? : 화면 필터(줄무늬) 위로 */
+.pslot .pc .q .pxg{position:relative;z-index:51}
+/* 빈 자리 칸: 반투명(opacity) 대신 글자 색만 흐리게 → 안의 ? 가 화면 필터 위로 올라올 수 있음 */
+.pslot.empty{opacity:1}.pslot.empty .pn b,.pslot.empty .pcn{color:#7fb8d0}.pslot.empty .pp{filter:saturate(.5)}
+/* 게임 설명창은 대기방 ? · 화면 필터보다 위 · 본문은 12px(갈무리11 1배)로 한 화면에 */
+#how{z-index:53}
+.how-r .hw li,.how-r .hw p{font-size:12px;line-height:1.7}.how-r .hw>b{font-size:12px}
+.intro-m{font-size:12px}

@@ -1,5 +1,5 @@
 /* ┌─────────────────────────────────────────────────────────
-   │ ② 쿵야 주방 난타 — 떨어지는 재료에 맞춰 같은 방향키를 눌러 썰기 (리듬 게임 · 세로 4분할 1vs1vs1vs1)
+   │ ② 주방 난타 — 떨어지는 재료가 화살표 칸에 닿을 때 같은 방향키를 눌러 썰기 (리듬 게임 · 세로 4분할 1vs1vs1vs1)
    │ 4명 모두 같은 악보 · PERFECT 100 · GREAT 60 · GOOD 30 · 콤보 10마다 배율 +0.5 (최대 3배) · 60초
    │ 판정은 각자 기기 화면 기준(prep)으로 하고, 방장은 점수만 합산합니다.
    └───────────────────────────────────────────────────────── */
@@ -13,8 +13,9 @@ function chopChart(seed,start){const r=chopRng(seed),N=[];let t=start+60;const e
   while(t<end){const p=(t-start)/(CHOP.SEC*60),gap=Math.round(30-10*p),d=1+Math.floor(r()*4),hot=r()<CHOP.PEPPER&&t-start>CHOP.PEPPER_FROM*60;N.push({T:t,d,b:hot?1:0});
     if(r()<.18+.15*p&&t+gap/2<end)N.push({T:t+Math.round(gap/2),d:1+Math.floor(r()*4),b:0});t+=gap;}return N;}
 class ChopSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=CHOP.SEC*60;
-    this.seed=(Math.random()*1e9)|0;this.start=150;this.N=chopChart(this.seed,this.start);this.J=[{},{},{},{}];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.fxs=[];this.jn=[[],[],[],[]];this.bq=[[],[],[],[]];this.pos=[0,0,0,0];this.mv=[0,0,0,0];}
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=300;this.tm=CHOP.SEC*60;
+    this.seed=(Math.random()*1e9)|0;this.start=300;   /* 악보 시작 = 카운트다운(5초) 끝 */
+    this.N=chopChart(this.seed,this.start);this.J=[{},{},{},{}];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.fxs=[];this.jn=[[],[],[],[]];this.bq=[[],[],[],[]];this.pos=[0,0,0,0];this.mv=[0,0,0,0];}
   get pd(){return{N:this.N,J:this.J,myJ:this.myJ||(this.myJ={})};}
   mult(c){return Math.min(3,1+Math.floor(c/10)*.5);}
   input(i,e){if(this.ph!=='play'||!e.tap)return;const J=this.J[i];
@@ -25,7 +26,7 @@ class ChopSim{
     J[n]=q;this.jn[i].push([n,q]);this.combo[i]++;this.best[i]=Math.max(this.best[i],this.combo[i]);const pts=Math.round(CHOP.PTS[q]*this.mult(this.combo[i]));
     this.ps[i]+=pts;this.fxs.push([i,q,this.f,this.N[n].d,n]);this.ev.push(q===0?'hit':'tap');if(q===0&&this.combo[i]%10===0)this.ev.push('shake:3','combo');}
   step(){this.f++;this.fxs=this.fxs.filter(x=>this.f-x[2]<16);
-    if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}}
+    if(this.ph==='cd'){if(this.t%60===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}}
     else if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
     if(this.ph==='play'&&--this.tm<=0){this.ph='end';this.t=150;this.ev.push('win','shake:5');return;}
     // 시간 지난 음표는 놓친 것으로 (인터넷 지연 여유 40프레임)
@@ -81,15 +82,15 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
     if(k<12)K(CHOP.QN[q],tx,HY-44-k,CHOP.QC[q],'center',q===0?12:10);}
   chopChefs(S,pd,me,f);   /* 도마 아래 요리사: 누른 키 칸 아래로 미끄러지듯 이동 + 발밑 먼지 */
   for(let i=0;i<4;i++)quadFrame(i,S,me);
-  if(S.ph==='cd'){R(90,90,300,90,'rgba(42,58,72,.92)');K('주방 난타!',240,98,'#fff419','center',16);K('재료가 선에 닿을 때 같은 방향키!',240,122,'#fff','center',11);txt(String(Math.max(1,Math.ceil(S.t/50))),240,150,'#fff','center',14);}
-  if(S.ph==='end'){R(100,112,280,46,'rgba(42,58,72,.92)');K('그만! 영업 종료',240,124,'#fff419','center',16);}}
-regGame({id:'chop',title:'쿵야 주방 난타',icon:'②',
+  if(S.ph==='cd')banner([['주방 난타!','#fff419',16],['재료가 화살표에 닿을 때 같은 방향키!','#fff',11],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]]);
+  if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
+regGame({id:'chop',title:'주방 난타',icon:'②',
   ctrl:['내 이름이 적힌 세로 칸','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
   gimmick:'<b>매운 고추</b> — 고추는 누르지 마세요! 누르면 콤보 끊김',
   win:'60초 동안 개인 점수 1위! (4명 모두 같은 악보)',
-  desc:'떨어지는 재료가 선에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
-  controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 선에 닿을 때 같은 방향!'},
-  demoSkip:150,   /* 게임 설명: 열자마자 재료가 떨어지는 장면부터 */
+  desc:'떨어지는 재료가 화살표에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
+  controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 화살표에 닿을 때 같은 방향!'},
+  demoSkip:290,   /* 게임 설명: 열자마자 재료가 떨어지는 장면부터 */
   newSim:(s,c)=>new ChopSim(s,c),
   newView:()=>({N:null,J:[{},{},{},{}],myJ:{}}),
   full:true,
