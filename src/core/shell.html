@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>KY 미니게임 배틀</title>
+<style>/*@FONTS*/</style>
+<style>/*@ROOT*/
+/*@CSS*/</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bgck"></div>
+  <div id="netst"></div>
+  <!-- 메인 -->
+  <section class="scr" id="scr-main">
+    <img id="logoImg" alt="KY Restaurant" style="position:absolute;left:50%;top:14px;width:264px;height:144px;margin-left:-132px;image-rendering:pixelated">
+    <h1 class="title ol">KY 미니게임 배틀<small>2 VS 2</small></h1>
+    <div class="menu">
+      <div class="field fr"><label>닉네임</label><input id="nameIn" maxlength="10" placeholder="최대 10자" autofocus></div>
+      <div class="btn fr-item" data-act="create">대기방 만들기</div>
+      <div class="btn fr-item" data-act="join">방 코드로 입장 · 관전</div>
+      <div class="btn fr-item" data-act="settings">설정</div>
+    </div>
+    <div class="hint"><span class="kk">↑</span><span class="kk">↓</span> 선택 · <span class="kk">Enter</span> 결정 · 패드·터치 가능</div>
+  </section>
+  <!-- 캐릭터 고르기 -->
+  <section class="scr" id="scr-char">
+    <h1 class="title ol" style="top:70px">캐릭터 고르기</h1>
+    <div id="charList"></div>
+    <div class="hint"><span class="kk">←</span><span class="kk">→</span> 고르기 · <span class="kk">Enter</span> 결정 · <span class="kk">Esc</span> 돌아가기</div>
+  </section>
+  <!-- 방 코드 입력 -->
+  <section class="scr" id="scr-join">
+    <h1 class="title ol" style="top:120px">방 코드 입력</h1>
+    <div class="menu" style="top:220px">
+      <div class="field fr"><label>코드</label><input id="codeIn" class="code" maxlength="4" placeholder="ABCD" autofocus autocomplete="off" autocapitalize="characters"></div>
+      <div class="btn fr-item" data-act="joinGo">플레이어로 입장</div>
+      <div class="btn fr-item" data-act="watch">관전하기 (큰 화면용)</div>
+      <div class="btn fr-item" data-act="back">돌아가기</div>
+    </div>
+  </section>
+  <!-- 대기방 -->
+  <section class="scr" id="scr-lobby">
+    <div class="rm-head"><span class="ol">대기방</span><b id="lbCode">----</b><span id="lbCount" class="small"></span></div>
+    <div class="teams">
+      <div class="team t0 fr"><div class="thead"><input class="tname ol2" id="tn0" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb0" data-act="col0">팀 색</div></div><div class="chips" id="tc0"></div><div class="slot" id="slot0"></div><div class="slot" id="slot1"></div></div>
+      <div class="team t1 fr"><div class="thead"><input class="tname ol2" id="tn1" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb1" data-act="col1">팀 색</div></div><div class="chips" id="tc1"></div><div class="slot" id="slot2"></div><div class="slot" id="slot3"></div></div>
+    </div>
+    <div class="gcard fr-dark" id="gCard"></div>
+    <div class="members" id="lbMembers"></div>
+    <div class="lob-btns row">
+      <div class="btn fr-item" id="bTeam" data-act="team">팀 바꾸기</div>
+      <div class="btn fr-item" id="bHow" data-act="how">게임 설명</div>
+      <div class="btn fr-item" id="bReady" data-act="ready">준비</div>
+      <div class="btn fr-item" id="bStart" data-act="start">게임 시작</div>
+      <div class="btn fr-item" data-act="leave">나가기</div>
+    </div>
+    <div class="hint" id="lbHint"></div>
+    <div id="how" hidden><div class="how-in fr"><div class="how-top"><div class="how-l"><canvas id="howCv"></canvas></div><div class="how-r" id="howBody"></div></div>
+      <div class="how-x small"><span class="kk">Enter</span><span class="kk">Esc</span> 닫기</div></div></div>
+  </section>
+  <!-- 게임: 게임 화면 + 개인 점수표 -->
+  <section class="scr" id="scr-game">
+    <div id="gHead"><b id="gTitle" class="ol"></b><span id="gRoom"></span></div>
+    <canvas id="gc"></canvas>
+    <aside id="board" class="fr">
+      <div class="bd-top"><span class="bd-t"><span id="bdN0">SKY</span> <b id="bdT0">0</b></span><span id="bdTime">0:00</span><span class="bd-t"><span id="bdN1">YELLOW</span> <b id="bdT1">0</b></span></div>
+      <div class="bd-cap">개인 순위 · 실시간</div>
+      <div id="bdRows"></div>
+    </aside>
+    <div id="gHint"></div>
+    <div id="pad"><div class="u" data-d="1">▲</div><div class="r" data-d="2">▶</div><div class="d" data-d="3">▼</div><div class="l" data-d="4">◀</div></div>
+    <div id="abtn">A</div>
+    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f"><b id="introSec">8</b>초 후 시작 · <span id="introWho"></span></div></div></div>
+  </section>
+  <!-- 결과 -->
+  <section class="scr" id="scr-result">
+    <div class="panel fr">
+      <h2 class="ol" id="resTitle">결과</h2>
+      <div class="small" id="resGame" style="margin:-6px 0 10px"></div>
+      <div class="res" id="resBox"></div>
+      <div id="resPs"></div>
+      <div class="small" id="resNote" style="margin:10px 0 4px"></div>
+      <div class="row" style="margin-top:10px"><div class="btn fr-item" id="bAgain" data-act="again">대기방으로</div><div class="btn fr-item" data-act="home">메인으로</div></div>
+    </div>
+  </section>
+  <!-- 설정 (오락실 파일과 같은 구성) -->
+  <section class="scr" id="scr-settings">
+    <div class="panel fr" style="width:760px">
+      <h2 class="ol">설정</h2>
+      <div class="btn fr-item" id="setSnd" data-act="snd"></div>
+      <div class="btn fr-item" id="setFlt" data-act="flt"></div>
+      <div class="btn fr-item" data-act="fs">전체 화면</div>
+      <div class="btn fr-item" data-act="back">닫기</div>
+    </div>
+  </section>
+  <div id="toast" class="fr-dark"></div>
+</div>
+<div id="rot" class="ol">📱 휴대폰을 가로로 돌려 주세요</div>
+<script>/*@ASSETS*/</script>
+<script>/*@VENDOR*/</script>
+<script>/*@APP*/</script>
+</body>
+</html>

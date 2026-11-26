@@ -1,0 +1,6 @@
+:root{
+  color-scheme:dark;
+  --cyan:#00ccf3; --yellow:#fff419; --white:#ffffff; --black:#000000; --navy:#0a8fc6; --dim:#d4f4ff;   /* 테마: KY 로고의 하늘색 + 노랑 (navy = 바탕 하늘색) */
+  --pf:"Press Start 2P",ui-monospace,monospace; --kr:"Galmuri11","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-panel:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAARUlEQVR4nGNkQID/DJiAEU4wMDD8//8fUw0jI0QNI0wBVAAFwMRZkAW567fC2V8bveFsJizuwABEKSLKTUT7Dq4Rh00MAHlFGw2vAW9mAAAAAElFTkSuQmCC); --f-item:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAATElEQVR4nGNkQID/DJiAEU4wMDD8r3+AqaZRAaHmf/2D//+hJqFgmDgLsk6unDlw9rcpKXA2ExZ3YACiFKFYh2wFMiDKd4xIYjjDCQCwxhyyQqtlngAAAABJRU5ErkJggg==); --f-on:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAARElEQVR4nGNkQID/DJiAEU4wMDD8//8fUw0jI0QNI0wBVAAFwMRZUAS/SCJM4XkOZzNhcQcGIEoRUW4i2ndwjThsYgAAguEbDdzejCcAAAAASUVORK5CYII=); --f-warn:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAARUlEQVR4nGNkQID/DJiAEU4wMDD8//8fUw0jI0QNI0wBVAAFwMRZkAVvGMvD2RpnH8LZTFjcgQGIUkSUm4j2HVwjDpsYAHhJGw2XRdnsAAAAAElFTkSuQmCC); --f-dark:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAASUlEQVR4nGNkQID/DJiAEU4wMDD8ZzjzGVOJCS9czX+GM5//Q01CxVBxFmSNbP6lcPavjd1wNhMWd2AAohQR5SaifMeIJIQznADliiP3zk4WoQAAAABJRU5ErkJggg==);
+}
