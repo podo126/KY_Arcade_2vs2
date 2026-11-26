@@ -4,7 +4,7 @@
    게임 순서는 GAME_ORDER, 새 게임은 games/새이름.js 를 추가하면 자동 포함"""
 import os,sys
 D=os.path.dirname(os.path.abspath(__file__));r=lambda f:open(os.path.join(D,f),encoding='utf8').read()
-GAME_ORDER=['punch','chop','serve']
+GAME_ORDER=['quick','chop','sumo']
 have=[f[:-3] for f in sorted(os.listdir(os.path.join(D,'games'))) if f.endswith('.js')]
 args=[a for a in sys.argv[1:] if not a.startswith('--')];RELEASE='--release' in sys.argv   # --release: 테스트 기능(core/test.js) 빼고 빌드
 games=args or [g for g in GAME_ORDER if g in have]+[g for g in have if g not in GAME_ORDER]

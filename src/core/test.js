@@ -9,7 +9,7 @@
   const menu=document.querySelector('#scr-main .menu'),at=menu&&menu.querySelector('[data-act="settings"]');
   if(at){const b=document.createElement('div');b.className='btn fr-item';b.dataset.act='pick';b.textContent='혼자 연습 (서버 없이 · 테스트)';menu.insertBefore(b,at);}
 })();
-function initLocalRoom(){if(!needName())return;NET.close();LOBBY={local:true,game:LOBBY&&LOBBY.local?LOBBY.game:0,teams:LOBBY&&LOBBY.local?LOBBY.teams:DEF_TEAMS(),slots:[{id:'local',name:CFG.name,ready:true,bot:false,ch:CFG.char},null,null,null]};show('lobby');renderLobby();focusMain();}
+function initLocalRoom(){if(!needName())return;NET.close();LOBBY={local:true,cd:0,slots:[{id:'local',name:CFG.name,ready:false,bot:false,ch:randChar(new Set())},null,null,null]};show('lobby');renderLobby();focusMain();}   /* 캐릭터는 랜덤 고정 · READY 누르면 3초 뒤 AI 3명과 시작 */
 /* 오프라인 방 테스트용 가짜 Realtime (?fakert=1): Supabase 채널과 같은 모양의 함수만 흉내 — 같은 브라우저의 탭끼리 BroadcastChannel로 주고받음 */
 if(new URLSearchParams(location.search).get('fakert')){
   const bc=new BroadcastChannel('kyb-fake-rt'),chans=new Set();

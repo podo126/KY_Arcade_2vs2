@@ -188,8 +188,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .intro-m .hf{display:inline-block;padding:0 10px;cursor:pointer}
 body.touch .how-x .keys{display:none}
 .tonly{display:none}body.touch .tonly{display:inline}
-/* 휴대폰에서 꾹 누르기 칸을 크게 */
-body.touch #hold{width:300px;padding:10px 14px}body.touch #hold .hd-bar{height:18px}
+
 #intro{position:absolute;left:12px;top:90px;width:960px;height:540px;background:rgba(0,10,30,.72);z-index:7;display:flex;align-items:center;justify-content:center}
 #intro[hidden]{display:none}
 .intro-in{width:820px;padding:22px 30px;font-size:21px;line-height:1.6}
@@ -203,18 +202,49 @@ body.touch #hold{width:300px;padding:10px 14px}body.touch #hold .hd-bar{height:1
 .intro-m{font-size:18px;color:var(--yellow);margin:-4px 0 8px;text-align:center}
 .res .tb .rd{line-height:1.7}
 
-/* 꾹 누르기 진행 (우측 하단) */
-#hold{position:absolute;right:8px;bottom:8px;width:262px;z-index:30;padding:6px 10px;font-size:16px;cursor:pointer;touch-action:none}
-#hold[hidden]{display:none}
-#hold .hd-t{font-size:15px;color:var(--yellow);text-align:center}
-#hold .hd-s{font-size:13px;color:var(--dim);text-align:center;margin-top:2px}
-#hold .hd-bar{height:12px;border:2px solid #000;background:#064f75;margin-top:8px}
-#holdBar{display:block;height:100%;width:0;background:var(--yellow)}
-#hold .hl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 8px;margin-top:4px;background:#085a84;border:2px solid #000}
-#hold .hl .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#hold .hl b{flex:none;font-size:13px;color:var(--dim)}
-#hold .hl small{font-size:12px;color:var(--yellow)}
-#hold .hl.on{background:var(--yellow);color:#000}#hold .hl.on b{color:#000}#hold .hl.on small{color:#5a4a00}
+/* 메인: 닉네임 · Password · 입장 · 관전 · 설정 */
+#scr-main h1.title{top:166px}
+#scr-main .menu{top:236px;gap:6px}
+#scr-main .field{padding:4px 16px}#scr-main .field label{min-width:92px;text-align:left}
+#scr-main .field input{font-size:22px;padding:4px 10px}
+#scr-main .btn{padding:0 14px;font-size:22px}
+#passIn{letter-spacing:4px}
+
+/* 대기방 (개인전): 화면을 크게 4칸 · 칸마다 위에서부터 닉네임 / 캐릭터 / READY */
+.lb-info{position:absolute;top:66px;left:0;right:0;text-align:center;font-size:17px;color:var(--dim)}.lb-info b{color:var(--yellow)}
+.pslots{position:absolute;top:96px;left:24px;right:24px;bottom:130px;display:flex;gap:14px}
+.pslot{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;padding:12px 10px}
+.pslot .pn{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;min-width:0}
+.pslot .pp{flex:none;font:12px var(--pf);color:#000;padding:5px 6px;border:3px solid #000}
+.pslot .pn b{font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pslot .pn small{flex:none;font-size:13px;background:var(--yellow);color:#000;padding:1px 6px;border:2px solid #000}
+.pslot .pc{flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:0;padding-bottom:6px}
+.pslot .pc img{image-rendering:pixelated;max-width:100%}
+.pslot .pc .q{font:64px var(--pf);color:#7fe0ff;margin-bottom:40px}
+.pslot .pcn{font-size:16px;color:var(--dim);margin-bottom:10px}
+.pslot.empty{opacity:.55}
+.pslot.me{border-image-source:var(--f-on)}.pslot.me .pcn{color:#000}.pslot.me .pn b{color:#000;text-shadow:none}
+.pslot .rdy{width:92%;font:20px var(--pf);padding:8px 0}
+.pslot .rdy.on{color:#000;background:#58d838}
+.pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
+.pslot .rst.on{color:#000;background:#58d838;border-color:#000}
+.pslot.rd{box-shadow:inset 0 -6px 0 #58d838}
+#scr-lobby .lob-btns{bottom:58px;width:560px;margin-left:-280px}
+#lbCd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;font:160px var(--pf);color:var(--yellow);pointer-events:none}
+#lbCd[hidden]{display:none}
+
+/* 최종 결과 (개인 순위) */
+#scr-result .panel{min-width:980px;padding:18px 30px}
+#resBox{display:flex;flex-direction:column;gap:8px;margin:8px 0 14px}
+.rrow{display:flex;align-items:center;gap:12px;padding:6px 14px;background:#085a84;border:3px solid #000;text-align:left;font-size:20px;height:74px;box-sizing:border-box}
+.rrow.win{background:var(--yellow);color:#000}
+.rrow .rk{font:24px var(--pf);width:34px}
+.rrow .sw{width:14px;height:14px;border:3px solid #000;flex:none}
+.rrow .ci{width:100px;display:flex;justify-content:center;align-items:flex-end;height:66px;overflow:hidden}.rrow .ci img{image-rendering:pixelated}
+.rrow .nm{width:170px;font-size:24px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:2px 0 #000,-2px 0 #000,0 2px #000,0 -2px #000}
+.rrow .gs{flex:1;font-size:15px;color:var(--dim)}.rrow .gs b{color:#fff}
+.rrow.win .gs,.rrow.win .gs b{color:#3a3000}
+.rrow .pt{font:22px var(--pf);color:var(--yellow)}.rrow.win .pt{color:#000}
 </style>
 </head>
 <body>
@@ -224,48 +254,27 @@ body.touch #hold{width:300px;padding:10px 14px}body.touch #hold .hd-bar{height:1
   <!-- 메인 -->
   <section class="scr" id="scr-main">
     <img id="logoImg" alt="KY Restaurant" style="position:absolute;left:50%;top:14px;width:264px;height:144px;margin-left:-132px;image-rendering:pixelated">
-    <h1 class="title ol">KY 미니게임 배틀<small>2 VS 2</small></h1>
+    <h1 class="title ol">KY 미니게임 배틀</h1>
     <div class="menu">
       <div class="field fr"><label>닉네임</label><input id="nameIn" maxlength="10" placeholder="최대 10자" autofocus></div>
-      <div class="btn fr-item" data-act="create">대기방 만들기</div>
-      <div class="btn fr-item" data-act="join">방 코드로 입장 · 관전</div>
+      <div class="field fr"><label>Password</label><input id="passIn" type="password" maxlength="12" placeholder="비밀번호" autocomplete="off" autocapitalize="characters"></div>
+      <div class="btn fr-item" data-act="enter">입장하기</div>
+      <div class="btn fr-item" data-act="watch">관전하기 (큰 화면용)</div>
       <div class="btn fr-item" data-act="settings">설정</div>
     </div>
     <div class="hint"><span class="kk">↑</span><span class="kk">↓</span> 선택 · <span class="kk">Enter</span> 결정 · 패드·터치 가능</div>
   </section>
-  <!-- 캐릭터 고르기 -->
-  <section class="scr" id="scr-char">
-    <h1 class="title ol" style="top:70px">캐릭터 고르기</h1>
-    <div id="charList"></div>
-    <div class="hint"><span class="kk">←</span><span class="kk">→</span> 고르기 · <span class="kk">Enter</span> 결정 · <span class="kk">Esc</span> 돌아가기</div>
-  </section>
-  <!-- 방 코드 입력 -->
-  <section class="scr" id="scr-join">
-    <h1 class="title ol" style="top:120px">방 코드 입력</h1>
-    <div class="menu" style="top:220px">
-      <div class="field fr"><label>코드</label><input id="codeIn" class="code" maxlength="4" placeholder="ABCD" autofocus autocomplete="off" autocapitalize="characters"></div>
-      <div class="btn fr-item" data-act="joinGo">플레이어로 입장 → 캐릭터 고르기</div>
-      <div class="btn fr-item" data-act="watch">관전하기 (큰 화면용 · 바로 입장)</div>
-      <div class="btn fr-item" data-act="back">돌아가기</div>
-    </div>
-  </section>
   <!-- 대기방 -->
   <section class="scr" id="scr-lobby">
     <div class="rm-head"><span class="ol">대기방</span></div>
-    <div class="teams">
-      <div class="team t0 fr"><div class="thead"><input class="tname ol2" id="tn0" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb0" data-act="col0">팀 색</div></div><div class="chips" id="tc0"></div><div class="slot" id="slot0"></div><div class="slot" id="slot1"></div></div>
-      <div class="team t1 fr"><div class="thead"><input class="tname ol2" id="tn1" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb1" data-act="col1">팀 색</div></div><div class="chips" id="tc1"></div><div class="slot" id="slot2"></div><div class="slot" id="slot3"></div></div>
-    </div>
-    <div class="gcard fr-dark" id="gCard"></div>
-    <div class="members" id="lbMembers"></div>
+    <div class="lb-info" id="lbInfo"></div>
+    <div class="pslots"><div class="pslot fr" id="slot0"></div><div class="pslot fr" id="slot1"></div><div class="pslot fr" id="slot2"></div><div class="pslot fr" id="slot3"></div></div>
     <div class="lob-btns row">
-      <div class="btn fr-item" id="bTeam" data-act="team">팀 바꾸기</div>
       <div class="btn fr-item" id="bHow" data-act="how">게임 설명</div>
-      <div class="btn fr-item" id="bReady" data-act="ready">준비</div>
-      <div class="btn fr-item" id="bStart" data-act="start">게임 시작</div>
       <div class="btn fr-item" data-act="leave">나가기</div>
     </div>
-    <div class="hint" id="lbHint"></div>
+    <div id="lbCd" class="ol" hidden></div>
+    <div class="hint" id="lbHint"><span class="kk">←</span><span class="kk">→</span><span class="kk">↑</span><span class="kk">↓</span> 버튼 이동 · <span class="kk">Enter</span> READY</div>
     <div id="how" hidden><div class="how-in fr"><div class="how-top"><div class="how-l"><canvas id="howCv"></canvas></div><div class="how-r" id="howBody"></div></div>
       <div class="how-x small"><span class="keys"><span class="kk">←</span><span class="kk">→</span> 넘기기 · <span class="kk">Enter</span><span class="kk">Esc</span> 닫기</span><b class="hbtn" data-hf="-1">◀ 이전</b><b class="hbtn" data-hf="1">다음 ▶</b><b class="hbtn x" data-hx="1">닫기 ✕</b></div></div></div>
   </section>
@@ -275,14 +284,13 @@ body.touch #hold{width:300px;padding:10px 14px}body.touch #hold .hd-bar{height:1
     <canvas id="gc"></canvas>
     <aside id="board" class="fr">
       <div id="bdTime">0:00</div>
-      <div class="bd-sc"><div class="bd-t"><span id="bdN0">SKY</span><b id="bdT0">0</b></div><div class="bd-t"><span id="bdN1">YELLOW</span><b id="bdT1">0</b></div></div>
       <div class="bd-cap">개인 순위 · 실시간</div>
       <div id="bdRows"></div>
     </aside>
     <div id="gHint"></div>
     <div id="pad"><div class="u" data-d="1">▲</div><div class="r" data-d="2">▶</div><div class="d" data-d="3">▼</div><div class="l" data-d="4">◀</div></div>
     <div id="abtn">A</div>
-    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f">모두 또는 방장이 Z · 패드 A <span class="tonly">· 우측 하단 칸</span>을 꾹 누르면 시작합니다</div></div></div>
+    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f"><b id="introSec">6</b>초 뒤 시작합니다</div></div></div>
   </section>
   <!-- 결과 -->
   <section class="scr" id="scr-result">
@@ -305,8 +313,6 @@ body.touch #hold{width:300px;padding:10px 14px}body.touch #hold .hd-bar{height:1
       <div class="btn fr-item" data-act="back">닫기</div>
     </div>
   </section>
-  <!-- 꾹 누르기 진행: 누르는 사람 실시간 표시 (게임 시작 전 설명창 · 최종 결과) -->
-  <div id="hold" class="fr-dark" hidden><div id="holdList"></div><div class="hd-bar"><i id="holdBar"></i></div></div>
   <div id="toast" class="fr-dark"></div>
 </div>
 <div id="rot" class="ol">📱 휴대폰을 가로로 돌려 주세요</div>
@@ -329,111 +335,121 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 <script>/* 게임 등록부: 각 games/*.js 가 regGame({...}) 으로 자신을 등록 */
 const GAMES=[];function regGame(d){GAMES.push(d);}
 /* ┌─────────────────────────────────────────────────────────
-   │ ③ 쿵야 펀치 — 왕복하는 게이지를 A로 멈춰 가운데를 맞히면 상대 팀 체력이 깎임
-   │ PERFECT(±4) 120 · GREAT(±12) 70 · GOOD(±24) 35 · MISS = 1초 기절 · 60초 또는 체력 0이면 끝
-   │ 판정은 "내 화면에 보인 게이지" 기준(prep)이라 인터넷 지연이 있어도 공정합니다.
+   │ ① 쿵야 순발력 — 투 버튼 순발력 아케이드 (4분할 · 1vs1vs1vs1)
+   │ 왼쪽 / 오른쪽 테이블에 음식이 "딱" 나타나면 그쪽 버튼(◀ ▶)을 최대한 빨리!
+   │ 빠를수록 점수 UP (최대 200) · 반대쪽 -50 · 아무것도 없을 때 누르면 -20 · 폭탄은 누르면 -100
+   │ 4명 모두 같은 순서 · 같은 타이밍 · 반응 속도는 각자 기기 화면 기준으로 재서(prep) 인터넷 지연과 무관 · 40초
    └───────────────────────────────────────────────────────── */
-const PUN={SEC:60,HP:1500,GOLD_AT:12,GOLD_EVERY:15,GOLD_LEN:4,   /* 기믹: 12초부터 15초마다 4초간 황금 펀치 타임(데미지 2배) */
-  ZONES:[[4,'PERFECT',120,'#fff419'],[12,'GREAT',70,'#58d838'],[24,'GOOD',35,'#00ccf3']]};
-const punCur=(G,f)=>{const p=(((f-G.s0)*G.sp+G.o)%200+200)%200;return p<100?p:200-p;};
-class PunchSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.sc=[0,0];this.ps=[0,0,0,0];this.ev=[];this.done=false;this.hp=[PUN.HP,PUN.HP];
-    this.ph='cd';this.t=150;this.tm=PUN.SEC*60;this.G=[0,1,2,3].map(()=>({st:'wait',s0:0,sp:1.6,o:0,cd:0,last:'',lt:0}));this.pop=[];this.pid=0;this.anim=[0,0,0,0];this.hurt=[0,0];this.gold=0;this.nextGold=PUN.GOLD_AT*60;}
-  spd(){return 1.5+1.6*(1-this.tm/(PUN.SEC*60));}   // 시간이 갈수록 게이지가 빨라짐
-  aim(i){Object.assign(this.G[i],{st:'aim',s0:this.f,sp:this.spd(),o:Math.random()*100,want:0});}
-  input(i,e){if(!e.a||this.ph!=='play')return;const G=this.G[i];if(G.st!=='aim')return;
-    const d=clamp(typeof e.dist==='number'?e.dist:Math.abs(punCur(G,this.f)-50),0,50),z=PUN.ZONES.find(z=>d<=z[0]);
-    if(!z){Object.assign(G,{st:'stun',cd:60,last:'MISS',lt:this.f});this.ev.push('ouch');this.popup(i,'MISS','#ff5a5a');return;}
-    const t=teamOf(i),dmg=z[2]*(this.gold>0?2:1);this.hp[1-t]=Math.max(0,this.hp[1-t]-dmg);this.sc[t]+=dmg;this.ps[i]+=dmg+(z[1]==='PERFECT'?30:0);
-    Object.assign(G,{st:'cool',cd:30,last:z[1],lt:this.f});this.anim[i]=12;this.hurt[1-t]=10;
-    if(z[1]==='PERFECT')this.ev.push('big','shake:8');else this.ev.push('hit',z[1]==='GREAT'?'shake:4':'shake:2');
-    this.popup(i,`${z[1]} -${dmg}`,z[3]);if(this.hp[1-t]<=0)this.end();}
-  popup(i,txt,col){this.pop.push({id:++this.pid,i,txt,col,t:0});}
-  step(){this.f++;this.pop.forEach(p=>p.t++);this.pop=this.pop.filter(p=>p.t<45);
-    for(let k=0;k<4;k++)if(this.anim[k]>0)this.anim[k]--;for(const t of [0,1])if(this.hurt[t]>0)this.hurt[t]--;
-    if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');for(let i=0;i<4;i++)this.aim(i);}return;}
+/* 조절값: SEC 시간 · WIN 음식이 떠 있는 프레임(60=1초) · GAP 다음 음식까지 간격(처음→끝) · BOMB 폭탄 비율 · RT 판정(프레임) */
+const QK={SEC:40,WIN:45,LATE:40,GAP:[95,55],GAPR:30,BOMB:.15,BOMB_FROM:5,RT:[15,26],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3']};
+const qkPts=rt=>Math.max(30,200-rt*4);   /* 반응 프레임 → 점수 (0.17초 = 160점) */
+function qkRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* 음식 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 2(▶ 오른쪽) / 4(◀ 왼쪽) · b = 폭탄 */
+function qkChart(seed,start){const r=qkRng(seed),N=[];let t=start+50;const end=start+QK.SEC*60-QK.WIN;
+  while(t<end){const p=(t-start)/(QK.SEC*60);N.push({T:t,d:r()<.5?4:2,b:r()<QK.BOMB&&t-start>QK.BOMB_FROM*60?1:0});t+=Math.round(QK.GAP[0]+(QK.GAP[1]-QK.GAP[0])*p+r()*QK.GAPR);}return N;}
+class QuickSim{
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=QK.SEC*60;
+    this.seed=(Math.random()*1e9)|0;this.start=150;this.N=qkChart(this.seed,this.start);this.J=[{},{},{},{}];this.jn=[[],[],[],[]];this.fxs=[];
+    this.streak=[0,0,0,0];this.hits=[0,0,0,0];this.best=[99,99,99,99];this.face=[0,0,0,0];this.ff=[-99,-99,-99,-99];this.bq=[[],[],[],[]];}
+  get pd(){return{N:this.N,J:this.J,myJ:this.myJ||(this.myJ={})};}
+  mark(i,n,q){this.J[i][n]=q;this.jn[i].push([n,q]);}
+  input(i,e){if(this.ph!=='play'||!e.tap)return;if(e.d===2||e.d===4){this.face[i]=e.d;this.ff[i]=this.f;}
+    if(e.early){this.ps[i]=Math.max(0,this.ps[i]-20);this.streak[i]=0;this.fxs.push([i,'early',this.f,-1,-20]);this.ev.push('tap');return;}   /* 아무것도 없을 때 누름 */
+    const n=e.n,no=this.N[n];if(n==null||!no||this.J[i][n]!=null||this.f<no.T-5||this.f-no.T>QK.WIN+QK.LATE)return;
+    if(no.b){this.mark(i,n,4);this.streak[i]=0;this.ps[i]=Math.max(0,this.ps[i]-100);this.fxs.push([i,'boom',this.f,n,-100]);this.ev.push('big','shake:3');return;}
+    if(e.d!==no.d){this.mark(i,n,3);this.streak[i]=0;this.ps[i]=Math.max(0,this.ps[i]-50);this.fxs.push([i,'wrong',this.f,n,-50]);this.ev.push('ouch');return;}
+    const rt=clamp(e.rt|0,0,QK.WIN),q=rt<=QK.RT[0]?0:rt<=QK.RT[1]?1:2,pts=qkPts(rt);this.mark(i,n,q);
+    this.streak[i]++;this.hits[i]++;this.best[i]=Math.min(this.best[i],rt);this.ps[i]+=pts;this.fxs.push([i,q,this.f,n,pts]);this.ev.push(q===0?'hit':'tap');if(this.streak[i]%5===0)this.ev.push('combo');}
+  step(){this.f++;this.fxs=this.fxs.filter(x=>this.f-x[2]<30);
+    if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
     if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
-    if(--this.tm<=0)return this.end();
-    const el=PUN.SEC*60-this.tm;if(this.gold>0)this.gold--;else if(el>=this.nextGold){this.gold=PUN.GOLD_LEN*60;this.nextGold+=PUN.GOLD_EVERY*60;this.ev.push('power','shake:3');}
-    this.G.forEach((G,i)=>{if(G.st!=='aim'){if(--G.cd<=0)this.aim(i);}else if(this.slots[i].bot)this.bot(i);});}
-  bot(i){const G=this.G[i];if(!G.want)G.want=[2,5,9,14,20,30][Math.floor(Math.random()*6)];if(Math.abs(punCur(G,this.f)-50)<=G.want&&Math.random()<.3)this.input(i,{a:1});}
-  end(){if(this.ph==='end')return;this.ph='end';this.t=150;this.ev.push('win','shake:6');}
-  snap(){return{gold:this.gold,f:this.f,ph:this.ph,t:this.t,tm:this.tm,sc:this.sc,ps:this.ps,hp:this.hp,pop:this.pop,anim:this.anim,hurt:this.hurt,
-    G:this.G.map(G=>({st:G.st,s0:G.s0,sp:G.sp,o:G.o,last:G.last,lt:G.lt})),tag:this.G.map(G=>G.last)};}
-  result(){return{sc:this.sc,ps:this.ps,lines:[0,1].map(t=>`남은 체력 ${this.hp[t]} / ${PUN.HP}`)};}
+    if(--this.tm<=0){this.ph='end';this.t=150;this.ev.push('win','shake:5');return;}
+    // 시간이 지난 음식: 안 누른 사람은 놓침 (인터넷 지연 여유 LATE 프레임) · 폭탄은 안 누르면 성공
+    this.N.forEach((no,n)=>{if(this.f-no.T===QK.WIN+QK.LATE)for(let i=0;i<4;i++)if(this.J[i][n]==null){this.mark(i,n,no.b?5:6);if(!no.b)this.streak[i]=0;}});
+    // AI: 음식이 나타나면 각자 반응 속도로 누름 (가끔 반대쪽 · 폭탄도 가끔 누름)
+    this.slots.forEach((s,i)=>{if(!s.bot)return;this.N.forEach((no,n)=>{if(no.T!==this.f)return;
+        if(no.b){if(Math.random()<.12)this.bq[i].push([no.T+10+Math.floor(Math.random()*10),n,no.d]);return;}
+        const rt=[13,16,19,22][i]+Math.floor(Math.random()*12),d=Math.random()<.04?6-no.d:no.d;this.bq[i].push([no.T+rt,n,d]);});
+      this.bq[i]=this.bq[i].filter(([at,n,d])=>{if(this.f<at)return true;this.input(i,{tap:1,n,d,rt:this.f-this.N[n].T});return false;});});}
+  snap(send){const jn=this.jn;if(send)this.jn=[[],[],[],[]];return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,ps:this.ps,fxs:this.fxs,face:this.face,ff:this.ff,streak:this.streak,jn:send?jn:[],
+    tag:this.streak.map(c=>c>=2?`${c}연속`:'')};}
+  full(){return{seed:this.seed,start:this.start};}
+  result(){return{ps:this.ps,lines:[0,1,2,3].map(i=>`성공 ${this.hits[i]}회 · 최고 반응 ${this.best[i]<99?Math.round(this.best[i]*16.7)+'ms':'-'}`)};}
 }
-function punDraw(g,S,pd,me,f){
-  wallTiles(0,0,480,168);for(let i=0;i<5;i++)for(let y=44;y<168;y+=4){const w=20+Math.round((y-44)*.55/4)*4;R(80+i*80-w/2-(y-44)*.2,y,w,4,'rgba(255,244,25,.10)');}   /* 벽 + 노란 조명(4도트 계단) */
-  R(0,168,480,30,MAP.mint);R(0,168,480,2,MAP.blue);R(60,164,360,6,MAP.blue);R(60,164,360,2,'#fff');   /* 민트 바닥 · 파랑 무대 */
-  if(S.gold>0){R(0,0,480,190,'rgba(255,244,25,.22)');for(let x=(f*2)%40-40;x<480;x+=40)R(x,186,20,4,'#fff419');   /* 황금 펀치 타임 */
-    if((f>>3)&1)K('황금 펀치 타임! 데미지 ×2',240,50,'#fff419','center',12);}
-  // 체력 바
-  for(const t of [0,1]){const x=t?250:10,w=220,v=S.hp[t]/PUN.HP;R(x-1,21,w+2,12,MAP.ink);R(x,22,w,10,MAP.shade);R(t?x+w-w*v:x,22,w*v,10,S.hurt[t]&&(f&2)?'#fff':TEAM[t].col);
-    txt(TEAM[t].name,t?x+w:x,10,TEAM[t].col,t?'right':'left',8);txt(String(S.hp[t]),t?x+w:x,35,'#fff',t?'right':'left',8);}
-  const sec=Math.max(0,Math.ceil(S.tm/60));txt(String(sec),240,12,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',16);
-  // 선수 (원본 그림 1배) · 때리면 앞으로 튀어나감 · 맞은 팀은 흔들림
-  const POS=[[162,1],[82,1],[318,0],[398,0]];   /* 샐쿵(가로 94)도 옆 사람과 겹치지 않는 간격 */
-  /* 모션: 예비 동작(뒤로 3도트) → 펀치(앞으로 최대 16도트, 다리가 뒤로 끌림) → 복귀 · 맞은 팀은 뒤로 밀리며 하얗게 번쩍 · 대기 중엔 1도트 숨쉬기 */
-  POS.forEach(([x,face],i)=>{const t=teamOf(i),a=S.anim[i],h=S.hurt[t],dir=face?1:-1,G=S.G[i];
-    let off=0,fr=0,bob=((f>>5)+i)%2?-1:0;
-    if(a>9)off=-3;else if(a>4)off=Math.round(16*Math.sin((10-a)/6*Math.PI/2));else if(a>0)off=Math.round(16*a/5);
-    if(a>0){fr=a>9?0:3;bob=0;}
-    if(h>0&&!(a>0)){off=-(h>5?5:Math.round(h));fr=h>4?5:0;bob=0;}
-    if(G.st==='stun'){fr=5;off+=((f>>3)&1)?1:-1;bob=0;}
-    const tint=(fr===5&&(f&4))?'#ffffff':G.st==='stun'?'#8a9ab0':null,leg=a>0&&a<=9?-dir*Math.round(off/4):h>0&&!(a>0)?dir*2:0;   /* 다리는 몸통 반대쪽으로 끌림 */
-    koongWalk(i,x+dir*off,166+bob,leg,leg,0,{tint});
-    if(i===me)meMark(x,96);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',x,172,TEAM[t].col,'center',8);});
-  if(S.anim.some(a=>a>3&&a<10)){const cx=240,cy=120,r=(f>>1)%2?28:24;R(cx-10,cy-10,20,20,MAP.yellow);R(cx-6,cy-6,12,12,MAP.blue);   /* POW: 도트 격자 별 (노랑 + 파랑) */
-    for(let k=1;k<=Math.round(r/4);k++){const d=10+k*4-4,sz=Math.max(2,8-k*2);R(cx-sz/2,cy-d-4,sz,4,'#fff419');R(cx-sz/2,cy+d,sz,4,'#fff419');R(cx-d-4,cy-sz/2,4,sz,'#fff419');R(cx+d,cy-sz/2,4,sz,'#fff419');
-      if(k<4){const e=6+k*4;R(cx-e-4,cy-e-4,4,4,'#fff419');R(cx+e,cy-e-4,4,4,'#fff419');R(cx-e-4,cy+e,4,4,'#fff419');R(cx+e,cy+e,4,4,'#fff419');}}
-    K('POW!',cx,cy-6,'#e83a3a','center',12);}
-  /* 판정 글자: 사람마다 최신 2개만, 겹치지 않게 위로 쌓음 */
-  [0,1,2,3].forEach(i=>{const L=S.pop.filter(p=>p.i===i).slice(-2);L.forEach((p,k)=>{const[x]=POS[i];K(p.txt,x,80-(L.length-1-k)*14-Math.round(p.t*.5),p.col,'center',p.txt.startsWith('PERFECT')?14:11);});});
-  // 개인 게이지 4개
-  for(let i=0;i<4;i++){const x=6+i*119,y=198,G=S.G[i],t=teamOf(i);R(x,y,113,66,i===me?MAP.yellow:MAP.ink);R(x+2,y+2,109,62,MAP.green);
-    K(GAME.slots[i]?GAME.slots[i].name.slice(0,7):'',x+6,y+5,TEAM[t].col,'left',8);
-    const bx=x+6,by=y+24;R(bx,by,101,14,MAP.shade);for(const[z,,,col]of [...PUN.ZONES].reverse())R(bx+50-z,by,z*2+1,14,col);
-    if(G.st==='aim'){const c=punCur(G,S.f);R(bx+Math.round(c)-2,by-5,5,24,MAP.ink);R(bx+Math.round(c)-1,by-4,3,22,'#fff');}
-    else if(G.st==='stun'){R(bx,by,101,14,'rgba(232,58,58,.7)');K('기절!',bx+50,by+1,'#fff','center',10);}
-    if(G.last&&S.f-G.lt<40)K(G.last,x+56,y+44,G.last==='MISS'?'#ff5a5a':PUN.ZONES.find(z=>z[1]===G.last)[3],'center',10);}
-  if(S.ph==='cd'){R(90,70,300,74,'rgba(42,58,72,.85)');K('쿵야 펀치!',240,78,'#fff419','center',16);K('게이지가 가운데 노란 칸에 올 때 A!',240,102,'#fff','center',11);txt(String(Math.max(1,Math.ceil(S.t/50))),240,122,'#fff','center',14);}
-  if(S.ph==='end'){const w=S.hp[0]===S.hp[1]?-1:S.hp[0]>S.hp[1]?0:1;R(100,80,280,50,'rgba(42,58,72,.85)');K(w<0?'무승부!':`${TEAM[w].name} 팀 KO 승!`,240,96,w<0?'#fff':TEAM[w].col,'center',18);}}
-regGame({id:'punch',title:'쿵야 펀치',icon:'③',
-  ctrl:['A 버튼 하나','게이지가 가운데 <b>노란 칸</b>에 올 때 누르면 펀치','빗나가면 1초 기절'],
-  gimmick:'<b>황금 펀치 타임</b> — 화면이 금색이면 데미지 2배!',
-  win:'상대 팀 체력을 먼저 0으로! (60초 뒤엔 체력이 많은 팀)',
-  desc:'왕복하는 게이지가 가운데에 올 때 A를 눌러 펀치!<br>정확할수록 상대 팀 체력이 크게 깎여요 · 60초 또는 KO',
-  controls:{dir:false,a:true,label:'A 버튼 하나',hint:'<span class="kk">Z</span><span class="kk">Space</span> 패드 A · 휴대폰 A 버튼 — 가운데에서 딱!'},
-  newSim:(s,c)=>new PunchSim(s,c),
-  prep(e,S,me){if(!e.a||!S||!S.G||!S.G[me]||S.G[me].st!=='aim')return e;return{a:1,dist:Math.abs(punCur(S.G[me],S.f)-50)};},
+/* ---------- 그리기: 4분할 · 칸마다 왼쪽/오른쪽 테이블 + 가운데 쿵야 ---------- */
+const QK_TX=[40,200],QK_ITEM=['kc_carrot','kc_tofu','kc_tomato'];   /* 칸 안의 왼쪽 · 오른쪽 테이블 가운데 x */
+function qkBomb(x,y,f){R(x-6,y-4,12,12,'#2a2a3a');R(x-7,y-2,14,8,'#2a2a3a');R(x-4,y-3,3,3,'#6a6a8a');R(x+2,y-8,2,4,'#a08060');R(x+3,y-10,2,2,(f>>2)&1?'#fff419':'#ff5a5a');
+  if((f>>3)&1){R(x-8,y-6,16,1,'#ff5a5a');R(x-8,y+9,16,1,'#ff5a5a');}}
+function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);
+  for(let i=0;i<4;i++){const X=qx(i),Y=qy(i),fy=Y+92;
+    wallTiles(X+1,Y+13,QW-2,fy-Y-13);R(X+1,fy,QW-2,QH-(fy-Y)-1,MAP.mint);R(X+1,fy,QW-2,2,MAP.blue);for(let k=0;k<QW-2;k+=32)R(X+1+k,fy+2,16,QH-(fy-Y)-3,MAP.green);   /* 벽 · 바닥 */
+    for(const tx of QK_TX){const x=X+tx;R(x-17,fy-11,3,46,MAP.ink);R(x+14,fy-11,3,46,MAP.ink);R(x-23,fy-19,46,8,MAP.ink);R(x-22,fy-18,44,6,'#fff');R(x-22,fy-13,44,1,'#d8e4ec');for(let k=0;k<44;k+=8)R(x-22+k,fy-12,8,2,MAP.blue);}   /* 왼쪽 · 오른쪽 테이블 */
+    // 떠 있는 음식 (아직 아무도 판정 안 된 것 · 내 화면에선 내가 누른 건 바로 사라짐)
+    if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=S.f-no.T;if(dt<0||dt>QK.WIN)continue;if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;
+      const x=X+QK_TX[no.d===4?0:1],pop=dt<4?(4-dt)*2:0,y=fy-39-pop;
+      if(no.b)qkBomb(x,y+10,f);else{const im=IMG[QK_ITEM[n%3]];if(im&&im.complete)g.drawImage(im,x-10,y);else R(x-10,y,20,20,'#e8a040');}
+      const w=Math.round(30*(1-dt/QK.WIN));R(x-15,y-8,30,4,MAP.ink);R(x-15,y-8,w,4,no.b?'#ff5a5a':dt<QK.RT[0]?MAP.yellow:dt<QK.RT[1]?'#58d838':'#00ccf3');   /* 남은 시간 막대 */
+      if(!no.b&&dt<12&&(dt>>1)%2===0)K('!',x,y-24,'#ff5a5a','center',10);}
+    // 가운데 쿵야: 누른 쪽으로 몸을 기울이고 다리를 뻗음
+    const lean=S.f-S.ff[i]<10?(S.face[i]===4?-8:8):0,hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8&&typeof x[1]==='number'),bob=lean?0:(((f>>5)+i)%2?-1:0);
+    koongWalk(i,X+120+lean,Y+QH-4+bob,lean?Math.sign(lean)*3:0,lean?Math.sign(lean)*3:0,hit?2:0);
+    // 효과: 잡은 음식이 쿵야에게 날아옴 · 점수 글자
+    for(const[ii,q,at,n,pts]of S.fxs){if(ii!==i)continue;const k=S.f-at;
+      if(typeof q==='number'&&n>=0&&k<8&&pd.N){const sx=X+QK_TX[pd.N[n].d===4?0:1],ex=X+120,im=IMG[QK_ITEM[n%3]],x=Math.round(sx+(ex-sx)*k/8),y=Math.round(fy-39-Math.sin(k/8*3.14)*14);if(im&&im.complete)g.drawImage(im,x-10,y);}
+      if(q==='boom'&&k<14&&pd.N){const bx=X+QK_TX[pd.N[n].d===4?0:1];for(let p=0;p<10;p++){const a=p*.628,r=4+k*2;R(Math.round(bx+Math.cos(a)*r),Math.round(fy-30+Math.sin(a)*r*.7),2,2,p%2?'#ff9a3a':'#fff419');}}
+      const lab=typeof q==='number'?`${QK.QN[q]} +${pts}`:q==='boom'?'BOOM! -100':q==='wrong'?'반대쪽! -50':'성급해요! -20',col=typeof q==='number'?QK.QC[q]:'#ff5a5a';
+      if(k<24)K(lab,X+120,Y+22-Math.floor(k/3),col,'center',typeof q==='number'&&q===0?12:10);}
+    if(S.streak[i]>=3)K(`${S.streak[i]}연속!`,X+120,Y+40,'#fff','center',9);
+    quadFrame(i,S,me);}
+  const sec=Math.max(0,Math.ceil(S.tm/60));R(222,116,36,18,MAP.ink);txt(String(sec),240,121,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
+  if(S.ph==='cd'){R(80,86,320,96,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,94,'#fff419','center',16);K('음식이 나온 쪽 버튼을 최대한 빨리!',240,118,'#fff','center',11);
+    K('◀ 왼쪽  ·  ▶ 오른쪽  ·  폭탄은 참기',240,136,'#d4f4ff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,158,'#fff','center',14);}
+  if(S.ph==='end'){R(110,112,260,46,'rgba(42,58,72,.92)');K('그만!',240,124,'#fff419','center',16);}}
+regGame({id:'quick',title:'쿵야 순발력',icon:'①',
+  ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','음식이 나타난 쪽 버튼을 최대한 빨리!','빠를수록 점수 UP · 반대쪽 / 미리 누르기는 감점'],
+  gimmick:'<b>폭탄</b> — 폭탄이 나오면 꾹 참기! 누르면 -100',
+  win:'40초 동안 개인 점수 1위! (4명 모두 같은 순서 · 같은 타이밍)',
+  desc:'왼쪽 / 오른쪽에 음식이 나오면 그쪽 버튼을 최대한 빨리!<br>4분할 개인전 · 40초',
+  controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 음식이 나온 쪽을 최대한 빨리! · 폭탄은 누르지 마세요'},
+  demoSkip:110,
+  newSim:(s,c)=>new QuickSim(s,c),
+  newView:()=>({N:null,J:[{},{},{},{}],myJ:{}}),
+  full:true,
+  applyFull(pd,F){if(F){pd.N=qkChart(F.seed,F.start);pd.J=[{},{},{},{}];pd.myJ={};}},
+  applyDelta(pd,S){(S.jn||[]).forEach((L,i)=>L.forEach(([n,q])=>{pd.J[i][n]=q;}));},
+  /* 내 화면 기준 판정: 지금 내 화면에 떠 있는 음식을 찾아 반응 프레임(rt)까지 재서 보냄 (◀ ▶ 만 사용) */
+  prep(e,S,me,pd){if(!e.tap||(e.d!==2&&e.d!==4))return null;if(!S||!pd.N)return e;const J=pd.J[me],M=pd.myJ,f=S.f;let n=-1;
+    pd.N.forEach((no,k)=>{if(n<0&&J[k]==null&&M[k]==null&&f>=no.T&&f-no.T<=QK.WIN)n=k;});
+    if(n<0)return{tap:1,early:1,d:e.d};M[n]=1;return{tap:1,n,d:e.d,rt:Math.round(f-pd.N[n].T)};},
   lerp(a,b,k){return{...b,f:a.f+(b.f-a.f)*k};},
-  draw:punDraw});
+  draw:quickDraw});
 
 /* ┌─────────────────────────────────────────────────────────
-   │ ④ 쿵야 주방 난타 — 떨어지는 재료에 맞춰 같은 방향키를 눌러 썰기 (리듬 게임)
+   │ ② 쿵야 주방 난타 — 떨어지는 재료에 맞춰 같은 방향키를 눌러 썰기 (리듬 게임 · 4분할 1vs1vs1vs1)
    │ 4명 모두 같은 악보 · PERFECT 100 · GREAT 60 · GOOD 30 · 콤보 10마다 배율 +0.5 (최대 3배) · 45초
    │ 판정은 각자 기기 화면 기준(prep)으로 하고, 방장은 점수만 합산합니다.
    └───────────────────────────────────────────────────────── */
 const KITEM=['kc_carrot','kc_tofu','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 두부 · 토마토) */
 const CHOP={PEPPER:.13,PEPPER_FROM:6,   /* 기믹: 6초 뒤부터 재료의 13%가 매운 고추 — 누르면 콤보 끊김 · -50 */
-  SEC:45,FALL:80,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
-const chopLX=(i,d)=>chopX(i)+8+CHOP.COL[d]*24;   /* 칸 왼쪽 x */
+  SEC:45,FALL:80,HITY:100,TOPY:20,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
+const chopLX=(i,d)=>qx(i)+10+CHOP.COL[d]*24;   /* 레인 왼쪽 x (4분할 칸 안 왼쪽 절반) */
+const chopY=i=>qy(i);
 function chopRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function chopChart(seed,start){const r=chopRng(seed),N=[];let t=start+60;const end=start+CHOP.SEC*60-60;
   while(t<end){const p=(t-start)/(CHOP.SEC*60),gap=Math.round(30-10*p),d=1+Math.floor(r()*4),hot=r()<CHOP.PEPPER&&t-start>CHOP.PEPPER_FROM*60;N.push({T:t,d,b:hot?1:0});
     if(r()<.18+.15*p&&t+gap/2<end)N.push({T:t+Math.round(gap/2),d:1+Math.floor(r()*4),b:0});t+=gap;}return N;}
 class ChopSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.sc=[0,0];this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=CHOP.SEC*60;
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=CHOP.SEC*60;
     this.seed=(Math.random()*1e9)|0;this.start=150;this.N=chopChart(this.seed,this.start);this.J=[{},{},{},{}];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.fxs=[];this.jn=[[],[],[],[]];this.bq=[[],[],[],[]];this.pos=[0,0,0,0];this.mv=[0,0,0,0];}
   get pd(){return{N:this.N,J:this.J,myJ:this.myJ||(this.myJ={})};}
   mult(c){return Math.min(3,1+Math.floor(c/10)*.5);}
   input(i,e){if(this.ph!=='play'||!e.tap)return;const J=this.J[i];
     if(e.d>=1&&e.d<=4){this.pos[i]=e.d;this.mv[i]=this.f;}if(e.mv)return;   /* 요리사는 누른 키 칸 아래로 이동 */
-    if(e.pepper){const n=e.n;if(n!=null&&this.N[n]&&this.N[n].b&&J[n]==null){J[n]=6;this.jn[i].push([n,6]);this.combo[i]=0;this.ps[i]=Math.max(0,this.ps[i]-50);this.sc[teamOf(i)]=Math.max(0,this.sc[teamOf(i)]-50);this.fxs.push([i,3,this.f,this.N[n].d]);this.ev.push('ouch','shake:2');}return;}
+    if(e.pepper){const n=e.n;if(n!=null&&this.N[n]&&this.N[n].b&&J[n]==null){J[n]=6;this.jn[i].push([n,6]);this.combo[i]=0;this.ps[i]=Math.max(0,this.ps[i]-50);this.fxs.push([i,3,this.f,this.N[n].d]);this.ev.push('ouch','shake:2');}return;}
     if(e.miss){if(e.n!=null&&this.N[e.n]&&J[e.n]==null){J[e.n]=3;this.jn[i].push([e.n,3]);}this.combo[i]=0;return;}
     const n=e.n;if(n==null||!this.N[n]||this.N[n].b||J[n]!=null||Math.abs(this.N[n].T-this.f)>45)return;const q=clamp(e.q|0,0,2);
     J[n]=q;this.jn[i].push([n,q]);this.combo[i]++;this.best[i]=Math.max(this.best[i],this.combo[i]);const pts=Math.round(CHOP.PTS[q]*this.mult(this.combo[i]));
-    this.ps[i]+=pts;this.sc[teamOf(i)]+=pts;this.fxs.push([i,q,this.f,this.N[n].d,n]);this.ev.push(q===0?'hit':'tap');if(q===0&&this.combo[i]%10===0)this.ev.push('shake:3','combo');}
+    this.ps[i]+=pts;this.fxs.push([i,q,this.f,this.N[n].d,n]);this.ev.push(q===0?'hit':'tap');if(q===0&&this.combo[i]%10===0)this.ev.push('shake:3','combo');}
   step(){this.f++;this.fxs=this.fxs.filter(x=>this.f-x[2]<16);
     if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}}
     else if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
@@ -442,11 +458,10 @@ class ChopSim{
     this.N.forEach((no,n)=>{if(this.f-no.T===40)for(let i=0;i<4;i++)if(this.J[i][n]==null){if(no.b){this.J[i][n]=5;this.jn[i].push([n,5]);continue;}this.J[i][n]=3;this.jn[i].push([n,3]);this.combo[i]=0;}});   /* 고추는 안 눌러야 정답 */
     this.slots.forEach((s,i)=>{if(!s.bot)return;this.N.forEach((no,n)=>{if(no.T-this.f===18&&this.J[i][n]==null){if(no.b){if(Math.random()<.1)this.bq[i].push([no.T,n,-1]);return;}const off=Math.round((Math.random()*2-1)*(i===1?9:13));this.bq[i].push([no.T+off,n,Math.abs(off)]);}});
       this.bq[i]=this.bq[i].filter(([at,n,dt])=>{if(this.f<at)return true;const d=this.N[n].d;if(dt<0){this.input(i,{tap:1,pepper:1,n,d});return false;}const q=CHOP.WIN.findIndex(w=>dt<=w);if(q>=0)this.input(i,{tap:1,n,q,d});return false;});});}
-  snap(send){const jn=this.jn;if(send)this.jn=[[],[],[],[]];return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,sc:this.sc,ps:this.ps,combo:this.combo,fxs:this.fxs,pos:this.pos,mv:this.mv,jn:send?jn:[],tag:this.combo.map(c=>c?`콤보 ${c}`:'')};}
+  snap(send){const jn=this.jn;if(send)this.jn=[[],[],[],[]];return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,ps:this.ps,combo:this.combo,fxs:this.fxs,pos:this.pos,mv:this.mv,jn:send?jn:[],tag:this.combo.map(c=>c?`콤보 ${c}`:'')};}
   full(){return{seed:this.seed,start:this.start};}
-  result(){return{sc:this.sc,ps:this.ps,lines:[0,1].map(t=>`최고 콤보 ${Math.max(...this.best.filter((b,i)=>teamOf(i)===t))}`)};}
+  result(){return{ps:this.ps,lines:this.best.map(b=>`최고 콤보 ${b}`)};}
 }
-const chopX=i=>8+i*118;
 /* 재료 그림을 사선(/)으로 나눈 두 조각 + 조각 색표 (터지는 픽셀 색) — 처음 한 번만 만듦 */
 const CHOP_HALF={};
 function chopHalves(key){if(CHOP_HALF[key])return CHOP_HALF[key];const im=IMG[key];if(!im||!im.complete||!im.naturalWidth)return null;
@@ -455,49 +470,38 @@ function chopHalves(key){if(CHOP_HALF[key])return CHOP_HALF[key];const im=IMG[ke
   for(let y=0;y<W;y++)for(let x=0;x<W;x++){const o=(y*W+x)*4,T=x+y<W-1?da:db;for(let c=0;c<4;c++)T.data[o+c]=D.data[o+c];
     if(D.data[o+3]>200){const h='#'+[0,1,2].map(c=>D.data[o+c].toString(16).padStart(2,'0')).join('');if(h!=='#000000')pal.add(h);}}
   ax.putImageData(da,0,0);bx.putImageData(db,0,0);return CHOP_HALF[key]={a:A,b:B,pal:[...pal]};}
-/* 요리사 위치·파티클은 화면마다 따로 계산 (보이는 것만, 결과에 영향 없음) */
-const CHEF={f:-1,x:[],tx:[],pt:[]};
-function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}const n=C.f<0?1:clamp(Math.round(S.f-C.f),0,4);C.f=S.f;
-  for(let i=0;i<4;i++){const{w}=koongSize(i),x0=chopX(i),m=Math.min(Math.ceil(w/2)-2,30),lo=x0+m,hi=x0+110-m;   /* 큰 캐릭터(샐쿵)는 옆 레인으로 조금 넘어가도 이동이 보이게 */
-    let d=S.pos?S.pos[i]:0;if(i===me&&pd.myJ&&pd.myJ.d&&pd.myJ.df>=(S.mv?S.mv[i]:0)-20)d=pd.myJ.d;
-    const tx=clamp(d?chopLX(i,d)+10:x0+55,lo,hi);if(C.x[i]==null)C.x[i]=tx;
-    if(C.tx[i]!==tx&&C.tx[i]!=null){const dir=Math.sign(tx-C.x[i]);for(let k=0;k<6;k++)C.pt.push({x:C.x[i]-dir*(4+k*2),y:266-(k%3),vx:-dir*(.2+k*.12),vy:-.25-(k%3)*.18,t:0,l:10+k*2,c:k%2?'#fff':MAP.shade});}   /* 출발할 때 발밑 먼지 */
-    C.tx[i]=tx;let moving=0;for(let k=0;k<n;k++){const dx=tx-C.x[i];if(dx){C.x[i]+=Math.sign(dx)*Math.min(Math.abs(dx),dx*dx>64?4:2);moving=Math.sign(dx);}}
-    if(moving&&(S.f&3)===0)C.pt.push({x:C.x[i]-moving*6,y:267,vx:-moving*.3,vy:-.3,t:0,l:8,c:'#fff'});
-    const hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8),bob=moving||hit?0:(((f>>5)+i)%2?-1:0),leg=moving?-moving*3:0;
-    koongWalk(i,C.x[i],268+bob,leg,leg,0);}
-  for(let k=0;k<n;k++)C.pt.forEach(p=>{p.t++;p.x+=p.vx;p.y+=p.vy;});C.pt=C.pt.filter(p=>p.t<p.l);
-  for(const p of C.pt)R(Math.round(p.x),Math.round(p.y),1,1,p.c);}
-function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);
-  for(let i=0;i<4;i++){const x=chopX(i),t=teamOf(i);R(x,0,110,270,i===me?MAP.hi:MAP.green);R(x,0,110,4,TEAM[t].col);R(x,4,110,1,MAP.ink);R(x+109,0,1,270,MAP.shade);
-    K(GAME.slots[i]?GAME.slots[i].name.slice(0,8):'',x+55,8,TEAM[t].col,'center',8);
-    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,CHOP.TOPY,2,CHOP.HITY-CHOP.TOPY,MAP.shade);}
-    R(x+4,CHOP.HITY+12,102,20,MAP.mint);R(x+4,CHOP.HITY+12,102,3,'#fff');R(x+4,CHOP.HITY+30,102,2,MAP.blue);   // 도마 (민트)
-    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,CHOP.HITY-11,22,22,MAP.blue);R(lx,CHOP.HITY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,CHOP.HITY-6,MAP.blue,'center',9);   /* 판정 칸 (재료 크기 20)*/}
-    const c=S.combo[i];if(c>=2)K(`${c} COMBO`,x+55,24,c>=30?'#fff419':'#fff','center',c>=30?11:9);}
+/* 4분할 그리기: 칸마다 왼쪽 = 레인 4줄 + 도마, 오른쪽 = 요리사 쿵야(썰 때마다 들썩) · 콤보 */
+function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY;
+  for(let i=0;i<4;i++){const X=qx(i),Y=chopY(i);R(X,Y,QW,QH,i===me?MAP.hi:MAP.green);R(X+112,Y+13,QW-112,QH-13,MAP.cream);wallTiles(X+112,Y+13,QW-113,QH-46);R(X+112,Y+QH-33,QW-113,32,MAP.mint);R(X+112,Y+QH-33,QW-113,2,MAP.blue);   /* 왼쪽 레인 · 오른쪽 주방 */
+    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,Y+TY,2,HY-TY,MAP.shade);}
+    R(X+6,Y+HY+13,100,18,MAP.mint);R(X+6,Y+HY+13,100,3,'#fff');R(X+6,Y+HY+29,100,2,MAP.blue);   // 도마 (민트)
+    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,Y+HY-11,22,22,MAP.blue);R(lx,Y+HY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,Y+HY-6,MAP.blue,'center',9);}   /* 판정 칸 (재료 크기 20) */
+    const hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8&&x[1]!==3),bob=hit?0:(((f>>5)+i)%2?-1:0);koongWalk(i,X+176,Y+QH-4+bob,hit?-3:0,hit?3:0,hit?3:0);   /* 요리사: 썰 때 다리 벌리고 들썩 */
+    const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+176,Y+18,c>=30?'#fff419':'#fff','center',c>=30?11:9);}
   // 떨어지는 재료
-  if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-14)continue;const y=CHOP.HITY-dt/CHOP.FALL*(CHOP.HITY-CHOP.TOPY);
-    for(let i=0;i<4;i++){if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;const lx=chopLX(i,no.d),im=IMG[KITEM[n%3]];
+  if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-14)continue;const yl=HY-dt/CHOP.FALL*(HY-TY);
+    for(let i=0;i<4;i++){if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;const lx=chopLX(i,no.d),y=chopY(i)+yl,im=IMG[KITEM[n%3]];
+      if(y<chopY(i)+14)continue;   /* 이름 띠 위로는 안 그림 */
       if(no.b){const yy=Math.round(y)-9,X=lx+3;R(X+6,yy,4,3,'#3a8a28');R(X+7,yy-2,2,2,'#3a8a28');R(X+3,yy+3,10,9,'#e83a2a');R(X+4,yy+12,8,3,'#e83a2a');R(X+6,yy+15,4,2,'#c82a1a');R(X+4,yy+4,2,4,'#ff9a8a');continue;}   /* 매운 고추 (도트) */
       if(im&&im.complete)g.drawImage(im,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,'#e8a040');}}
   // 썰기 효과: 사선으로 반 갈라져 튀는 재료 + 1픽셀 조각
-  for(const[i,q,at,d,nn]of S.fxs){if(q===3){const k=S.f-at;K('매워! 콤보 끊김',chopX(i)+55,CHOP.HITY-44-k,'#ff5a5a','center',10);R(chopLX(i,d)+2-k,CHOP.HITY-6,4,4,'#e83a2a');R(chopLX(i,d)+14+k,CHOP.HITY-6,4,4,'#e83a2a');continue;}const k=S.f-at,lx=chopLX(i,d);
-    const y0=CHOP.HITY-10,HV=chopHalves(KITEM[(nn!=null?nn:at)%3]),fl=Math.round(k*k*.07),dx=Math.round(k*1.3);
+  for(const[i,q,at,d,nn]of S.fxs){const k=S.f-at,lx=chopLX(i,d),Y=chopY(i),tx=qx(i)+176;
+    if(q===3){K('매워! 콤보 끊김',tx,Y+36-Math.floor(k/3),'#ff5a5a','center',10);R(lx+2-k,Y+HY-6,4,4,'#e83a2a');R(lx+14+k,Y+HY-6,4,4,'#e83a2a');continue;}
+    const y0=Y+HY-10,HV=chopHalves(KITEM[(nn!=null?nn:at)%3]),fl=Math.round(k*k*.07),dx=Math.round(k*1.3);
     if(HV){g.drawImage(HV.a,lx-dx,y0-Math.round(k*.9)+fl);g.drawImage(HV.b,lx+dx,y0+Math.round(k*.4)+fl);}   /* 사선(/)으로 갈라진 두 조각 · 정수 좌표 */
     if(k<4)for(let j=-4;j<=23;j++)R(lx+19-j,y0+j,1,1,'#fff');   /* 썰리는 순간 흰 사선 */
     {const r=chopRng((nn!=null?nn:at)*7919+i*131),pal=HV?HV.pal:['#fff'],n=[14,10,6][q];   /* 터지는 1픽셀 조각 (모든 기기에서 같은 모양) */
       for(let p=0;p<n;p++){const an=r()*6.283,sp=.7+r()*1.6,life=9+r()*7,c=r()<.25?'#fff':pal[Math.floor(r()*pal.length)];if(k>life)continue;
         R(Math.round(lx+10+Math.cos(an)*sp*k),Math.round(y0+10+Math.sin(an)*sp*k+k*k*.05),1,1,c);}}
-    if(k<12)K(CHOP.QN[q],chopX(i)+55,CHOP.HITY-44-k,CHOP.QC[q],'center',q===0?12:10);}
-  /* 도마 아래 요리사 쿵야: 누른 키 칸 아래로 높이를 그대로 유지한 채 미끄러지듯 이동 + 발밑 작은 파티클 (평소엔 1도트 숨쉬기) */
-  chopChefs(S,pd,me,f);
-  if(me>=0)meMark(chopX(me)+55,17);
-  if(S.ph==='cd'){R(90,90,300,74,'rgba(42,58,72,.88)');K('주방 난타!',240,98,'#fff419','center',16);K('재료가 선에 닿을 때 같은 방향키!',240,122,'#fff','center',11);txt(String(Math.max(1,Math.ceil(S.t/50))),240,142,'#fff','center',14);}
-  if(S.ph==='end'){R(100,100,280,44,'rgba(42,58,72,.88)');K('그만! 영업 종료',240,112,'#fff419','center',16);}}
-regGame({id:'chop',title:'쿵야 주방 난타',icon:'④',
-  ctrl:['내 이름이 적힌 레인','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
+    if(k<12)K(CHOP.QN[q],tx,Y+36-Math.floor(k/3),CHOP.QC[q],'center',q===0?12:10);}
+  for(let i=0;i<4;i++)quadFrame(i,S,me);
+  const sec=Math.max(0,Math.ceil(S.tm/60));R(222,116,36,18,MAP.ink);txt(String(sec),240,121,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
+  if(S.ph==='cd'){R(90,90,300,90,'rgba(42,58,72,.92)');K('주방 난타!',240,98,'#fff419','center',16);K('재료가 선에 닿을 때 같은 방향키!',240,122,'#fff','center',11);txt(String(Math.max(1,Math.ceil(S.t/50))),240,150,'#fff','center',14);}
+  if(S.ph==='end'){R(100,112,280,46,'rgba(42,58,72,.92)');K('그만! 영업 종료',240,124,'#fff419','center',16);}}
+regGame({id:'chop',title:'쿵야 주방 난타',icon:'②',
+  ctrl:['내 이름이 적힌 칸 (4분할)','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
   gimmick:'<b>매운 고추</b> — 고추는 누르지 마세요! 누르면 콤보 끊김',
-  win:'45초 동안 팀 점수가 높은 팀!',
+  win:'45초 동안 개인 점수 1위! (4명 모두 같은 악보)',
   desc:'떨어지는 재료가 선에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
   controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 선에 닿을 때 같은 방향!'},
   demoSkip:150,   /* 게임 설명: 열자마자 재료가 떨어지는 장면부터 */
@@ -509,7 +513,6 @@ regGame({id:'chop',title:'쿵야 주방 난타',icon:'④',
   /* 내 화면 기준 판정: 가까운 같은 방향 재료를 찾아 품질까지 정해서 보냄 */
   prep(e,S,me,pd){if(!e.tap||!S||!pd.N)return e;const J=pd.J[me],M=pd.myJ,done=n=>J[n]!=null||M[n]!=null;let best=-1,bd=99;   /* M = 내가 이미 누른 재료(화면에서 바로 사라지게) */
     pd.N.forEach((no,n)=>{if(done(n))return;const dt=Math.abs(no.T-S.f);if(dt<=CHOP.WIN[2]&&no.d===e.d&&dt<bd){bd=dt;best=n;}});
-    M.d=e.d;M.df=S.f;   /* 내 요리사는 내 화면에서 바로 이동 */
     if(best>=0&&pd.N[best].b){M[best]=6;return{tap:1,pepper:1,n:best,d:e.d};}
     if(best>=0){const q=CHOP.WIN.findIndex(w=>bd<=w);M[best]=q;return{tap:1,n:best,q,d:e.d};}
     let wrong=-1;pd.N.forEach((no,n)=>{if(!done(n)&&!no.b&&Math.abs(no.T-S.f)<=CHOP.WIN[1]&&wrong<0)wrong=n;});
@@ -518,132 +521,91 @@ regGame({id:'chop',title:'쿵야 주방 난타',icon:'④',
   draw:chopDraw});
 
 /* ┌─────────────────────────────────────────────────────────
-   │ ⑤ 쿵야 서빙 — 팀 2명이 긴 선반을 함께 들고 접시를 테이블까지 배달
-   │ 앞사람 = 선반 앞쪽, 뒷사람 = 선반 뒤쪽 · ◀ ▶ 를 번갈아 누르면 한 걸음 (같은 키를 또 누르면 헛발질)
-   │ 둘의 속도가 다르면 선반이 출렁여 접시가 떨어지고, 간격이 너무 벌어지거나 붙으면 선반을 놓침
-   │ 90초 · 점수 = 이동 거리 + 배달한 접시 + 도착 순위 보너스
+   │ ③ 쿵야 스모 — 둥근 씨름판에서 부딪쳐 상대를 밖으로 밀어내기 (개인전 · 4명 난투)
+   │ 방향키 이동 · A 돌진(1초 재사용) · 최대 3판, 먼저 2판 이기면 끝 · 한 판 40초, 20초부터 씨름판이 줄어듦
+   │ 판 승리 = 마지막까지 남은 한 명 (시간이 다 되면 남은 쿵야 중 가운데에 가장 가까운 쿵야)
+   │ 개인 점수: 상대를 떨어뜨림 +300 · 판 승리 +500 · 혼자 떨어짐 -50
+   │ (예전 2:2 스모를 개인전 · 비율 조정한 원본 그림(big_*) 1배 · 정수 좌표로 다시 만듦)
    └───────────────────────────────────────────────────────── */
-/* 난이도 조절값: STRIDE 한 걸음 힘 · GAP 두 사람 기본 간격 · TOL 놓치는 간격 차이 · WOB 출렁임(속도 차이 · 간격 차이 · 되돌림 · 감쇠) · TRIP 헛발질 출렁임 */
-const SRV={SEC:90,LEN:1200,DISH:6,STRIDE:.55,FRIC:.9,TRIP:.35,GAP:84,TOL:28,   /* GAP: 원본 그림(가로 최대 96) 두 명이 겹치지 않는 간격 */
- 
-  WOB:[.045,.003,.05,.88],TRIPW:.12,
-  PUD:[[380,470],[760,850]],PUD_PUSH:.55,PUD_NOISE:.05,   /* 기믹: 물웅덩이 2곳 — 걸음 힘 55%, 선반 출렁임 */
-  RESPAWN:90,BOB:6};
-class ServeSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.sc=[0,0];this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=SRV.SEC*60;this.drops=[];this.fin=0;
-    this.H=[0,1].map(t=>({x:[40+SRV.GAP,40],v:[0,0],last:[0,0],bob:[0,0],fr:[0,0],w:0,wv:0,dish:SRV.DISH,st:'go',t:0,done:0,rank:0,contrib:[0,0],falls:0,bot:[{n:0,d:2},{n:4,d:2}]}));}
-  /* 슬롯 t*2 = 앞사람(k=0), t*2+1 = 뒷사람(k=1) */
-  input(i,e){if(!e.tap||(e.d!==2&&e.d!==4)||this.ph!=='play')return;const t=teamOf(i),k=i%2,h=this.H[t];if(h.st!=='go'||h.done)return;
-    if(h.last[k]===e.d){h.v[k]*=SRV.TRIP;h.wv+=(k?-1:1)*SRV.TRIPW;h.last[k]=0;return;}   /* 같은 발 또 → 헛발질 */
-    const pud=this.inPud(h);h.v[k]+=SRV.STRIDE*(pud?SRV.PUD_PUSH:1);h.last[k]=e.d;h.bob[k]=SRV.BOB;h.fr[k]^=1;h.contrib[k]++;}
-  inPud(h){const m=(h.x[0]+h.x[1])/2;return SRV.PUD.some(([a,b])=>m>=a&&m<=b);}
-  step(){this.f++;this.drops=this.drops.filter(d=>(d.t++)<50);
+/* 조절값: R0 처음 씨름판 반지름 · R1 최소 · PR 몸 반지름 · ACC 가속 · FRIC 마찰 · MAX 최고 속도 · DASH 돌진 힘 · DCD 돌진 재사용(프레임) · SQ 화면 세로 눌림 */
+const SUMO={SEC:40,CX:240,CY:150,R0:124,R1:72,PR:17,ACC:.22,FRIC:.9,MAX:2.1,DASH:5.4,DCD:60,SQ:.6,KO:300,WIN:500,SELF:50,
+  START:[[180,104],[300,104],[180,196],[300,196]]};
+const SUMO_DX=[0,0,1,0,-1],SUMO_DY=[0,-1,0,1,0];
+class SumoSim{
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ko=[0,0,0,0];this.ev=[];this.done=false;this.wins=[0,0,0,0];this.r=0;this.dir=[0,0,0,0];this.round();}
+  round(){this.ph='cd';this.t=150;this.tm=SUMO.SEC*60;this.R=SUMO.R0;this.rw=-1;
+    this.P=SUMO.START.map(([x,y],i)=>({x,y,vx:0,vy:0,fx:i%2?-1:1,fy:0,st:'in',t:0,dash:0,cd:0,last:-1,lt:-999,sq:0}));}
+  input(i,e){if('d' in e)this.dir[i]=e.d;if(e.a&&this.ph==='play'){const p=this.P[i];if(p.st==='in'&&p.cd<=0){p.vx+=p.fx*SUMO.DASH;p.vy+=p.fy*SUMO.DASH;p.dash=14;p.cd=SUMO.DCD;this.ev.push('tap');}}}
+  step(){this.f++;
     if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
-    if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
-    if(--this.tm<=0||this.H.every(h=>h.done))return this.end();
-    this.H.forEach((h,t)=>this.team(h,t));}
-  team(h,t){if(h.done)return;h.bob=h.bob.map(b=>Math.max(0,b-1));
-    if(h.st==='fall'){if(--h.t<=0){Object.assign(h,{st:'go',v:[0,0],w:0,wv:0,last:[0,0]});h.x[1]=h.x[0]-SRV.GAP;}return;}
-    [0,1].forEach(k=>{if(this.slots[t*2+k].bot)this.bot(h,t,k);});
-    const pud=this.inPud(h);h.pud=pud;
-    for(const k of [0,1]){h.x[k]+=h.v[k];h.v[k]*=SRV.FRIC;}
-    if(h.x[1]>h.x[0]-12)h.x[1]=h.x[0]-12;   /* 뒷사람이 앞사람을 지나가지 못함 */
-    // 선반 출렁임: 둘의 속도 차이 + 간격이 기본에서 벗어난 만큼, 웅덩이에서는 흔들림 추가
-    const err=h.x[0]-h.x[1]-SRV.GAP;h.err=err;
-    h.wv=(h.wv+(h.v[0]-h.v[1])*SRV.WOB[0]+err*SRV.WOB[1]-h.w*SRV.WOB[2]+(pud?(Math.random()-.5)*SRV.PUD_NOISE:0))*SRV.WOB[3];h.w+=h.wv;
-    if(Math.abs(h.w)>1&&h.dish>0){h.dish--;h.w*=.3;h.wv*=.3;this.drops.push({t:0,team:t,x:(h.x[0]+h.x[1])/2,dir:Math.sign(h.w)||1});this.ev.push('ouch','shake:2');}
-    if(Math.abs(err)>SRV.TOL){h.st='fall';h.t=SRV.RESPAWN;h.falls++;const lost=Math.min(2,h.dish);h.dish-=lost;for(let k=0;k<lost;k++)this.drops.push({t:0,team:t,x:(h.x[0]+h.x[1])/2,dir:k?1:-1});this.ev.push('big','shake:7');}
-    if(h.x[0]>=SRV.LEN){h.x[0]=SRV.LEN;h.done=1;h.rank=++this.fin;const bonus=h.rank===1?1500:300;   /* 1등 도착 보너스가 커서 먼저 도착한 팀이 항상 이김 · 접시는 보너스 */
-      this.sc[t]+=h.dish*100+bonus;[0,1].forEach(k=>{this.ps[t*2+k]+=h.dish*50+Math.round(bonus/2);});this.ev.push('win','shake:5');}
-    this.scoreDist(h,t);}
-  scoreDist(h,t){const d=Math.floor(h.x[0]/5),add=d-(h.dp||0);if(add<=0)return;h.dp=d;this.sc[t]+=add;const tot=h.contrib[0]+h.contrib[1]||1;
-    [0,1].forEach(k=>{const i=t*2+k;h['acc'+k]=(h['acc'+k]||0)+add*h.contrib[k]/tot;const g=Math.floor(h['acc'+k]);if(g>0){this.ps[i]+=g;h['acc'+k]-=g;}});h.contrib=[h.contrib[0]*.5,h.contrib[1]*.5];}
-  /* AI: 박자를 조금씩 흔들며 번갈아 걷고, 간격을 보고 앞사람은 기다리고 뒷사람은 따라붙음 */
-  bot(h,t,k){const B=h.bot[k];if(this.f<B.n)return;const err=h.x[0]-h.x[1]-SRV.GAP;let gap=11+Math.floor(Math.random()*5);
-    if(k===0&&err>6)gap+=Math.min(14,err);if(k===1&&err>6)gap-=4;if(k===1&&err<-6)gap+=8;
-    B.d=Math.random()<.03?B.d:(B.d===2?4:2);this.input(t*2+k,{tap:1,d:B.d});B.n=this.f+gap;}
-  end(){if(this.ph==='end')return;this.ph='end';this.t=160;this.ev.push('win');}
-  snap(){return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,sc:this.sc,ps:this.ps,drops:this.drops,
-    H:this.H.map(h=>({x:h.x.map(v=>Math.round(v*2)/2),d:h.dish,w:Math.round(h.w*100)/100,st:h.st,ft:h.st==='fall'?h.t:0,pud:h.pud?1:0,done:h.done,rank:h.rank,e:Math.round(h.err||0)})),
-    tag:[0,1,2,3].map(i=>(i%2?'선반 뒤쪽':'선반 앞쪽'))};}
-  result(){return{sc:this.sc,ps:this.ps,lines:[0,1].map(t=>{const h=this.H[t];return `${h.done?h.rank+'등 도착':'도착 못 함 '+Math.floor(h.x[0]/SRV.LEN*100)+'%'} · 접시 ${h.dish}/${SRV.DISH} · 선반 놓침 ${h.falls}`;})};}
+    if(this.ph==='end'){if(--this.t<=0){if(this.wins.some(w=>w>=2)||this.r>=2)this.done=true;else{this.r++;this.round();}}return;}
+    this.tm--;const el=SUMO.SEC*60-this.tm;if(el>20*60)this.R=Math.max(SUMO.R1,SUMO.R0-(el-20*60)*(SUMO.R0-SUMO.R1)/(10*60));   // 20초부터 10초 동안 줄어듦
+    this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
+      if(d){p.vx+=SUMO_DX[d]*SUMO.ACC;p.vy+=SUMO_DY[d]*SUMO.ACC;p.fx=SUMO_DX[d];p.fy=SUMO_DY[d];}
+      p.vx*=SUMO.FRIC;p.vy*=SUMO.FRIC;const sp=Math.hypot(p.vx,p.vy),mx=p.dash>0?9:SUMO.MAX;if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
+      p.x+=p.vx;p.y+=p.vy;if(p.dash>0)p.dash--;if(p.cd>0)p.cd--;if(p.sq>0)p.sq--;});
+    // 부딪힘: 서로 밀어내고 속도를 주고받음 · 돌진 중이면 1.8배로 날려 버림 · 마지막으로 민 사람을 기억(KO 점수)
+    for(let a=0;a<4;a++)for(let b=a+1;b<4;b++){const A=this.P[a],B=this.P[b];if(A.st!=='in'||B.st!=='in')continue;let dx=B.x-A.x,dy=B.y-A.y,dd=Math.hypot(dx,dy)||.01;
+      if(dd>=SUMO.PR*2)continue;const nx=dx/dd,ny=dy/dd,ov=SUMO.PR*2-dd;A.x-=nx*ov/2;A.y-=ny*ov/2;B.x+=nx*ov/2;B.y+=ny*ov/2;
+      const rv=(A.vx-B.vx)*nx+(A.vy-B.vy)*ny;if(rv<=0)continue;const ka=B.dash>0?1.8:1,kb=A.dash>0?1.8:1,imp=rv*1.15;
+      A.vx-=nx*imp*ka;A.vy-=ny*imp*ka;B.vx+=nx*imp*kb;B.vy+=ny*imp*kb;A.sq=B.sq=8;A.last=b;A.lt=this.f;B.last=a;B.lt=this.f;
+      const pow=rv*Math.max(ka,kb);this.ev.push(pow>3?'big':'hit',`shake:${Math.min(8,Math.round(pow*1.5))}`);}
+    // 씨름판 밖으로
+    this.P.forEach((p,i)=>{if(p.st==='in'&&Math.hypot(p.x-SUMO.CX,p.y-SUMO.CY)>this.R+4){p.st='fall';p.t=40;this.ev.push('ouch','shake:6');
+        if(p.last>=0&&this.f-p.lt<150){this.ps[p.last]+=SUMO.KO;this.ko[p.last]++;}else this.ps[i]=Math.max(0,this.ps[i]-SUMO.SELF);}
+      if(p.st==='fall'){p.x+=p.vx*.5;p.y+=p.vy*.5;if(--p.t<=0)p.st='out';}});
+    const alive=[0,1,2,3].filter(i=>this.P[i].st==='in');
+    if(alive.length<=1)this.endRound(alive.length?alive[0]:-1);
+    else if(this.tm<=0)this.endRound(alive.sort((a,b)=>Math.hypot(this.P[a].x-SUMO.CX,this.P[a].y-SUMO.CY)-Math.hypot(this.P[b].x-SUMO.CX,this.P[b].y-SUMO.CY))[0]);}   /* 시간 끝: 가운데에 가장 가까운 쿵야 */
+  endRound(w){this.ph='end';this.t=160;this.rw=w;if(w>=0){this.wins[w]++;this.ps[w]+=SUMO.WIN;}this.ev.push('win','shake:8');}
+  /* AI: 가장 가까운 상대에게 다가가 가까우면 돌진 · 가장자리면 가운데로 돌아옴 */
+  bot(i){const p=this.P[i],foes=this.P.map((q,k)=>({q,k})).filter(o=>o.k!==i&&o.q.st==='in');if(!foes.length){this.dir[i]=0;return;}
+    const dc=Math.hypot(p.x-SUMO.CX,p.y-SUMO.CY),toward=(tx,ty)=>Math.abs(tx-p.x)>Math.abs(ty-p.y)?(tx>p.x?2:4):(ty>p.y?3:1);let tx,ty;
+    if(dc>this.R-24){tx=SUMO.CX;ty=SUMO.CY;}else{const o=foes.sort((a,b)=>Math.hypot(a.q.x-p.x,a.q.y-p.y)-Math.hypot(b.q.x-p.x,b.q.y-p.y))[0].q;tx=o.x;ty=o.y;
+      if(Math.hypot(tx-p.x,ty-p.y)<50&&p.cd<=0&&Math.random()<.07){this.dir[i]=toward(tx,ty);p.fx=SUMO_DX[this.dir[i]];p.fy=SUMO_DY[this.dir[i]];this.input(i,{a:1});return;}}
+    if(this.f%8===i*2)this.dir[i]=toward(tx,ty);}
+  snap(){return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,r:this.r,R:this.R,ps:this.ps,wins:this.wins,rw:this.rw,
+    P:this.P.map(p=>[Math.round(p.x*2)/2,Math.round(p.y*2)/2,p.st,p.t,p.dash,p.sq,p.fx,p.cd]),tag:this.ko.map((k,i)=>[this.wins[i]?`${this.wins[i]}승`:'',k?`KO ${k}`:''].filter(Boolean).join(' · '))};}
+  result(){return{ps:this.ps,lines:[0,1,2,3].map(i=>`판 승리 ${this.wins[i]}회 · KO ${this.ko[i]}`)};}
 }
-/* 다리 모션 (화면마다 따로 계산 · 결과엔 영향 없음): 걸은 거리로 발 박자(ph)를 정하고, 속도만큼 휘청임(A)이 커졌다 줄어듦
-   a·b = 두 발 끝이 앞뒤로 나간 도트, st = 다리가 늘어나 몸이 들리는 도트, j = 선반 놓쳤을 때 버둥거림 */
-const SRVL={f:-1,x:[[0,0],[0,0]],A:[[0,0],[0,0]]};
-function srvLegs(t,k,x,fall,f){const V=SRVL;if(f<V.f-5||f>V.f+30){V.x=[[x,x],[x,x]];V.A=[[0,0],[0,0]];}
-  if(t===0&&k===0)V.f=f;const sp=Math.abs(x-V.x[t][k]);V.x[t][k]=x;const A=V.A[t][k]=V.A[t][k]+(Math.min(1,sp/.35)-V.A[t][k])*.15;
-  if(fall){const q=(f>>2)&1;return{a:q?-5:-3,b:q?4:6,st:0,j:q?1:-1};}   /* 놓쳤을 땐 다리를 쩍 벌리고 버둥 */
-  const ph=x*.55+k*1.3,w=Math.sin(ph),wob=Math.sin(ph*2.3+t+k*2);   /* 2.3배 박자로 한 번 더 꺾여서 어설프게 */
-  return{a:Math.round(A*(7*w+3*wob)),b:Math.round(A*(-7*w+3*wob)),st:Math.round(A*6*Math.abs(Math.cos(ph))),j:0};}
-/* 배경 창문 간격(도트): 128 = 예전(64)의 절반 빈도 */
-const SRV_WIN=128;
-/* 도착 테이블 (x = 결승선 화면 좌표, gy = 바닥선): 바닥 체크 결승선 + 흰 식탁보 테이블 · 그 위 꽃병 · 빈 접시 자리 · 뒤에 의자 */
-function srvTable(x,gy){if(x>540||x<-120)return;const W='#fff',SH='#d8e4ec',WD='#b07a48',WK='#7a5030',INK=MAP.ink;
-  for(let y=gy+2;y<gy+22;y+=4)for(let k=0;k<2;k++)R(x+k*4-4,y,4,4,((y-gy-2)/4+k)%2?INK:W);   /* 결승선 체크 */
-  const cx=x+18;   /* 의자 (테이블 뒤) */R(cx+52,gy-38,4,39,WK);R(cx+52,gy-38,14,4,WK);R(cx+62,gy-38,4,39,WK);R(cx+48,gy-16,22,4,WD);R(cx+48,gy-16,22,1,'#d8a878');
-  const tx=x+12,tw=64,ty=gy-28;   /* 테이블 */
-  R(tx+6,ty+8,4,gy+1-ty-8,WK);R(tx+tw-10,ty+8,4,gy+1-ty-8,WK);R(tx+7,ty+8,1,gy+1-ty-8,WD);R(tx+tw-9,ty+8,1,gy+1-ty-8,WD);   /* 다리 */
-  R(tx-1,ty-1,tw+2,10,INK);R(tx,ty,tw,8,W);R(tx,ty,tw,2,'#fff');R(tx,ty+6,tw,2,SH);   /* 상판 + 식탁보 */
-  for(let k=0;k<tw;k+=8){R(tx+k,ty+8,8,3,W);R(tx+k+2,ty+11,4,1,W);R(tx+k,ty+8,8,1,MAP.blue);R(tx+k,ty+10,1,1,SH);}R(tx-1,ty+8,1,3,INK);R(tx+tw,ty+8,1,3,INK);   /* 식탁보 물결 끝단 + 파랑 줄 */
-  R(tx+8,ty-2,16,2,SH);R(tx+10,ty-3,12,1,W);R(tx+12,ty-2,8,1,MAP.blue);   /* 빈 접시 자리 */
-  const vx=tx+44;R(vx,ty-9,6,9,MAP.blue);R(vx+1,ty-8,1,6,MAP.hi);R(vx-1,ty-10,8,1,INK);   /* 꽃병 */
-  R(vx+2,ty-16,2,6,'#3a9a48');R(vx-2,ty-19,4,4,'#ff5ad0');R(vx+4,ty-21,4,4,MAP.yellow);R(vx+1,ty-23,4,4,'#ff7a5a');R(vx-1,ty-18,1,1,W);R(vx+5,ty-20,1,1,W);
-  R(x+27,gy-64,40,20,INK);R(x+28,gy-63,38,18,MAP.blue);R(x+28,gy-63,38,2,'#7fe0ff');R(x+46,gy-44,2,6,INK);K('도착',x+47,gy-60,'#fff','center',8);}   /* 표지판 */
-/* 근경 레이어: 카메라보다 빠르게(1.6배) 지나가는 화분 · 의자 등받이 · 손님 테이블 — 바닥 아래쪽에 걸쳐 캐릭터 발 앞을 지나감 */
-const SRV_FRONT=[[0,'plant'],[150,'chair'],[310,'plant'],[420,'tbl'],[600,'chair'],[760,'plant'],[900,'tbl'],[1080,'chair'],[1230,'plant'],[1400,'tbl'],[1580,'plant'],[1740,'chair'],[1900,'tbl']];
-function srvFront(cam,oy,gy){const b=oy+134,P=1.6;
-  for(const[x0,k]of SRV_FRONT){const x=Math.round(x0-cam*P+40);if(x<-60||x>500)continue;
-    if(k==='plant'){R(x,b-12,16,12,'#c86a3a');R(x-1,b-13,18,3,'#e08850');R(x,b-10,16,1,'#8a4020');   /* 화분 */
-      R(x+2,b-22,4,9,'#3a9a48');R(x+7,b-27,4,14,'#58b858');R(x+11,b-21,4,8,'#3a9a48');R(x+5,b-25,2,2,'#8ad878');R(x+12,b-20,2,2,'#8ad878');}
-    else if(k==='chair'){R(x,b-26,4,26,'#7a5030');R(x+20,b-26,4,26,'#7a5030');R(x,b-26,24,4,'#b07a48');R(x,b-26,24,1,'#d8a878');R(x+4,b-17,16,3,'#b07a48');}   /* 의자 등받이 */
-    else{R(x,b-18,40,6,'#fff');R(x,b-18,40,1,MAP.ink);R(x,b-13,40,1,'#d8e4ec');for(let k2=0;k2<40;k2+=8)R(x+k2,b-12,8,2,MAP.blue);R(x+4,b-10,4,10,'#7a5030');R(x+32,b-10,4,10,'#7a5030');   /* 손님 테이블 + 접시 */
-      R(x+10,b-21,12,3,'#fff');R(x+12,b-22,8,1,'#e84a3a');R(x+26,b-24,5,6,MAP.blue);R(x+27,b-23,1,4,MAP.hi);}}}
-function srvDraw(g,S,pd,me,f){
-  for(const t of [0,1]){const H=S.H[t],oy=t?136:0,mid=(H.x[0]+H.x[1])/2,cam=clamp(mid-150,0,SRV.LEN-300),gy=oy+112;
-    g.save();g.beginPath();g.rect(0,oy,480,134);g.clip();
-    wallTiles(0,oy,480,gy-oy);for(let x=-Math.round(cam*.3%SRV_WIN);x<480;x+=SRV_WIN){R(x+8,oy+18,40,30,MAP.blue);R(x+11,oy+21,34,24,MAP.hi);R(x+11,oy+21,34,3,MAP.blue);R(x+27,oy+21,2,24,MAP.blue);}   // 크림 벽(2.5D 타일) · 파랑 창 (창 간격 SRV_WIN)
-    R(0,gy,480,22,MAP.mint);R(0,gy,480,2,MAP.blue);for(let x=-(cam%32);x<480;x+=32){R(x,gy+2,16,20,MAP.green);R(x,gy+2,16,1,'#fff');}   // 바닥: 민트 · 연두 바둑판
-    srvTable(Math.round(SRV.LEN-cam),gy);   // 도착 지점: 결승선 + 손님 테이블
-    for(const[a,b2]of SRV.PUD){const px=Math.round(a-cam);if(px>480||b2-cam<0)continue;const w=b2-a;R(px+4,gy+2,w-8,4,MAP.blue);R(px,gy+4,w,6,MAP.blue);R(px+8,gy+3,10,2,'#fff');R(px+w-30,gy+6,14,2,'#fff');}   /* 물웅덩이 (파랑) */
-    for(const d of S.drops)if(d.team===t){const dx=Math.round(d.x-cam+d.dir*d.t*1.6),dy=Math.round(gy-80+d.t*d.t*.06);if(dy<gy+10){R(dx-6,dy,12,3,'#fff');R(dx-4,dy-2,8,2,'#e8a040');}}
-    const XF=Math.round(H.x[0]-cam),XB=Math.round(H.x[1]-cam),fall=H.st==='fall',col=TEAM[t].col;
-    // 두 쿵야: 몸통은 그대로 미끄러지듯 이동, 다리만 휘청휘청 (CLOP 느낌) — 모든 좌표 정수라 도트가 깨지지 않음
-    const LG=[0,1].map(k=>srvLegs(t,k,H.x[k],fall,f)),SZ=[koongSize(t*2),koongSize(t*2+1)];
-    for(const k of [1,0]){const lg=LG[k];koongWalk(t*2+k,(k?XB:XF)+lg.j,gy+1,lg.a,lg.b,lg.st);}
-    // 긴 선반: 두 사람 머리 위에 이고 감 · 출렁임(w)만큼 기울이고, 다리가 늘어나 몸이 들리면 그쪽 끝도 같이 들림
-    const x0=XB-Math.floor(SZ[1].w/2)+2,x1=XF+Math.ceil(SZ[0].w/2)-2,len=x1-x0,tilt=fall?0:Math.round(H.w*4);
-    const top=k=>gy+1-SZ[k].h-LG[k].st-6,ya=fall?gy-4:top(1)+tilt,yb=fall?gy-4:top(0)-tilt,   /* 각자 머리 꼭대기에 얹힘 (키 차이만큼 기울어짐) */py=x=>Math.round(ya+(yb-ya)*(x-x0)/len);
-    for(let x=x0;x<x1;x+=2){const y=py(x);R(x,y-1,2,1,MAP.ink);R(x,y,2,5,'#c8a070');R(x,y,2,1,'#f0d8a8');R(x,y+4,2,1,'#8a6040');R(x,y+5,2,1,col);R(x,y+6,2,1,MAP.ink);}   // 선반 + 팀 색 줄
-    // 접시: 세 군데에 쌓고, 출렁이면 미끄러짐
-    for(let k=0;k<H.d;k++){const s=k%3,lv=Math.floor(k/3),cx=Math.round(x0+len*(.25+s*.25)+(fall?0:H.w*(3+lv*2))),y=(fall?gy-4:py(cx))-4-lv*4;
-      R(cx-7,y,14,3,'#fff');R(cx-7,y+2,14,1,'#a8b8c8');R(cx-5,y-2,10,2,['#e84a3a','#f8d84a','#6ab84a'][k%3]);}
-    srvFront(cam,oy,gy);   // 근경 레이어: 캐릭터 앞을 더 빨리 지나가는 소품
-    if(me===t*2||me===t*2+1){const k=me===t*2?0:1;meMark(k?XB:XF,gy-Math.max(SZ[0].h,SZ[1].h)-26);}
-    K(`${TEAM[t].name}  ${Math.floor(H.x[0]/SRV.LEN*100)}%  접시 ${H.d}`,8,oy+4,col,'left',9);
-    if(H.done)K(`${H.rank}등 도착!`,240,oy+40,'#fff419','center',16);
-    else if(fall)K('앗! 선반을 놓쳤다',(XF+XB)/2,oy+18,'#ff8a8a','center',10);
-    else if(Math.abs(H.e)>SRV.TOL*.55&&(f>>3)&1)K(H.e>0?'너무 멀어요!':'너무 붙었어요!',(XF+XB)/2,oy+18,'#ff8a8a','center',10);
-    else if(H.pud&&(f>>3)&1)K('미끌미끌!',(XF+XB)/2,oy+18,'#7fd0ff','center',10);
-    g.restore();}
-  R(0,134,480,2,MAP.blue);
-  const sec=Math.max(0,Math.ceil(S.tm/60));R(214,124,52,20,MAP.ink);txt(String(sec),240,129,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
-  if(S.ph==='cd'){R(70,70,340,92,'rgba(42,58,72,.88)');K('쿵야 서빙!',240,78,'#fff419','center',16);K('둘이서 긴 선반을 들고 테이블까지!',240,100,'#fff','center',11);
-    K('◀ ▶ 를 번갈아 눌러 한 걸음씩 · 간격을 맞춰요',240,116,'#d4f4ff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,138,'#fff','center',14);}
-  if(S.ph==='end'){R(110,110,260,50,'rgba(42,58,72,.88)');K('영업 종료!',240,122,'#fff419','center',16);}}
-regGame({id:'serve',title:'쿵야 서빙',icon:'⑤',
-  ctrl:['앞사람 = 선반 앞쪽, 뒷사람 = 선반 뒤쪽 (대기방 위 자리 = 앞)','◀ ▶ 를 <b>번갈아</b> 누르면 한 걸음 (같은 키 연타는 헛발질)','둘의 속도가 다르면 접시가 흔들려 떨어져요'],
-  gimmick:'<b>물웅덩이</b> — 웅덩이 위에선 미끄러워 잘 안 나가고 선반이 출렁여요',
-  win:'먼저 도착하는 팀이 우승! (접시는 보너스 점수)',
-  desc:'2명이 긴 선반에 접시를 올려 들고 테이블까지 배달!<br>◀ ▶ 번갈아 걷기 · 간격이 너무 벌어지거나 붙으면 선반을 놓쳐요 · 90초',
-  controls:{dir:'tap',a:false,label:'◀ ▶ 번갈아',hint:'<span class="kk">◀</span><span class="kk">▶</span> 번갈아 눌러 한 걸음씩 · 같은 팀과 간격을 맞춰 걷기 (앞사람 앞쪽 · 뒷사람 뒤쪽)'},
-  newSim:(s,c)=>new ServeSim(s,c),
-  lerp(a,b,k){return{...b,H:b.H.map((h,i)=>{const q=a.H[i]||h;return{...h,x:h.x.map((v,j)=>q.x[j]+(v-q.x[j])*k)};})};},
-  draw:srvDraw});
+/* 픽셀 타원 (회전·안티앨리어싱 없이 줄 단위 사각형으로) */
+function pxEllipse(cx,cy,rx,ry,col){for(let y=-ry;y<=ry;y++){const w=Math.round(rx*Math.sqrt(Math.max(0,1-(y/ry)*(y/ry))));R(cx-w,cy+y,w*2,1,col);}}
+function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
+  R(0,0,480,270,MAP.mint);for(let y=0;y<270;y+=16)for(let x=(y/16)%2?16:0;x<480;x+=32)R(x,y,16,16,MAP.green);   // 바닥: 민트 · 연두 바둑판
+  pxEllipse(cx,cy+4,C.R0+14,Math.round((C.R0+14)*sq),MAP.ink);pxEllipse(cx,cy+3,C.R0+12,Math.round((C.R0+12)*sq),MAP.shade);   // 바깥 흙
+  pxEllipse(cx,cy,C.R0+6,Math.round((C.R0+6)*sq),MAP.cream);
+  const r=Math.round(S.R),ry=Math.round(S.R*sq);pxEllipse(cx,cy,r+2,ry+2,MAP.blue);pxEllipse(cx,cy,r-2,ry-2,MAP.cream);   // 줄어드는 경계 (파랑 4도트 띠)
+  if(S.R<C.R0&&(f&8)){pxEllipse(cx,cy,r+5,ry+4,'rgba(255,90,90,.35)');pxEllipse(cx,cy,r+2,ry+2,MAP.blue);pxEllipse(cx,cy,r-2,ry-2,MAP.cream);}
+  R(cx-34,cy-1,12,2,MAP.yellow);R(cx+22,cy-1,12,2,MAP.yellow);
+  const ord=[0,1,2,3].sort((a,b)=>S.P[a][1]-S.P[b][1]);
+  for(const i of ord){const[x,y,st,t,dash,sq2,fx,cd]=S.P[i];if(st==='out')continue;const X=Math.round(x),py=Math.round(cy+(y-cy)*sq);
+    if(st==='in')pxEllipse(X,py+1,15,3,'rgba(42,58,72,.25)');
+    if(dash>0)for(let k=1;k<4;k++)koong(i,X-fx*k*7,py,{a:.25,flip:fx<0});   // 돌진 잔상
+    if(st==='fall'){if((t>>2)&1)koong(i,X,py+Math.round((40-t)*.6),{flip:fx<0,tint:'#ffffff'});continue;}   // 떨어짐: 하얗게 깜빡이며 내려감 (회전·축소 없이)
+    koong(i,X,py+(sq2>4?1:0),{flip:fx<0});   // 부딪치면 1도트 눌림
+    R(X-11,py+3,22,4,MAP.ink);R(X-10,py+4,Math.round(20*(1-cd/C.DCD)),2,cd>0?MAP.blue:MAP.yellow);   // 돌진 게이지
+    const{h}=koongSize(i);if(i===me)meMark(X,py-h-12);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',X,py+8,PCOL[i],'center',8);}
+  // 위쪽: 1P~4P 판 승리 표시 (2칸) · 가운데 남은 시간
+  for(let i=0;i<4;i++){const bx=i<2?8+i*96:480-8-(4-i)*96;R(bx,4,90,16,MAP.ink);R(bx+2,6,8,12,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,5):'',bx+14,5,'#fff','left',8);
+    for(let k=0;k<2;k++){R(bx+66+k*11,7,9,10,k<S.wins[i]?MAP.yellow:'#3a4a58');}}
+  const sec=Math.max(0,Math.ceil(S.tm/60));R(204,4,72,18,MAP.ink);txt(`R${S.r+1} ${sec}`,240,9,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
+  if(S.R<C.R0&&S.ph==='play')K('씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
+  if(S.ph==='cd'){R(100,40,280,64,'rgba(42,58,72,.92)');K(`ROUND ${S.r+1} · 쿵야 스모`,240,48,MAP.yellow,'center',14);K('방향키로 움직이고 A로 돌진! 밖으로 밀어내기',240,70,'#fff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,86,'#fff','center',12);}
+  if(S.ph==='end'){const w=S.rw;R(110,40,260,50,'rgba(42,58,72,.92)');K(w<0?'무승부!':`${GAME.slots[w]?GAME.slots[w].name:''} 승리!`,240,50,w<0?'#fff':PCOL[w],'center',16);
+    K(S.wins.some(v=>v>=2)||S.r>=2?'스모 끝!':`다음 판 준비…`,240,72,'#fff','center',11);}}
+regGame({id:'sumo',title:'쿵야 스모',icon:'③',
+  ctrl:['방향키로 이동','A 버튼으로 돌진 (1초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
+  gimmick:'<b>줄어드는 씨름판</b> — 20초부터 씨름판이 점점 작아져요',
+  win:'4명 난투! 마지막까지 남으면 그 판 승리 · 먼저 2판 승리 (최대 3판) · 밀어낸 만큼 점수 UP',
+  desc:'방향키로 움직이고 A로 돌진! 다른 쿵야를 씨름판 밖으로 밀어내세요<br>개인전 · 최대 3판 · 20초부터 씨름판이 점점 줄어들어요',
+  controls:{dir:'hold',a:true,label:'방향키 + A 버튼',hint:'<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 이동 · <span class="kk">Z</span><span class="kk">Space</span> 돌진'},
+  newSim:(s,c)=>new SumoSim(s,c),
+  lerp(a,b,k){return{...b,P:b.P.map((p,i)=>{const q=a.P[i]||p;return[q[0]+(p[0]-q[0])*k,q[1]+(p[1]-q[1])*k,...p.slice(2)];})};},
+  draw:sumoDraw});
 
 /* ┌─────────────────────────────────────────────────────────
    │ KY 미니게임 배틀 공통 틀 (core)
-   │ 메인 · 방 코드 · 대기방(2:2, 방장이 게임 선택) · 게임 화면 + 개인 점수표 · 결과 → 대기방 · 랭킹 · 설정
+   │ 메인(닉네임 · 비밀번호) · 대기방(개인전 4칸, 모두 READY → 3초 뒤 시작) · 게임 3종 연속 + 개인 점수표 · 최종 결과 → 대기방 · 설정
    │ 게임은 games/*.js 가 regGame({...}) 로 등록합니다 (규칙은 games/README 참고).
    └───────────────────────────────────────────────────────── */
 /* GAMES · regGame 은 core/registry.js (게임 파일보다 먼저 로드) */
@@ -655,8 +617,16 @@ const LS={get(k,d){try{const v=localStorage.getItem('kyb_'+k);return v===null?d:
 const SB_URL='https://bocghvafjcxhgxuwwrts.supabase.co',SB_KEY='sb_publishable_0rgqKtLgUIosom5C8j_SBw_MsgdLSDb';
 const SNAP_EVERY=6;   /* 방장 화면 전송 간격(프레임): 6 = 초당 10번 (무료 플랜 초당 메시지 한도 안쪽) */
 const CFG={char:LS.get('char','yk'),filter:LS.get('filter',true),sound:LS.get('sound',true),name:LS.get('name','')};
-const TEAM=[{name:'SKY',col:'#00ccf3'},{name:'YELLOW',col:'#fff419'}];
-const teamOf=i=>i<2?0:1;
+/* 개인전: 1P~4P 고유 색 (캐릭터 테두리 · 점수표 · 대기방 칸) */
+const PCOL=['#00ccf3','#fff419','#ff5ad0','#58d838'];
+/* 4분할 화면 (1vs1vs1vs1): i번 플레이어 칸 = 240x135, 왼쪽 위부터 1P 2P / 3P 4P */
+const QW=240,QH=135,qx=i=>(i%2)*QW,qy=i=>(i>>1)*QH;
+/* 4분할 공통 틀: 칸 테두리(플레이어 색) · 위쪽 이름 띠 · 점수 · 나 표시 */
+function quadFrame(i,S,me){const x=qx(i),y=qy(i),c=PCOL[i],sl=GAME&&GAME.slots&&GAME.slots[i];
+  R(x,y,QW,13,MAP.ink);R(x+3,y+3,7,7,c);K(sl?sl.name.slice(0,8):'',x+14,y+1,c,'left',8);
+  if(i===me)txt('YOU',x+QW-60,y+3,MAP.yellow,'right',8);
+  txt(String(S.ps?S.ps[i]:0),x+QW-5,y+3,'#fff','right',8);
+  R(x,y,QW,1,c);R(x,y+QH-1,QW,1,c);R(x,y,1,QH,c);R(x+QW-1,y,1,QH,c);if(i===me){R(x+1,y+QH-3,QW-2,2,MAP.yellow);R(x+1,y+13,2,QH-16,MAP.yellow);R(x+QW-3,y+13,2,QH-16,MAP.yellow);}}
 /* 맵 색: 진한 색 = 포인트, 연한 색 = 바탕 (logo_yellow · logo_blue · restaurant_floor01/02 · restaurant_wall) */
 const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:'#fefcdd',shade:'#f0edc7',hi:'#fffef0',ink:'#2a3a48'};
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
@@ -678,7 +648,7 @@ function outlined(key,sx,sy,w,h,col,tint){const k=[key,sx,sy,w,h,col,tint].join(
 /* 쿵야 그리기: 모든 게임에서 비율 조정한 원본 그림(big_*)을 1배로 · 팀 색 테두리 · 발 밑 가운데가 (x,y).
    o={tint:덧칠 색, a:투명도, flip} (원본은 프레임이 1장이라 움직임은 위치·다리 모션으로 표현) */
 function koongC(i){const sl=GAME&&GAME.slots&&GAME.slots[i];return charOf(sl&&sl.ch||(i%2?'jm':'yk'));}
-function koongCv(i,tint){const C=koongC(i),B=CHS[C.big];return outlined(C.big,0,0,B.w,B.h,TEAM[teamOf(i)].col,tint);}
+function koongCv(i,tint){const C=koongC(i),B=CHS[C.big];return outlined(C.big,0,0,B.w,B.h,PCOL[i]||PCOL[0],tint);}
 function koongSize(i){const B=CHS[koongC(i).big];return{w:B.w+2,h:B.h+2};}
 function koong(i,x,y,o={}){const c=koongCv(i,o.tint);if(!c)return;g.save();if(o.a!=null)g.globalAlpha=o.a;
   if(o.flip){g.translate(Math.round(x),0);g.scale(-1,1);g.drawImage(c,-Math.round(c.width/2),Math.round(y)-c.height);}
@@ -743,27 +713,26 @@ addEventListener('keydown',e=>{AU.init();const inInput=e.target&&e.target.tagNam
   if(DIRK[e.code]&&!(inInput&&/Key[WASD]/.test(e.code))){held.delete(DIRK[e.code]);held.add(DIRK[e.code]);if(!e.repeat)onDir(DIRK[e.code]);if(!inInput)e.preventDefault();}
   if(e.repeat)return;
   if(screen==='game'&&/^(Digit|Numpad)[1-4]$/.test(e.code)&&isSpec()){specSet(+e.code.slice(-1)-1);return;}   /* 관전: 숫자로 시점 바로 선택 */
-  if(HOLD.on&&e.code==='KeyZ'&&!inInput){e.preventDefault();holdPress('k',true);return;}   /* 진행 대기 중: Z 꾹 누르기 */
   if(screen==='game'&&AKEYS.has(e.code)){e.preventDefault();if(GAME&&GAME.intro>0)return;sendA();return;}
   if(HOW_ON&&DIRK[e.code]&&(DIRK[e.code]===2||DIRK[e.code]===4)){howFlip(DIRK[e.code]===2?1:-1);return;}
   if(e.code==='Enter'||e.code==='NumpadEnter'||(e.code==='Space'&&!inInput)||(e.code==='KeyZ'&&!inInput)){e.preventDefault();onOK();}
   else if(e.code==='Escape'||(e.code==='KeyX'&&!inInput)||(e.code==='Backspace'&&!inInput)){e.preventDefault();onBack();}});
-addEventListener('keyup',e=>{if(DIRK[e.code]){held.delete(DIRK[e.code]);dirUp();}if(e.code==='KeyZ')holdPress('k',false);});
-addEventListener('blur',()=>{held.clear();holdPress('k',false);});
+addEventListener('keyup',e=>{if(DIRK[e.code]){held.delete(DIRK[e.code]);dirUp();}});
+addEventListener('blur',()=>{held.clear();});
 let padPrev={};
 function pollPad(){const P=[...(navigator.getGamepads?navigator.getGamepads():[])].filter(Boolean)[0];if(!P)return;
   const b=i=>P.buttons[i]&&P.buttons[i].pressed,ax=P.axes||[];
   const now={u:b(12)||ax[1]<-.5,d:b(13)||ax[1]>.5,l:b(14)||ax[0]<-.5,r:b(15)||ax[0]>.5,a:b(0)||b(2),b:b(1),s:b(9)};
   const map={u:1,r:2,d:3,l:4};
   for(const k in map){if(now[k]&&!padPrev[k]){held.delete(map[k]);held.add(map[k]);onDir(map[k]);AU.init();}if(!now[k]&&padPrev[k]){held.delete(map[k]);dirUp();}}
-  if(now.a&&!padPrev.a){AU.init();if(HOLD.on)holdPress('p',true);else if(screen==='game')sendA();else onOK();}if(!now.a&&padPrev.a)holdPress('p',false);if(now.s&&!padPrev.s&&screen!=='game')onOK();if(now.b&&!padPrev.b)onBack();padPrev=now;}
+  if(now.a&&!padPrev.a){AU.init();if(screen==='game')sendA();else onOK();}if(now.s&&!padPrev.s&&screen!=='game')onOK();if(now.b&&!padPrev.b)onBack();padPrev=now;}
 /* 터치: 십자 패드 · A 버튼 · 스와이프 */
 if('ontouchstart' in window||navigator.maxTouchPoints>0)document.body.classList.add('touch');
 document.querySelectorAll('#pad div').forEach(el=>{const d=+el.dataset.d;
   const on=e=>{e.preventDefault();AU.init();held.delete(d);held.add(d);el.classList.add('on');onDir(d);},off=e=>{e.preventDefault();held.delete(d);el.classList.remove('on');dirUp();};
   el.addEventListener('touchstart',on,{passive:false});el.addEventListener('touchend',off,{passive:false});el.addEventListener('touchcancel',off,{passive:false});
   el.addEventListener('mousedown',on);el.addEventListener('mouseup',off);el.addEventListener('mouseleave',off);});
-{const A=$('abtn');const on=e=>{e.preventDefault();AU.init();A.classList.add('on');if(HOLD.on)holdPress('t',true);else sendA();},off=e=>{e.preventDefault();A.classList.remove('on');holdPress('t',false);};
+{const A=$('abtn');const on=e=>{e.preventDefault();AU.init();A.classList.add('on');sendA();},off=e=>{e.preventDefault();A.classList.remove('on');};
   A.addEventListener('touchstart',on,{passive:false});A.addEventListener('touchend',off,{passive:false});A.addEventListener('mousedown',on);A.addEventListener('mouseup',off);}
 let sw=null;
 gc.addEventListener('touchstart',e=>{const t=e.touches[0];sw={x:t.clientX,y:t.clientY};},{passive:true});
@@ -819,43 +788,25 @@ function btns(){return[...document.querySelectorAll('#scr-'+screen+' .btn:not([h
 function paintSel(){btns().forEach((b,i)=>b.classList.toggle('sel',i===sel));}
 function toast(m,ms=2200){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms);}
 document.addEventListener('click',e=>{const b=e.target.closest('.btn');if(!b)return;AU.init();const L=btns();sel=Math.max(0,L.indexOf(b));paintSel();act(b.dataset.act);});
-function onOK(){if(screen==='game')return;if(screen==='char'){confirmChar();return;}if(HOW_ON){closeHow();return;}if(screen==='lobby'&&document.activeElement.tagName!=='INPUT'){lobbyOK();return;}const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
-function onBack(){if(HOW_ON){closeHow();return;}if(screen==='main')return;if(screen==='char'){show(CHAR_NEXT==='joinGo'?'join':'main');return;}if(screen==='game'){if(GAME&&GAME.local)backToRoom();return;}if(screen==='lobby'||screen==='result'){if(screen==='lobby'&&document.activeElement.tagName==='INPUT'){document.activeElement.blur();return;}leaveToMain();return;}AU.sfx('move');show('main');}
-function onDir(d){if(screen==='char'){if(d===2||d===4)pickChar(charSel+(d===2?1:-1));return;}if(HOW_ON)return;if(screen==='game'){if(isSpec()){if(d===2||d===4)specSet(SPEC_I+(d===2?1:-1));return;}if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
-  if(screen==='rank'&&(d===2||d===4))return;
-  if(screen==='lobby'&&document.activeElement.tagName==='INPUT')return;
-  if(screen!=='rank'){spatialMove(d);return;}
-  if(d===1||d===3){const L=btns();if(!L.length)return;sel=(sel+(d===3?1:-1)+L.length)%L.length;paintSel();AU.sfx('move');const f=document.querySelector('#scr-'+screen+' input');if(f)f.blur();}}
+function onOK(){if(screen==='game')return;if(HOW_ON){closeHow();return;}const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
+function onBack(){if(HOW_ON){closeHow();return;}if(screen==='main')return;if(screen==='game'){if(GAME&&GAME.local)backToRoom();return;}if(screen==='lobby'||screen==='result'){leaveToMain();return;}AU.sfx('move');show('main');}
+function onDir(d){if(HOW_ON)return;if(screen==='game'){if(isSpec()){if(d===2||d===4)specSet(SPEC_I+(d===2?1:-1));return;}if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
+  spatialMove(d);}
 function act(a){switch(a){
-  case 'create':openChar('create');break;
-  case 'join':if(needName()){show('join');$('codeIn').value='';}break;   /* 입장 · 관전을 먼저 고르고, 플레이어만 캐릭터 고르기 */
+  case 'enter':enterRoom('player');break;
+  case 'watch':enterRoom('spectator');break;
   case 'how':openHow();break;
-  case 'pick':openChar('local');break;   /* 혼자 연습은 core/test.js 가 있을 때만 메뉴에 나타남 */
-  case 'col0':cycleCol(0);break;
-  case 'col1':cycleCol(1);break;
+  case 'pick':if(typeof initLocalRoom==='function')initLocalRoom();break;   /* 혼자 연습은 core/test.js 가 있을 때만 메뉴에 나타남 */
   case 'fs':try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}catch(e){}break;
   case 'settings':openSettings();break;
-  case 'joinGo':if(codeOK())openChar('joinGo');break;
-  case 'watch':joinRoom('spectator');break;
   case 'back':show('main');break;
-  case 'team':lobbyTeam();break;
   case 'ready':lobbyReady();break;
-  case 'start':lobbyStart();break;
   case 'leave':leaveToMain();break;
   case 'home':leaveToMain();break;
   case 'flt':CFG.filter=!CFG.filter;LS.set('filter',CFG.filter);applyFilter();openSettings(true);break;
   case 'snd':CFG.sound=!CFG.sound;LS.set('sound',CFG.sound);AU.vol();openSettings(true);break;
 }}
-/* 캐릭터 선택: 메인 → (닉네임) → 캐릭터 고르기 → 대기방 만들기 / 혼자 연습
-   방 코드: 메인 → 방 코드 화면에서 입장 · 관전 먼저 선택 → 플레이어만 캐릭터 고르기 (관전은 바로 입장) */
-let CHAR_NEXT=null,charSel=0;
-function openChar(next){if(!needName())return;CHAR_NEXT=next;charSel=Math.max(0,CHARS.findIndex(c=>c.id===CFG.char));show('char');renderChar();}
-function renderChar(){$('charList').innerHTML=CHARS.map((c,i)=>{const B=CHS[c.big];return `<div class="ch ${i===charSel?'fr-on on':'fr-item'}" data-i="${i}"><div class="chimg"><img src="${B.src}" style="width:${B.w*2}px;height:${B.h*2}px"></div><b class="ol2">${esc(c.name)}</b></div>`;}).join('');}
-function pickChar(i){charSel=(i+CHARS.length)%CHARS.length;AU.sfx('move');renderChar();}
-function confirmChar(){CFG.char=CHARS[charSel].id;LS.set('char',CFG.char);AU.sfx('ok');const n=CHAR_NEXT;CHAR_NEXT=null;
-  if(n==='create')createRoom();else if(n==='joinGo')joinRoom('player');else if(n==='local'&&typeof initLocalRoom==='function')initLocalRoom();}
-document.addEventListener('click',e=>{const c=e.target.closest('#charList .ch');if(c){AU.init();charSel=+c.dataset.i;renderChar();confirmChar();}});
-/* 욕설 방지: 닉네임 · 팀 이름에 아래 단어가 들어 있으면 사용 불가 (추가는 이 목록에 그대로 적으면 됨)
+/* 욕설 방지: 닉네임에 아래 단어가 들어 있으면 사용 불가 (추가는 이 목록에 그대로 적으면 됨)
    공백 · 숫자 · 기호를 빼고 비교 → "씨 1 발", "f.u.c.k" 도 걸러짐 · 영문은 0→o 1→i 3→e 4→a 5→s @→a $→s 로 바꿔서도 비교 */
 const BAD_WORDS=['시발','씨발','씨바','씨빨','씨팔','시팔','십팔','쓰발','쓰바','씹','ㅅㅂ','ㅆㅂ','ㅅ발','ㅆ발','시벌','씨벌','싀발',
   '병신','븅신','빙신','병쉰','ㅂㅅ','ㅄ','좆','좃','존나','졸라','존내','ㅈㄴ','개새','개색','개세','개쉐','새끼','새키','섀키','쌔끼','ㅅㄲ',
@@ -866,131 +817,116 @@ function badName(s){s=String(s||'').toLowerCase();const a=s.replace(/[^a-z가-�
   return BAD_WORDS.some(w=>a.includes(w)||(/^[a-z]+$/.test(w)&&b.includes(w)));}
 function needName(){const n=$('nameIn').value.trim().slice(0,10);if(!n){toast('닉네임을 입력해 주세요');$('nameIn').focus();return false;}
   if(badName(n)){toast('사용할 수 없는 단어가 들어 있어요. 다른 닉네임을 입력해 주세요',3000);$('nameIn').value='';$('nameIn').focus();return false;}CFG.name=n;LS.set('name',n);return true;}
-const CODECH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-async function createRoom(){if(!needName())return;toast('방을 만드는 중…',8000);
-  for(let i=0;i<4;i++){const code=Array.from({length:4},()=>CODECH[Math.floor(Math.random()*CODECH.length)]).join('');
-    try{await NET.connect(code,'player','create');toast('방을 만들었습니다: '+code);initLobby();return;}catch(e){if(e!=='exists'){toast(netErr(e),4000);return;}}}
-  toast('방 코드를 만들지 못했습니다. 다시 시도해 주세요');}
-function codeOK(){const code=$('codeIn').value.trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(code))return code;if(screen!=='join')show('join');toast('방 코드 4자리를 입력해 주세요');$('codeIn').focus();return '';}
-async function joinRoom(role){if(!needName())return;const code=codeOK();if(!code)return;
-  toast('접속하는 중…',8000);try{await NET.connect(code,role,'join');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);if(screen==='char'){CHAR_NEXT=null;show('join');}}}   /* 실패하면 방 코드 화면으로 */
-function netErr(e){return{noroom:'방을 찾을 수 없습니다. 코드를 확인해 주세요',full:'방이 가득 찼습니다',exists:'같은 코드의 방이 있어 다시 만듭니다',timeout:'서버 응답이 없습니다. 잠시 후 다시 시도해 주세요',url:'서버 주소 설정 오류',closed:'서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요'}[e]||'연결 오류: '+e;}
+/* 크리에이터 무대 시연용: 고정 비밀번호 = 고정 방. 비밀번호가 맞으면 방 코드 없이 모두 같은 방(대기방)으로 바로 입장
+   (화면에는 방 코드를 표시하지 않음 — 큰 화면 관전으로 비밀번호가 노출되지 않게) */
+const STAGE_PASS='YCC1211',STAGE_ROOM='YCC1211';
+function needPass(){const p=$('passIn').value.trim().toUpperCase();if(p===STAGE_PASS)return true;
+  toast(p?'비밀번호가 맞지 않습니다':'비밀번호를 입력해 주세요');$('passIn').value='';$('passIn').focus();return false;}
+async function enterRoom(role){if(!needName()||!needPass())return;toast('입장하는 중…',8000);
+  try{await NET.connect(STAGE_ROOM,role,'any');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);}}
+function netErr(e){return{full:'방이 가득 찼습니다',timeout:'서버 응답이 없습니다. 잠시 후 다시 시도해 주세요',url:'서버 주소 설정 오류',closed:'서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요'}[e]||'연결 오류: '+e;}
 function openSettings(keep){$('setFlt').textContent='화면 필터: '+(CFG.filter?'켬':'끔');$('setSnd').textContent='사운드: '+(CFG.sound?'켬':'끔');if(!keep)show('settings');}
-/* ---------- 대기방 · 0·1번 = 팀 1, 2·3번 = 팀 2 · 온라인(방장이 관리) / 연습(LOBBY.local, 서버 없이 AI와) ---------- */
-const TEAM_COLORS=['#00ccf3','#fff419','#ff5ad0','#58d838','#ff9a3a','#b48aff','#ff5a5a','#ffffff'];
-const DEF_TEAMS=()=>[{name:'SKY',col:'#00ccf3'},{name:'YELLOW',col:'#fff419'}];
-let LOBBY=null;const MEMCH={};   /* 접속자별 고른 캐릭터 */
+/* ---------- 대기방 (개인전) · 1P~4P 네 칸 · 칸마다 위에서부터 닉네임 / 캐릭터 / READY
+   · 캐릭터는 입장할 때 방장이 남은 캐릭터 중 랜덤으로 정해 고정
+   · 사람 모두 READY → 3초 카운트 → 게임 3종 연속 시작 (빈 자리는 AI)
+   · 온라인(방장이 관리) / 연습(LOBBY.local, 서버 없이 AI와) ---------- */
+const COUNT_SEC=3;
+let LOBBY=null,CD_END=0,LAST_CD=0;
 const isLocal=()=>!!(LOBBY&&LOBBY.local);
 const myId=()=>isLocal()?'local':NET.id;
 const amHost=()=>isLocal()||NET.isHost;
-function applyTeams(T){if(!T)return;[0,1].forEach(t=>{TEAM[t].name=T[t].name;TEAM[t].col=T[t].col;});}
-function initLobby(){show('lobby');if(!NET.isHost)NET.send({t:'me',ch:CFG.char},NET.hostId);if(NET.isHost){LOBBY={slots:[null,null,null,null],game:0,teams:DEF_TEAMS()};syncSlots();pushLobby();}else{LOBBY=null;renderLobby();}focusMain();}
+function initLobby(){show('lobby');CD_END=0;if(NET.isHost){LOBBY={slots:[null,null,null,null],cd:0};syncSlots();pushLobby();}else{LOBBY=null;renderLobby();}focusMain();}
 function players(){return NET.members.filter(m=>m.role==='player');}
+/* 남은 캐릭터 중 랜덤 (다 쓰였으면 전체 중 랜덤) */
+function randChar(used){const all=CHARS.map(c=>c.id),free=all.filter(c=>!used.has(c)),L=free.length?free:all;return L[Math.floor(Math.random()*L.length)];}
 function syncSlots(){if(!LOBBY||isLocal())return;const ids=new Set(players().map(m=>m.id));
   LOBBY.slots=LOBBY.slots.map(s=>s&&!s.bot&&!ids.has(s.id)?null:s);
-  for(const m of players()){if(LOBBY.slots.some(s=>s&&s.id===m.id))continue;
-    const c=[0,1].map(t=>LOBBY.slots.filter((s,i)=>s&&teamOf(i)===t).length),t=c[0]<=c[1]?0:1;
-    let i=LOBBY.slots.findIndex((s,i)=>!s&&teamOf(i)===t);if(i<0)i=LOBBY.slots.findIndex(s=>!s);
-    if(i>=0)LOBBY.slots[i]={id:m.id,name:m.name,ready:m.id===NET.hostId,bot:false,ch:m.id===NET.id?CFG.char:(MEMCH[m.id]||'yk')};else NET.send({t:'full'},m.id);}
-  for(const s of LOBBY.slots)if(s&&s.id===NET.hostId)s.ready=true;}
+  for(const m of players()){if(LOBBY.slots.some(s=>s&&s.id===m.id))continue;const i=LOBBY.slots.findIndex(s=>!s);
+    if(i>=0)LOBBY.slots[i]={id:m.id,name:m.name,ready:false,bot:false,ch:randChar(new Set(LOBBY.slots.filter(Boolean).map(s=>s.ch)))};else NET.send({t:'full'},m.id);}}
 function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});renderLobby();}
-function myTeam(){const i=LOBBY?LOBBY.slots.findIndex(s=>s&&s.id===myId()):-1;return i<0?-1:teamOf(i);}
-const canEditTeam=t=>amHost()||myTeam()===t;
-function renderLobby(){const L=LOBBY,T=(L&&L.teams)||DEF_TEAMS();
-  const hm=NET.members.find(m=>m.id===NET.hostId);
-  $('lbMembers').innerHTML=isLocal()?'연습 모드 · 서버 없이 이 기기에서 AI 3명과 진행 · 빈 자리는 AI가 채웁니다':hm?'방장: '+esc(hm.name):'';
-  for(const t of [0,1]){const inp=$('tn'+t);if(document.activeElement!==inp)inp.value=T[t].name;inp.disabled=!canEditTeam(t);inp.style.color=T[t].col;
-    $('tc'+t).innerHTML=TEAM_COLORS.map(c=>`<i data-t="${t}" data-c="${c}" class="${c===T[t].col?'on':''}${c===T[1-t].col?' x':''}" style="background:${c}"></i>`).join('');
-    $('tc'+t).classList.toggle('ro',!canEditTeam(t));$('tcb'+t).hidden=!canEditTeam(t);}
-  $('gCard').innerHTML=`<div><div class="gt ol">미니게임 ${GAMES.length}종</div></div><div class="gn">게임 설명 버튼에서<br>←→로 3개 모두 보기</div>`;
-  for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i];el.className='slot '+(s&&s.id===myId()?'fr-on me':'fr-item')+(s?'':' empty');
-    el.innerHTML=s?`<span class="sw" style="background:${T[teamOf(i)].col}"></span><span class="nm">${esc(s.name)}${s.id===myId()?' (나)':''} <small class="chn">${esc(charOf(s.ch).name)}</small></span><span class="st ${s.ready?'ok':'wait'}">${isLocal()?'':s.ready?'준비 완료':'대기 중'}</span>`:'Empty';}
-  const host=amHost(),amP=isLocal()||NET.role==='player';$('bTeam').hidden=!amP;$('bReady').hidden=!amP||host;$('bStart').hidden=!host;
-  const me=L&&L.slots.find(s=>s&&s.id===myId());$('bReady').textContent=me&&me.ready?'준비 해제':'준비';
-  $('lbHint').innerHTML='<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 버튼 이동 · <span class="kk">Enter</span> 결정'+(amP?' · 팀은 "팀 바꾸기" 버튼으로':'')+(host?' · 팀 이름 칸을 눌러 이름 입력':'');
+function charImg(id,k=2){const B=CHS[charOf(id).big];return `<img src="${B.src}" style="width:${B.w*k}px;height:${B.h*k}px">`;}
+function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
+  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+'모두 <b>READY</b> 하면 3초 뒤 게임 3종 시작 · 빈 자리는 AI';
+  for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId());
+    el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
+    el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
+      `<div class="pc">${s?charImg(s.ch):'<span class="q ol2">?</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
+      (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${s.ready?'READY!':'READY'}</div>`:`<div class="rst${s&&s.ready?' on':''}">${s?(s.ready?'READY!':'대기 중'):''}</div>`);}
+  const cd=L&&L.cd||0;$('lbCd').hidden=!cd;$('lbCd').textContent=cd;if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
   if(!btns()[sel])sel=0;paintSel();}
-/* 처음 대기방에 들어오면 방장은 "게임 시작", 참가자는 "준비"에 커서 */
-function focusMain(){const L=btns(),i=L.findIndex(b=>b.id===(amHost()?'bStart':'bReady'));sel=i<0?0:i;paintSel();}
-function lobbyTeam(){if(!(isLocal()||NET.role==='player'))return;AU.sfx('move');if(amHost())hostTeam(myId());else NET.send({t:'team'},NET.hostId);}
-function hostTeam(id){const i=LOBBY.slots.findIndex(s=>s&&s.id===id);if(i<0)return;const t=1-teamOf(i),j=LOBBY.slots.findIndex((s,k)=>!s&&teamOf(k)===t);
-  if(j<0){if(myId()===id)toast('상대 팀 자리가 꽉 찼습니다');else NET.send({t:'msg',m:'상대 팀 자리가 꽉 찼습니다'},id);return;}LOBBY.slots[j]=LOBBY.slots[i];LOBBY.slots[i]=null;pushLobby();}
-function lobbyReady(){if(NET.role!=='player'||amHost())return;AU.sfx('ok');NET.send({t:'ready'},NET.hostId);}
-function lobbyOK(){const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
-/* 팀 이름·색: 방장은 두 팀 모두, 참가자는 자기 팀만 */
-function setTeam(t,o,from){const T=LOBBY.teams;if(o.col&&(o.col===T[1-t].col||!TEAM_COLORS.includes(o.col)))return;
-  if(o.name!=null){o.name=String(o.name).trim().slice(0,8);if(!o.name||badName(o.name)){renderLobby();return;}}Object.assign(T[t],o);pushLobby();}
-function reqTeam(t,o){if(!LOBBY||!canEditTeam(t))return;if(o.name!=null&&badName(o.name)){toast('사용할 수 없는 단어가 들어 있어요',3000);$('tn'+t).value=LOBBY.teams[t].name;return;}if(amHost())setTeam(t,o);else NET.send({t:'tset',k:t,o},NET.hostId);}
-function cycleCol(t){const T=LOBBY.teams;let k=TEAM_COLORS.indexOf(T[t].col);for(let n=0;n<TEAM_COLORS.length;n++){k=(k+1)%TEAM_COLORS.length;if(TEAM_COLORS[k]!==T[1-t].col)break;}AU.sfx('move');reqTeam(t,{col:TEAM_COLORS[k]});}
-[0,1].forEach(t=>{const inp=$('tn'+t);inp.addEventListener('change',()=>reqTeam(t,{name:inp.value}));inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();inp.blur();reqTeam(t,{name:inp.value});}});
-  $('tc'+t).addEventListener('click',e=>{const c=e.target.dataset&&e.target.dataset.c;if(c)reqTeam(t,{col:c});});});
-/* 경기 = 미니게임 3판 연속 (GAMES 순서) → 3판이 모두 끝나면 최종 결과 */
+/* 처음 대기방에 들어오면 내 READY 버튼에 커서 */
+function focusMain(){const L=btns(),i=L.findIndex(b=>b.dataset.act==='ready');sel=i<0?0:i;paintSel();}
+function lobbyReady(){if(!LOBBY||!(isLocal()||NET.role==='player'))return;if(amHost())hostReady(myId());else NET.send({t:'ready'},NET.hostId);}
+function hostReady(id){const s=LOBBY.slots.find(s=>s&&s.id===id);if(!s)return;s.ready=!s.ready;pushLobby();}
+/* 방장: 모두 READY 인지 매 프레임 확인 → 3초 카운트 (누가 READY 를 풀거나 새로 들어오면 취소) */
+function lobbyTick(){if(screen!=='lobby'||!LOBBY||GAME||!amHost())return;const hum=LOBBY.slots.filter(s=>s&&!s.bot),all=hum.length>0&&hum.every(s=>s.ready),now=performance.now();
+  if(!all){CD_END=0;if(LOBBY.cd){LOBBY.cd=0;pushLobby();}return;}
+  if(!CD_END)CD_END=now+COUNT_SEC*1000;
+  const c=Math.max(0,Math.ceil((CD_END-now)/1000));if(c!==LOBBY.cd&&c>0){LOBBY.cd=c;pushLobby();}
+  if(now>=CD_END){CD_END=0;LOBBY.cd=0;lobbyStart();}}
+/* 경기 = 미니게임 3판 연속 (GAMES 순서) → 3판이 모두 끝나면 최종 결과 (게임마다 순위 점수 1위 4 · 2위 3 · 3위 2 · 4위 1) */
 let MATCH=null;
-function lobbyStart(){if(!amHost())return;const nr=LOBBY.slots.filter(s=>s&&!s.bot&&!s.ready);
-  if(!isLocal()&&nr.length){toast(nr.map(s=>s.name).join(', ')+' 님이 아직 준비하지 않았습니다');return;}
-  const used=new Set(LOBBY.slots.filter(Boolean).map(s=>s.ch)),free=CHARS.map(c=>c.id).filter(c=>!used.has(c));
-  const slots=LOBBY.slots.map((s,i)=>s||{id:0,name:'AI '+(i+1),bot:true,ready:true,ch:free.shift()||CHARS[i%2].id});applyTeams(LOBBY.teams);AU.sfx('start');
+function lobbyStart(){if(!amHost())return;const used=new Set(LOBBY.slots.filter(Boolean).map(s=>s.ch));
+  const slots=LOBBY.slots.map((s,i)=>{if(s)return{...s};const ch=randChar(used);used.add(ch);return{id:0,name:'AI '+(i+1),bot:true,ready:true,ch};});AU.sfx('start');
   MATCH={order:GAMES.map(G=>G.id),i:0,res:[],slots};startMatchGame();}
-function matchInfo(){const w=[0,0];MATCH.res.forEach(R=>{const t=R.sc[0]===R.sc[1]?-1:R.sc[0]>R.sc[1]?0:1;if(t>=0)w[t]++;});const last=MATCH.res[MATCH.res.length-1];
-  return{i:MATCH.i,n:MATCH.order.length,wins:w,last:last?{gid:last.gid,w:last.sc[0]===last.sc[1]?-1:last.sc[0]>last.sc[1]?0:1}:null};}
+const placePts=ps=>ps.map(v=>4-ps.filter(w=>w>v).length);   /* 1위 4점 … 4위 1점 · 같은 점수는 같은 순위 */
+function standings(res){const tot=[0,0,0,0],first=[0,0,0,0];res.forEach(R=>placePts(R.ps).forEach((v,i)=>{tot[i]+=v;if(v===4&&R.ps[i]>0)first[i]++;}));return{tot,first};}
+function matchInfo(){return{i:MATCH.i,n:MATCH.order.length,tot:standings(MATCH.res).tot};}
 function startMatchGame(){const gid=MATCH.order[MATCH.i],slots=MATCH.i>0&&GAME&&GAME.slots?GAME.slots.map(s=>({...s})):MATCH.slots;
-  startHost(gid,slots,isLocal());GAME.match=matchInfo();if(!isLocal()){NET.send({t:'start',slots:GAME.slots,gid,teams:LOBBY.teams,M:GAME.match});sendFull();}toGame();}
-function toLobby(){GAME=null;closeHold();AU.bgm(false);if(isLocal()){show('lobby');renderLobby();focusMain();return;}
-  if(NET.isHost){LOBBY.slots=LOBBY.slots.map(s=>s&&s.bot?null:s);LOBBY.slots.forEach(s=>{if(s)s.ready=s.id===NET.hostId;});syncSlots();pushLobby();}show('lobby');renderLobby();focusMain();}
+  startHost(gid,slots,isLocal());GAME.match=matchInfo();if(!isLocal()){NET.send({t:'start',slots:GAME.slots,gid,M:GAME.match});sendFull();}toGame();}
+function toLobby(){GAME=null;RES_AT=0;CD_END=0;AU.bgm(false);if(LOBBY)LOBBY.cd=0;
+  if(isLocal()){LOBBY.slots.forEach(s=>{if(s)s.ready=false;});show('lobby');renderLobby();focusMain();return;}
+  if(NET.isHost){LOBBY.slots=LOBBY.slots.map(s=>s&&s.bot?null:s);LOBBY.slots.forEach(s=>{if(s)s.ready=false;});syncSlots();pushLobby();}show('lobby');renderLobby();focusMain();}
 function backToRoom(){if(isLocal()){toLobby();return;}if(!NET.isHost)return;NET.send({t:'tolobby'});toLobby();}
-function leaveToMain(){NET.close();closeHold();GAME=null;LOBBY=null;AU.bgm(false);show('main');}
+function leaveToMain(){NET.close();GAME=null;LOBBY=null;MATCH=null;RES_AT=0;CD_END=0;AU.bgm(false);show('main');}
 function onMembers(wasHost){
   if(GAME&&!GAME.host&&wasHost&&wasHost!==NET.hostId){toast('방장 연결이 끊겨 게임을 끝냅니다',4000);leaveToMain();return;}
-  if(NET.isHost){if(!LOBBY)LOBBY={slots:[null,null,null,null],game:0,teams:DEF_TEAMS()};if(!LOBBY.teams)LOBBY.teams=DEF_TEAMS();
+  if(NET.isHost){if(!LOBBY)LOBBY={slots:[null,null,null,null],cd:0};
     if(GAME&&GAME.host){for(const s of GAME.slots)if(s.human&&!s.left&&!NET.members.some(m=>m.id===s.id)){s.bot=true;s.left=true;toast(`${s.name} 님 연결이 끊겨 AI가 대신합니다`,3000);}sendFull();}
     else{syncSlots();pushLobby();}}
   if(screen==='lobby')renderLobby();}
 function onNetLost(){toast('서버 연결이 끊겼습니다',4000);if(!(GAME&&GAME.local))leaveToMain();}
 function onNet(o){switch(o.t){
-  case 'lobby':if(o.from===NET.hostId){const first=!LOBBY;LOBBY=o.L;if(screen==='lobby'){renderLobby();if(first)focusMain();}}break;
-  case 'team':if(NET.isHost&&!GAME)hostTeam(o.from);break;
-  case 'me':MEMCH[o.from]=charOf(o.ch).id;if(NET.isHost&&LOBBY){const s=LOBBY.slots.find(s=>s&&s.id===o.from);if(s){s.ch=MEMCH[o.from];pushLobby();}}break;
-  case 'tset':if(NET.isHost&&!GAME&&LOBBY){const i=LOBBY.slots.findIndex(s=>s&&s.id===o.from);if(i>=0&&teamOf(i)===o.k)setTeam(o.k,o.o||{});}break;
-  case 'ready':if(NET.isHost&&!GAME){const s=LOBBY.slots.find(s=>s&&s.id===o.from);if(s){s.ready=!s.ready;pushLobby();}}break;
-  case 'full':toast('자리가 꽉 차서 관전으로 들어갑니다',3000);NET.role='spectator';renderLobby();break;
+  case 'lobby':if(o.from===NET.hostId){const first=!LOBBY;LOBBY=o.L;if(LOBBY.slots.some(s=>s&&s.id===NET.id))NET.role='player';if(screen==='lobby'){renderLobby();if(first)focusMain();}}break;
+  case 'ready':if(NET.isHost&&!GAME&&LOBBY)hostReady(o.from);break;
+  case 'full':if(NET.role!=='spectator')toast('자리가 꽉 차서 관전으로 들어갑니다',3000);NET.role='spectator';renderLobby();break;
   case 'msg':toast(o.m);break;
-  case 'start':if(o.from===NET.hostId){applyTeams(o.teams);startView(o.gid,o.slots);GAME.match=o.M;toGame();}break;
+  case 'start':if(o.from===NET.hostId){startView(o.gid,o.slots);GAME.match=o.M;toGame();}break;
   case 'go':if(GAME&&!GAME.host)endIntro();break;
-  case 'F':if(o.from!==NET.hostId)break;if(GAME&&!GAME.host&&o.gid&&o.gid!==GAME.gid&&screen!=='result'){applyTeams(o.teams);startView(o.gid,o.slots);toGame();}   /* 시작 알림을 놓쳤으면 여기서 따라감 */
+  case 'F':if(o.from!==NET.hostId)break;if(GAME&&!GAME.host&&o.gid&&o.gid!==GAME.gid&&screen!=='result'){startView(o.gid,o.slots);toGame();}   /* 시작 알림을 놓쳤으면 여기서 따라감 */
     if(GAME&&!GAME.host){if(o.slots)GAME.slots=o.slots;if(GDEF.applyFull)GDEF.applyFull(GAME.pd,o.F);}
-    else if(!GAME&&NET.role==='spectator'&&o.slots&&o.gid&&screen!=='result'){applyTeams(o.teams);startView(o.gid,o.slots);if(GDEF.applyFull)GDEF.applyFull(GAME.pd,o.F);toGame();}break;
+    else if(!GAME&&NET.role==='spectator'&&o.slots&&o.gid&&screen!=='result'){startView(o.gid,o.slots);if(GDEF.applyFull)GDEF.applyFull(GAME.pd,o.F);toGame();}break;
   case 's':if(GAME&&!GAME.host&&o.g===GAME.gid){if(GAME.intro>0)endIntro();recvSnap(o);}break;   /* 다른 게임의 화면은 무시 */
   case 'in':if(GAME&&GAME.host){const i=GAME.slots.findIndex(s=>!s.bot&&s.id===o.from);if(i>=0)hostInput(i,o.e);}break;
   case 'final':if(o.from===NET.hostId)showFinal(o.F);break;
-  case 'tolobby':if(o.from===NET.hostId)toLobby();break;
-  case 'hk':if(NET.isHost&&HOLD.on){if(o.on)HOLD.ids.add(o.from);else HOLD.ids.delete(o.from);}break;   /* 참가자 → 방장: 꾹 누름 상태 */
-  case 'hold':if(o.from===NET.hostId&&!HOLD.on&&o.k==='end'&&GAME&&!GAME.host&&screen==='game'&&!(GAME.intro>0))openHold('end');   /* 게임 끝 화면: 방장이 멈추면 따라서 대기 */
-    if(o.from===NET.hostId&&HOLD.on&&o.k===HOLD.kind){HOLD.ids=new Set(o.ids||[]);HOLD.list=o.L||[];HOLD.p=+o.p||0;renderHold();}break;}}
+  case 'tolobby':if(o.from===NET.hostId)toLobby();break;}}
 /* ---------- 게임 실행 ---------- */
 /* 연결이 끊긴 자리는 그 판이 끝날 때까지 AI가 대신 플레이 */
 let GAME=null,GDEF=null,LASTS=null;
-/* 게임 시작 전 설명창: 시간제한 없음 · MC 진행 후 모두 또는 방장이 Z(패드 A)를 꾹 누르면 시작 (GAME.intro>0 = 설명창 표시 중) */   // 방장: {host:true, sim, slots, local}  ·  다른 기기: {host:false, slots, pd, buf}
+/* 진행은 모두 자동 (키 홀드 없음): 게임 시작 전 설명창 INTRO_SEC 초 → 게임 → 끝 화면 END_SEC 초 → 다음 게임 … → 최종 결과 RESULT_SEC 초 → 대기방 */
+const INTRO_SEC=6,END_SEC=3,RESULT_SEC=12;
 const gdef=id=>GAMES.find(G=>G.id===id)||GAMES[0];
 function startHost(gid,slots,local){GDEF=gdef(gid);const sim=GDEF.newSim(slots.map(s=>({...s,human:!s.bot})),{local});GAME={host:true,local,sim,slots:sim.slots||slots,gid:GDEF.id,intro:1};}
 function hostInput(i,e){GAME.sim.input(i,e);}
 function startView(gid,slots){GDEF=gdef(gid);GAME={host:false,slots,gid:GDEF.id,pd:GDEF.newView?GDEF.newView():{},buf:[],intro:1};}
-/* 설명창 내용: 게임별 howto · 조작 · 점수 */
 /* 게임 설명: [조작] [기믹] [승리조건] 세 칸만, 한눈에 */
 function howHTML(G){return `<h3 class="ol">${esc(G.title)}</h3><div class="hw"><b>조작</b><ul>${(G.ctrl||[]).map(t=>`<li>${t}</li>`).join('')}</ul></div>`+
   (G.gimmick?`<div class="hw"><b>기믹</b><p>${G.gimmick}</p></div>`:'')+`<div class="hw"><b>승리조건</b><p>${G.win||''}</p></div>`;}
-function showIntro(){$('intro').hidden=false;const M=GAME&&GAME.match;
-  const head=M?`<div class="intro-m">게임 ${M.i+1} / ${M.n}${M.last?` · 지난 게임 ${M.last.w<0?'무승부':esc(TEAM[M.last.w].name)+' 승'}`:''} · 현재 <b style="color:${TEAM[0].col}">${esc(TEAM[0].name)} ${M.wins[0]}</b> : <b style="color:${TEAM[1].col}">${M.wins[1]} ${esc(TEAM[1].name)}</b></div>`:'';
-  $('introBody').innerHTML=head+howHTML(GDEF);openHold('intro');}
-function endIntro(){if(!GAME||GAME.intro<=0)return;GAME.intro=0;$('intro').hidden=true;if(HOLD.kind==='intro')closeHold();if(GAME.host&&!GAME.local)NET.send({t:'go'});}
-function sendFull(){if(GAME&&GAME.host&&!GAME.local)NET.send({t:'F',F:GDEF.full?GAME.sim.full():null,slots:GAME.slots,gid:GAME.gid,teams:[{...TEAM[0]},{...TEAM[1]}]});}
+function standLine(tot){return[0,1,2,3].sort((a,b)=>tot[b]-tot[a]||a-b).map(i=>`<b style="color:${PCOL[i]}">${esc(GAME.slots[i]?GAME.slots[i].name:'')} ${tot[i]}</b>`).join(' · ');}
+function showIntro(){$('intro').hidden=false;const M=GAME&&GAME.match;GAME.introAt=performance.now();
+  const head=M?`<div class="intro-m">게임 ${M.i+1} / ${M.n}${M.i>0?' · 현재 순위 점수 '+standLine(M.tot):''}</div>`:'';
+  $('introBody').innerHTML=head+howHTML(GDEF);$('introSec').textContent=INTRO_SEC;}
+function endIntro(){if(!GAME||GAME.intro<=0)return;GAME.intro=0;$('intro').hidden=true;if(GAME.host&&!GAME.local)NET.send({t:'go'});}
+function sendFull(){if(GAME&&GAME.host&&!GAME.local)NET.send({t:'F',F:GDEF.full?GAME.sim.full():null,slots:GAME.slots,gid:GAME.gid});}
 function myIndex(){if(!GAME)return-1;return GAME.slots.findIndex(s=>(s.human||!s.bot)&&(GAME.local?s.id==='local':s.id===NET.id));}
 /* 관전 시점: 관전자는 ←→ (패드 · 화면 위 ◀▶ · 게임 화면 탭 · 숫자 1~4)로 볼 플레이어를 바꿈
-   → 그 플레이어가 "나"처럼 표시됨 (노란 화살표 · 강조 칸 · 점수표 강조) · 입력은 보내지 않음 */
+   → 그 플레이어가 "나"처럼 표시됨 (YOU 표시 · 강조 칸 · 점수표 강조) · 입력은 보내지 않음 */
 let SPEC_I=0;
 const isSpec=()=>!!GAME&&!GAME.local&&!GAME.host&&myIndex()<0;
 function viewIndex(){const me=myIndex();return me>=0?me:isSpec()?SPEC_I:-1;}
 function specSet(i){if(!isSpec())return;SPEC_I=(i+4)%4;AU.sfx('move');BOARD_T=0;renderSpec();}
 function renderSpec(){const el=$('gSpec'),on=isSpec();el.hidden=!on;if(!on)return;const s=GAME.slots[SPEC_I],n=$('gSpecN');
-  n.textContent=`${SPEC_I+1}P ${s?s.name:''} 시점`;n.style.color=TEAM[teamOf(SPEC_I)].col;}
+  n.textContent=`${SPEC_I+1}P ${s?s.name:''} 시점`;n.style.color=PCOL[SPEC_I];}
 $('gSpec').addEventListener('click',e=>{const b=e.target.closest('[data-sd]');if(b){AU.init();specSet(SPEC_I+(+b.dataset.sd));}});
 gc.addEventListener('click',()=>{if(isSpec())specSet(SPEC_I+1);});
 /* 입력 보내기: 게임이 prep 을 두면 "내가 본 화면" 기준으로 먼저 판정해서 보냄 (타이밍 게임의 지연 보정) */
@@ -1008,7 +944,7 @@ function viewState(){const b=GAME.buf;if(!b.length)return null;if(!GDEF.lerp)ret
 /* 효과: 'shake:세기' 'flash' 그 밖에는 소리 이름 */
 let SHAKE=0,FLASH=0;
 function fx(e){if(e.startsWith('shake')){SHAKE=Math.max(SHAKE,+(e.split(':')[1]||4));return;}if(e==='flash')return;AU.sfx(e);}   /* 섬광 효과는 쓰지 않음 */
-function toGame(){show('game');fit();showIntro();$('bdN0').textContent=TEAM[0].name;$('bdN1').textContent=TEAM[1].name;$('bdN0').parentNode.style.color=TEAM[0].col;$('bdN1').parentNode.style.color=TEAM[1].col;AU.bgm(GDEF.bgm!==false);$('gTitle').textContent=GDEF.title;$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'ROOM '+NET.room;$('gHint').innerHTML=GDEF.controls.hint||'';
+function toGame(){show('game');fit();showIntro();AU.bgm(GDEF.bgm!==false);$('gTitle').textContent=GDEF.title;$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'';$('gHint').innerHTML=GDEF.controls.hint||'';
   document.body.classList.toggle('needA',!!GDEF.controls.a);document.body.classList.toggle('needDir',!!GDEF.controls.dir);buildBoard();
   if(isSpec())$('gHint').innerHTML='관전 중 · <span class="kk">←</span><span class="kk">→</span> 또는 화면을 눌러 볼 플레이어 바꾸기 · <span class="kk">1</span>~<span class="kk">4</span> 바로 선택';renderSpec();}
 /* ---------- 대기방 게임 설명: 예시 화면(AI 4명 데모) + 설명 ---------- */
@@ -1030,75 +966,53 @@ function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-H
   while(n-->0){sim.step();if(sim.ev)sim.ev.length=0;if(sim.done){HOW.sim=demoSim(HOW.G,HOW.slots);break;}}
   const og=g,ocs=CS,oG=GAME,oD=GDEF;g=hc.getContext('2d');CS=HOW.cs;GAME={slots:HOW.slots};GDEF=HOW.G;   /* 같은 그리기 함수를 미리보기 캔버스에 */
   try{g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;HOW.G.draw(g,HOW.sim.snap(false),HOW.sim.pd||HOW.sim,-1,now/16.67|0);}finally{g=og;CS=ocs;GAME=oG;GDEF=oD;}}
-/* ---------- 개인 점수표 (게임 화면 옆): 위에서부터 남은 시간 · 팀 점수 · 실시간 개인 순위 ---------- */
+/* ---------- 개인 점수표 (게임 화면 옆): 위에서부터 남은 시간 · 실시간 개인 순위 ---------- */
 /* 점수 자릿수가 늘어 칸을 넘으면 글자를 8의 배수(Press Start 2P 도트 크기)로 줄임 */
 function fitText(el,max,min){let z=max;el.style.fontSize=z+'px';while(z>min&&el.scrollWidth>el.clientWidth+1){z=z>16?16:z>12?12:z-2;el.style.fontSize=z+'px';}}
 let BOARD_T=0;
-function buildBoard(){$('bdRows').innerHTML=[0,1,2,3].map(i=>`<div class="bd-row" id="bd${i}" style="transform:translateY(${i*62}px)"><b class="rk">${i+1}</b><span class="sw" style="background:${TEAM[teamOf(i)].col}"></span><span class="nm">${esc(GAME&&GAME.slots[i]?GAME.slots[i].name:"")}</span><span class="tg"></span><span class="pt"></span></div>`).join('');}
+function buildBoard(){$('bdRows').innerHTML=[0,1,2,3].map(i=>`<div class="bd-row" id="bd${i}" style="transform:translateY(${i*62}px)"><b class="rk">${i+1}</b><span class="sw" style="background:${PCOL[i]}"></span><span class="nm">${esc(GAME&&GAME.slots[i]?GAME.slots[i].name:"")}</span><span class="tg"></span><span class="pt"></span></div>`).join('');}
 function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOARD_T<100)return;BOARD_T=now;const me=viewIndex();
   const order=[0,1,2,3].sort((a,b)=>S.ps[b]-S.ps[a]||a-b);
   order.forEach((i,r)=>{const el=$('bd'+i),s=GAME.slots[i];el.style.transform=`translateY(${r*62}px)`;el.classList.toggle('me',i===me);el.classList.toggle('top',r===0&&S.ps[i]>0);
     const sub=s&&s.left?'연결 끊김 · AI 대행':S.tag?S.tag[i]||'':'';el.classList.toggle('ai',!!(s&&s.left));
     el.querySelector('.rk').textContent=r+1;el.querySelector('.nm').textContent=s?s.name:'';el.querySelector('.tg').textContent=sub;
     const pt=el.querySelector('.pt'),v=S.ps[i];if(pt.dataset.v!==String(v)){pt.dataset.v=v;pt.textContent=v.toLocaleString();fitText(pt,14,8);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}});
-  [0,1].forEach(t=>{const el=$('bdT'+t),v=S.sc[t].toLocaleString();if(el.textContent!==v){el.textContent=v;fitText(el,20,8);}});
   const sec=Math.max(0,Math.ceil((S.tm||0)/60));$('bdTime').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;}
 /* ---------- 결과 ---------- */
-let LAST_RESULT=null;
+let LAST_RESULT=null,RES_AT=0;
 function finishHost(){const R=GAME.sim.result();R.gid=GAME.gid;MATCH.res.push(R);
-  if(MATCH.i<MATCH.order.length-1){MATCH.i++;startMatchGame();return;}   /* 다음 게임 (시작 전 설명창에 현재 승수 표시) */
+  if(MATCH.i<MATCH.order.length-1){MATCH.i++;startMatchGame();return;}   /* 다음 게임 (시작 전 설명창에 현재 순위 점수 표시) */
   const F=finalResult();if(!isLocal())NET.send({t:'final',F});showFinal(F);}
-/* 최종 결과: 게임마다 이긴 팀 1승 · 동점이면 마지막 게임 승자 · MVP = 게임별 개인 1위 횟수 (같으면 마지막 게임 순위) */
-function finalResult(){const res=MATCH.res,w=[0,0],first=[0,0,0,0],tot=[0,0];
-  const games=res.map(R=>{const t=R.sc[0]===R.sc[1]?-1:R.sc[0]>R.sc[1]?0:1;if(t>=0)w[t]++;tot[0]+=R.sc[0];tot[1]+=R.sc[1];let top=[0,1,2,3].sort((a,b)=>R.ps[b]-R.ps[a])[0];if(!(R.ps[top]>0))top=-1;else first[top]++;   /* 모두 0점이면 1위 없음 */
-    return{gid:R.gid,w:t,sc:R.sc,ps:R.ps,top};});
-  const last=games[games.length-1];let win=w[0]===w[1]?(last?last.w:-1):w[0]>w[1]?0:1;
-  const lastRank=[0,1,2,3].sort((a,b)=>last.ps[b]-last.ps[a]),mvp=[0,1,2,3].sort((a,b)=>first[b]-first[a]||lastRank.indexOf(a)-lastRank.indexOf(b))[0];
-  return{games,wins:w,win,first,mvp,tot,teams:[{...TEAM[0]},{...TEAM[1]}],slots:GAME.slots.map(s=>({name:s.name,ch:s.ch,bot:!s.human})),local:isLocal()};}
-function showFinal(F){applyTeams(F.teams);LAST_RESULT=F;AU.bgm(false);AU.sfx('win');show('result');const w=F.win;
-  $('resTitle').textContent=w<0?'무승부!':`${TEAM[w].name} 팀 우승!`;$('resGame').textContent=`미니게임 ${F.games.length}판 결과 · ${F.wins[0]} : ${F.wins[1]}`;
-  $('resBox').innerHTML=[0,1].map(t=>`<div class="tb fr${w===t?'-on win':''} t${t}"><div style="color:${TEAM[t].col}" class="${w===t?'':'ol2'}">${esc(TEAM[t].name)}</div><div class="sc">${F.wins[t]}승</div>
-    <div class="nm">${F.slots.filter((s,i)=>teamOf(i)===t).map(s=>esc(s.name)).join(' & ')}</div>
-    <div class="rd">${F.games.map(g=>`${esc(gdef(g.gid).title)} ${g.w===t?'승':g.w<0?'무':'패'} (${g.sc[t].toLocaleString()})`).join('<br>')}</div></div>`).join('');
-  $('resPs').innerHTML=`<span class="mvp"><i style="background:${TEAM[teamOf(F.mvp)].col}"></i>MVP ${esc(F.slots[F.mvp].name)} · 게임별 1위 ${F.first[F.mvp]}회</span>`+
-    F.games.filter(g=>g.top>=0).map(g=>`<span><i style="background:${TEAM[teamOf(g.top)].col}"></i>${esc(gdef(g.gid).title)} 1위 ${esc(F.slots[g.top].name)}</span>`).join('');
-  $('resNote').textContent=F.local?'Z · 패드 A 를 꾹 누르면 대기방으로 돌아갑니다':'모두 또는 방장이 Z · 패드 A 를 꾹 누르면 대기방으로 돌아갑니다';
-  openHold('result');if(GAME&&GAME.local)GAME=null;MATCH=null;}
-/* ---------- 꾹 누르기 진행 (MC 진행 시간 확보): 게임 시작 전 설명창 · 최종 결과 화면
-   모두(사람 플레이어 전원) 또는 방장이 Z(패드 A · 터치는 A 버튼/우측 하단 칸)를 HOLD_SEC 초 동안 누르고 있으면 다음으로.
-   누르는 사람은 우측 하단에 실시간 표시 · 판정은 방장 기기에서 하고 모두에게 알림 ---------- */
-const HOLD_SEC=1.5;
-const HOLD={on:false,kind:'',ids:new Set(),list:[],p:0,me:false,src:new Set(),sig:'',sentAt:0,dom:''};
-function gateList(){if(GAME&&GAME.slots&&GAME.host)return GAME.slots.filter(s=>s.human&&!s.left).map(s=>({id:s.id,name:s.name}));return HOLD.list;}
-function openHold(kind){Object.assign(HOLD,{on:true,kind,ids:new Set(),p:0,me:false,sig:'',sentAt:0,dom:''});HOLD.src.clear();HOLD.list=amHost()?gateList():[];renderHold();}
-function closeHold(){HOLD.on=false;HOLD.kind='';HOLD.me=false;HOLD.src.clear();renderHold();}
-function holdPress(src,on){if(on)HOLD.src.add(src);else HOLD.src.delete(src);const me=HOLD.src.size>0;if(me===HOLD.me)return;HOLD.me=me;if(!HOLD.on)return;
-  if(amHost()){if(me)HOLD.ids.add(myId());else HOLD.ids.delete(myId());}else if(NET.role==='player')NET.send({t:'hk',on:me?1:0},NET.hostId);renderHold();}
-function holdTick(dt){if(!HOLD.on||!amHost())return;HOLD.list=gateList();const ids=HOLD.ids,ok=ids.has(myId())||(HOLD.list.length>0&&HOLD.list.every(m=>ids.has(m.id)));
-  HOLD.p=ok?HOLD.p+dt/1000/HOLD_SEC:0;
-  if(HOLD.p>=1){const k=HOLD.kind;HOLD.p=1;holdSync(true);closeHold();AU.sfx('ok');if(k==='intro')endIntro();else if(k==='end')finishHost();else if(k==='result')backToRoom();return;}
-  holdSync(false);renderHold();}
-function holdSync(force){if(isLocal()||!NET.on)return;const now=performance.now(),sig=[...HOLD.ids].sort().join()+'|'+HOLD.list.map(m=>m.id).join()+'|'+(HOLD.p>0);
-  if(!force&&sig===HOLD.sig&&now-HOLD.sentAt<(HOLD.p>0?120:1000))return;HOLD.sig=sig;HOLD.sentAt=now;NET.send({t:'hold',k:HOLD.kind,ids:[...HOLD.ids],L:HOLD.list,p:Math.round(HOLD.p*100)/100});}
-function renderHold(){const el=$('hold');if(!HOLD.on){el.hidden=true;return;}el.hidden=false;$('holdBar').style.width=Math.min(100,HOLD.p*100)+'%';
-  const me=myId(),host=isLocal()?'local':NET.hostId,
-    h=`<div class="hd-t">${HOLD.kind==='intro'?'게임 시작':HOLD.kind==='end'?(GAME&&GAME.match&&GAME.match.i+1>=GAME.match.n?'최종 결과':'다음 게임'):'대기방으로'} · Z · A 꾹 누르기</div>`+(isLocal()?'':'<div class="hd-s">모두 또는 방장이 누르면 진행</div>')+
-      HOLD.list.map(m=>{const on=HOLD.ids.has(m.id)||(m.id===me&&HOLD.me);return `<div class="hl${on?' on':''}"><span class="nm">${esc(m.name)}${m.id===host?' <small>방장</small>':''}${m.id===me?' (나)':''}</span><b>${on?'누르는 중':'대기'}</b></div>`;}).join('');
-  if(h!==HOLD.dom){HOLD.dom=h;$('holdList').innerHTML=h;}}
-{const el=$('hold'),on=e=>{e.preventDefault();AU.init();holdPress('m',true);},off=()=>holdPress('m',false);
-  el.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(t=>el.addEventListener(t,off));}
+/* 최종 결과: 게임마다 순위 점수(1위 4 · 2위 3 · 3위 2 · 4위 1) 합계 → 같으면 1위 횟수 → 마지막 게임 점수 */
+function finalResult(){const{tot,first}=standings(MATCH.res),games=MATCH.res.map(R=>({gid:R.gid,ps:R.ps,pl:placePts(R.ps)})),last=games[games.length-1];
+  const order=[0,1,2,3].sort((a,b)=>tot[b]-tot[a]||first[b]-first[a]||last.ps[b]-last.ps[a]||a-b);
+  return{games,tot,first,order,slots:GAME.slots.map(s=>({name:s.name,ch:s.ch,bot:!s.human})),local:isLocal()};}
+function showFinal(F){LAST_RESULT=F;AU.bgm(false);AU.sfx('win');show('result');const w=F.order[0];RES_AT=performance.now();
+  $('resTitle').innerHTML=`<span style="color:${PCOL[w]}">${esc(F.slots[w].name)}</span> 우승!`;
+  $('resGame').textContent=`미니게임 ${F.games.length}판 · 게임마다 1위 4점 · 2위 3점 · 3위 2점 · 4위 1점`;
+  let prev=null,rank=0;
+  $('resBox').innerHTML=F.order.map((i,r)=>{const key=F.tot[i]+'/'+F.first[i];if(key!==prev){rank=r+1;prev=key;}
+    return `<div class="rrow${rank===1?' win':''}"><b class="rk">${rank}</b><i class="sw" style="background:${PCOL[i]}"></i><span class="ci">${charImg(F.slots[i].ch,1)}</span><span class="nm" style="color:${PCOL[i]}">${esc(F.slots[i].name)}</span>`+
+      `<span class="gs">${F.games.map(g=>`${esc(gdef(g.gid).title)} <b>${5-g.pl[i]}위</b>`).join(' · ')}</span><b class="pt">${F.tot[i]}점</b></div>`;}).join('');
+  $('resPs').innerHTML=F.games.map(g=>{const t=[0,1,2,3].sort((a,b)=>g.ps[b]-g.ps[a])[0];return g.ps[t]>0?`<span><i style="background:${PCOL[t]}"></i>${esc(gdef(g.gid).title)} 1위 ${esc(F.slots[t].name)}</span>`:'';}).join('');
+  $('resNote').textContent=RESULT_SEC+'초 뒤 대기방으로 돌아갑니다';
+  if(GAME&&GAME.local)GAME=null;MATCH=null;}
+/* 결과 화면: RESULT_SEC 초 뒤 모두 대기방으로 (방장 기기가 판정) */
+function resultTick(now){if(screen!=='result'||!RES_AT)return;const left=Math.max(0,Math.ceil(RESULT_SEC-(now-RES_AT)/1000));$('resNote').textContent=left+'초 뒤 대기방으로 돌아갑니다';
+  if(left<=0&&amHost()){RES_AT=0;backToRoom();}}
 /* ---------- 메인 루프 ---------- */
 let acc=0,lastT=performance.now(),FR=0;
-function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=Math.min(100,now-lastT);lastT=now;holdTick(dt);if(screen!=='game'||!GAME)return;
+function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=Math.min(100,now-lastT);lastT=now;lobbyTick();resultTick(now);if(screen!=='game'||!GAME)return;
   let S;
-  if(GAME.intro>0){   /* 설명창: 시간제한 없이 꾹 누르기(HOLD)로 시작 */
+  if(GAME.intro>0){   /* 설명창: INTRO_SEC 초 뒤 자동 시작 (방장 기기가 판정해 모두에게 알림) */
+    const left=INTRO_SEC-(now-GAME.introAt)/1000;$('introSec').textContent=clamp(Math.ceil(left),1,INTRO_SEC);if(GAME.host&&left<=0){endIntro();return;}
     const S0=GAME.host?GAME.sim.snap(false):viewState();if(S0){LASTS=S0;draw(S0,GAME.host?(GAME.sim.pd||GAME.sim):GAME.pd);}else{g.setTransform(CS,0,0,CS,0,0);R(0,0,GW,GH,'#000');}return;}
-  if(GAME.host&&GAME.ended){S=GAME.sim.snap(false);LASTS=S;draw(S,GAME.sim.pd||GAME.sim);updBoard(S);return;}   /* 게임 끝 화면에서 멈춤 · 꾹 누르기로 다음 */
+  if(GAME.host&&GAME.ended){S=GAME.sim.snap(false);LASTS=S;draw(S,GAME.sim.pd||GAME.sim);updBoard(S);if(now-GAME.endAt>=END_SEC*1000&&!GAME.fin){GAME.fin=1;finishHost();}return;}   /* 게임 끝 화면 END_SEC 초 → 다음 게임 */
   if(GAME.host){acc+=dt;while(acc>=1000/60){acc-=1000/60;
       const sim=GAME.sim;sim.step();const ev=sim.ev||[];for(const e of ev)fx(e);
       if(!GAME.local){GAME.evq=(GAME.evq||[]).concat(ev);if(++FR%SNAP_EVERY===0){NET.send({t:'s',g:GAME.gid,S:sim.snap(true),ev:GAME.evq,ai:GAME.slots.map(s=>s.left?2:0)});GAME.evq=[];}}
       if(sim.ev)sim.ev.length=0;
-      if(sim.done){GAME.ended=true;acc=0;if(!GAME.local)NET.send({t:'s',g:GAME.gid,S:sim.snap(true),ev:GAME.evq||[],ai:GAME.slots.map(s=>s.left?2:0)});GAME.evq=[];openHold('end');holdSync(true);return;}}
+      if(sim.done){GAME.ended=true;GAME.endAt=now;acc=0;if(!GAME.local)NET.send({t:'s',g:GAME.gid,S:sim.snap(true),ev:GAME.evq||[],ai:GAME.slots.map(s=>s.left?2:0)});GAME.evq=[];return;}}
     S=GAME.sim.snap(false);LASTS=S;draw(S,GAME.sim.pd||GAME.sim);}
   else{S=viewState();if(S){LASTS=S;draw(S,GAME.pd);}else{g.setTransform(CS,0,0,CS,0,0);R(0,0,GW,GH,'#000');K('방장의 화면을 받는 중…',GW/2,GH/2,'#fff','center',12);}}
   updBoard(S);}
@@ -1108,7 +1022,7 @@ function draw(S,pd){const f=performance.now()/16.67|0;g.setTransform(CS,0,0,CS,0
 /* ---------- 시작 ---------- */
 $('logoImg').src=LOGO;$('nameIn').value=CFG.name;
 applyFilter();fit();show('main');requestAnimationFrame(loop);
-setInterval(()=>{$('netst').textContent=NET.on?`ROOM ${NET.room}`:isLocal()&&screen==='lobby'?'연습 모드':'';},500);
+setInterval(()=>{$('netst').textContent=NET.on?(NET.role==='spectator'?'관전 중':'ONLINE'):isLocal()&&screen==='lobby'?'연습 모드':'';},500);
 
 </script>
 </body>
