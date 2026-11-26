@@ -1,11 +1,11 @@
 /* ┌─────────────────────────────────────────────────────────
    │ ② 쿵야 주방 난타 — 떨어지는 재료에 맞춰 같은 방향키를 눌러 썰기 (리듬 게임 · 세로 4분할 1vs1vs1vs1)
-   │ 4명 모두 같은 악보 · PERFECT 100 · GREAT 60 · GOOD 30 · 콤보 10마다 배율 +0.5 (최대 3배) · 45초
+   │ 4명 모두 같은 악보 · PERFECT 100 · GREAT 60 · GOOD 30 · 콤보 10마다 배율 +0.5 (최대 3배) · 60초
    │ 판정은 각자 기기 화면 기준(prep)으로 하고, 방장은 점수만 합산합니다.
    └───────────────────────────────────────────────────────── */
 const KITEM=['kc_carrot','kc_tofu','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 두부 · 토마토) */
 const CHOP={PEPPER:.13,PEPPER_FROM:6,   /* 기믹: 6초 뒤부터 재료의 13%가 매운 고추 — 누르면 콤보 끊김 · -50 */
-  SEC:45,FALL:80,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
+  SEC:60,FALL:80,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
 const chopX=i=>qx(i)+5;   /* 세로 칸 안 레인 영역 왼쪽 (너비 110) */
 const chopLX=(i,d)=>chopX(i)+8+CHOP.COL[d]*24;   /* 레인 왼쪽 x */
 function chopRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -86,7 +86,7 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
 regGame({id:'chop',title:'쿵야 주방 난타',icon:'②',
   ctrl:['내 이름이 적힌 세로 칸','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
   gimmick:'<b>매운 고추</b> — 고추는 누르지 마세요! 누르면 콤보 끊김',
-  win:'45초 동안 개인 점수 1위! (4명 모두 같은 악보)',
+  win:'60초 동안 개인 점수 1위! (4명 모두 같은 악보)',
   desc:'떨어지는 재료가 선에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
   controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 선에 닿을 때 같은 방향!'},
   demoSkip:150,   /* 게임 설명: 열자마자 재료가 떨어지는 장면부터 */

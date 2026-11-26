@@ -1,90 +1,82 @@
 /* ┌─────────────────────────────────────────────────────────
-   │ ① 쿵야 순발력 — 투 버튼 순발력 아케이드 (세로 4분할 · 1vs1vs1vs1)
-   │ 왼쪽 / 오른쪽 테이블에 음식이 "딱" 나타나면 그쪽 버튼(◀ ▶)을 최대한 빨리!
-   │ 빠를수록 점수 UP (최대 200) · 반대쪽 -50 · 아무것도 없을 때 누르면 -20 · 폭탄은 누르면 -100
-   │ 4명 모두 같은 순서 · 같은 타이밍 · 반응 속도는 각자 기기 화면 기준으로 재서(prep) 인터넷 지연과 무관 · 40초
+   │ ① 쿵야 순발력 — 투 버튼 "두다다다" 접시 나르기 (세로 4분할 · 1vs1vs1vs1 · 하드)
+   │ 내 칸에 접시가 높이 쌓여 있음 → 맨 아래 접시가 놓인 쪽 버튼(◀ / ▶)을 두다다다 연타해서 손님에게 휙휙!
+   │ 틀리면 와장창 — 0.6초 동안 손이 묶이고 콤보 끊김 · 콤보가 이어질수록 접시당 점수 UP
+   │ 하드 기믹: 빨간 "반대 접시"는 반대쪽 버튼 · 황금 접시는 3배 점수
+   │ 4명 모두 같은 접시 순서 · 판정은 각자 기기에서 바로(연타가 인터넷 지연에 막히지 않음) · 60초
    └───────────────────────────────────────────────────────── */
-/* 조절값: SEC 시간 · WIN 음식이 떠 있는 프레임(60=1초) · GAP 다음 음식까지 간격(처음→끝) · BOMB 폭탄 비율 · RT 판정(프레임) */
-const QK={SEC:40,WIN:45,LATE:40,GAP:[95,55],GAPR:30,BOMB:.15,BOMB_FROM:5,RT:[15,26],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3']};
-const qkPts=rt=>Math.max(30,200-rt*4);   /* 반응 프레임 → 점수 (0.17초 = 160점) */
+/* 조절값: SEC 시간 · STUN 틀렸을 때 멈춤(프레임, 36 = 0.6초) · PTS 접시 점수 · COMBO_STEP 콤보 몇 개마다 +1점 · MISS 틀릴 때 감점
+   REV 반대 접시 비율(REV_FROM 번째 접시부터) · GOLD 황금 접시 비율 · SHOW 보이는 접시 수 */
+const QK={SEC:60,STUN:36,PTS:10,COMBO_STEP:10,MISS:10,REV:.18,REV_FROM:30,GOLD:.05,SHOW:9,LEN:1500};
+const qkPts=(c,gold)=>(QK.PTS+Math.floor(c/QK.COMBO_STEP))*(gold?3:1);   /* 콤보 10마다 +1 · 황금 3배 */
+const qkWant=no=>no.r?6-no.d:no.d;   /* 눌러야 할 버튼: 반대 접시는 반대쪽 */
 function qkRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-/* 음식 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 2(▶ 오른쪽) / 4(◀ 왼쪽) · b = 폭탄 */
-function qkChart(seed,start){const r=qkRng(seed),N=[];let t=start+50;const end=start+QK.SEC*60-QK.WIN;
-  while(t<end){const p=(t-start)/(QK.SEC*60);N.push({T:t,d:r()<.5?4:2,b:r()<QK.BOMB&&t-start>QK.BOMB_FROM*60?1:0});t+=Math.round(QK.GAP[0]+(QK.GAP[1]-QK.GAP[0])*p+r()*QK.GAPR);}return N;}
+/* 접시 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 접시가 놓인 쪽 2(▶) / 4(◀) · r = 반대 접시 · g = 황금 접시 */
+function qkChart(seed){const r=qkRng(seed),N=[];for(let k=0;k<QK.LEN;k++){const rv=k>=QK.REV_FROM&&r()<QK.REV;N.push({d:r()<.5?4:2,r:rv?1:0,g:!rv&&k>10&&r()<QK.GOLD?1:0});}return N;}
 class QuickSim{
   constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=150;this.tm=QK.SEC*60;
-    this.seed=(Math.random()*1e9)|0;this.start=150;this.N=qkChart(this.seed,this.start);this.J=[{},{},{},{}];this.jn=[[],[],[],[]];this.fxs=[];
-    this.streak=[0,0,0,0];this.hits=[0,0,0,0];this.best=[99,99,99,99];this.face=[0,0,0,0];this.ff=[-99,-99,-99,-99];this.bq=[[],[],[],[]];}
-  get pd(){return{N:this.N,J:this.J,myJ:this.myJ||(this.myJ={})};}
-  mark(i,n,q){this.J[i][n]=q;this.jn[i].push([n,q]);}
-  input(i,e){if(this.ph!=='play'||!e.tap)return;if(e.d===2||e.d===4){this.face[i]=e.d;this.ff[i]=this.f;}
-    if(e.early){this.ps[i]=Math.max(0,this.ps[i]-20);this.streak[i]=0;this.fxs.push([i,'early',this.f,-1,-20]);this.ev.push('tap');return;}   /* 아무것도 없을 때 누름 */
-    const n=e.n,no=this.N[n];if(n==null||!no||this.J[i][n]!=null||this.f<no.T-5||this.f-no.T>QK.WIN+QK.LATE)return;
-    if(no.b){this.mark(i,n,4);this.streak[i]=0;this.ps[i]=Math.max(0,this.ps[i]-100);this.fxs.push([i,'boom',this.f,n,-100]);this.ev.push('big','shake:3');return;}
-    if(e.d!==no.d){this.mark(i,n,3);this.streak[i]=0;this.ps[i]=Math.max(0,this.ps[i]-50);this.fxs.push([i,'wrong',this.f,n,-50]);this.ev.push('ouch');return;}
-    const rt=clamp(e.rt|0,0,QK.WIN),q=rt<=QK.RT[0]?0:rt<=QK.RT[1]?1:2,pts=qkPts(rt);this.mark(i,n,q);
-    this.streak[i]++;this.hits[i]++;this.best[i]=Math.min(this.best[i],rt);this.ps[i]+=pts;this.fxs.push([i,q,this.f,n,pts]);this.ev.push(q===0?'hit':'tap');if(this.streak[i]%5===0)this.ev.push('combo');}
-  step(){this.f++;this.fxs=this.fxs.filter(x=>this.f-x[2]<30);
+    this.seed=(Math.random()*1e9)|0;this.N=qkChart(this.seed);this.k=[0,0,0,0];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.miss=[0,0,0,0];this.st=[-99,-99,-99,-99];
+    this.fx=[];this.bt=[0,0,0,0];this.my={k:0,stun:-99,fx:[]};}
+  get pd(){return{N:this.N,my:this.my};}
+  /* 입력: {tap,d,k,ok} — k = 그 사람이 처리한 접시 번호 (기기에서 바로 판정해서 보냄) · 소리는 누른 기기에서만 (연타 소리가 겹치지 않게) */
+  input(i,e){if(this.ph!=='play'||!e.tap||e.k==null||e.k<this.k[i]||!this.N[e.k])return;this.k[i]=e.k;const no=this.N[e.k];
+    if(!e.ok||e.d!==qkWant(no)){this.combo[i]=0;this.miss[i]++;this.ps[i]=Math.max(0,this.ps[i]-QK.MISS);this.st[i]=this.f;this.fx.push([i,0,this.f,e.d,0]);return;}
+    this.k[i]++;this.combo[i]++;this.best[i]=Math.max(this.best[i],this.combo[i]);this.ps[i]+=qkPts(this.combo[i],no.g);this.fx.push([i,1,this.f,no.d,no.g]);}
+  step(){this.f++;this.fx=this.fx.filter(x=>this.f-x[2]<14);
     if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
     if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
     if(--this.tm<=0){this.ph='end';this.t=150;this.ev.push('win','shake:5');return;}
-    // 시간이 지난 음식: 안 누른 사람은 놓침 (인터넷 지연 여유 LATE 프레임) · 폭탄은 안 누르면 성공
-    this.N.forEach((no,n)=>{if(this.f-no.T===QK.WIN+QK.LATE)for(let i=0;i<4;i++)if(this.J[i][n]==null){this.mark(i,n,no.b?5:6);if(!no.b)this.streak[i]=0;}});
-    // AI: 음식이 나타나면 각자 반응 속도로 누름 (가끔 반대쪽 · 폭탄도 가끔 누름)
-    this.slots.forEach((s,i)=>{if(!s.bot)return;this.N.forEach((no,n)=>{if(no.T!==this.f)return;
-        if(no.b){if(Math.random()<.12)this.bq[i].push([no.T+10+Math.floor(Math.random()*10),n,no.d]);return;}
-        const rt=[13,16,19,22][i]+Math.floor(Math.random()*12),d=Math.random()<.04?6-no.d:no.d;this.bq[i].push([no.T+rt,n,d]);});
-      this.bq[i]=this.bq[i].filter(([at,n,d])=>{if(this.f<at)return true;this.input(i,{tap:1,n,d,rt:this.f-this.N[n].T});return false;});});}
-  snap(send){const jn=this.jn;if(send)this.jn=[[],[],[],[]];return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,ps:this.ps,fxs:this.fxs,face:this.face,ff:this.ff,streak:this.streak,jn:send?jn:[],
-    tag:this.streak.map(c=>c>=2?`${c}연속`:'')};}
-  full(){return{seed:this.seed,start:this.start};}
-  result(){return{ps:this.ps,lines:[0,1,2,3].map(i=>`성공 ${this.hits[i]}회 · 최고 반응 ${this.best[i]<99?Math.round(this.best[i]*16.7)+'ms':'-'}`)};}
+    // AI: 각자 연타 속도로 두다다다 (가끔 틀림, 반대 접시는 더 자주 틀림)
+    this.slots.forEach((s,i)=>{if(!s.bot||this.f<this.bt[i]||this.f-this.st[i]<QK.STUN)return;const no=this.N[this.k[i]];if(!no)return;
+      const w=qkWant(no),d=Math.random()<(no.r?.16:.05)?6-w:w;this.input(i,{tap:1,d,k:this.k[i],ok:d===w?1:0});
+      this.bt[i]=this.f+[7,8,9,10][i]+Math.floor(Math.random()*5)+(no.r?4:0);});}
+  snap(){return{f:this.f,ph:this.ph,t:this.t,tm:this.tm,ps:this.ps,k:this.k,combo:this.combo,st:this.st,fx:this.fx,tag:this.combo.map(c=>c>=5?`${c}콤보`:'')};}
+  full(){return{seed:this.seed};}
+  result(){return{ps:this.ps,lines:[0,1,2,3].map(i=>`${this.k[i]}접시 · 최고 ${this.best[i]}콤보 · 와장창 ${this.miss[i]}`)};}
 }
-/* ---------- 그리기: 세로 4분할 · 칸마다 위쪽 = 왼쪽/오른쪽 테이블, 아래쪽 = 가운데 쿵야 ---------- */
-const QK_TX=[24,96],QK_ITEM=['kc_carrot','kc_tofu','kc_tomato'],QK_TOP=112,QK_FLOOR=150;   /* 테이블 가운데 x(칸 안) · 테이블 윗면 y · 바닥선 y */
-function qkBomb(x,y,f){R(x-6,y-4,12,12,'#2a2a3a');R(x-7,y-2,14,8,'#2a2a3a');R(x-4,y-3,3,3,'#6a6a8a');R(x+2,y-8,2,4,'#a08060');R(x+3,y-10,2,2,(f>>2)&1?'#fff419':'#ff5a5a');
-  if((f>>3)&1){R(x-8,y-6,16,1,'#ff5a5a');R(x-8,y+9,16,1,'#ff5a5a');}}
-function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const TT=QK_TOP,FY=QK_FLOOR;
-  for(let i=0;i<4;i++){const X=qx(i),cx=X+QW/2;
-    wallTiles(X+1,QB,QW-2,FY-QB);R(X+1,FY,QW-2,QH-FY-1,MAP.mint);R(X+1,FY,QW-2,2,MAP.blue);for(let k=0;k<QW-2;k+=32)R(X+1+k,FY+2,16,QH-FY-3,MAP.green);   /* 벽 · 바닥 */
-    if(i===me)R(X+1,QB+1,QW-2,2,MAP.yellow);
-    for(const t of QK_TX){const x=X+t;R(x-14,TT+7,3,FY+8-TT-7,MAP.ink);R(x+11,TT+7,3,FY+8-TT-7,MAP.ink);R(x-19,TT-1,38,8,MAP.ink);R(x-18,TT,36,6,'#fff');R(x-18,TT+5,36,1,'#d8e4ec');for(let k=0;k<36;k+=6)R(x-18+k,TT+6,6,2,MAP.blue);}   /* 왼쪽 · 오른쪽 테이블 */
-    K('◀',X+QK_TX[0],TT+12,MAP.blue,'center',8);K('▶',X+QK_TX[1],TT+12,MAP.blue,'center',8);
-    // 떠 있는 음식 (아직 판정 안 된 것 · 내 화면에선 내가 누른 건 바로 사라짐)
-    if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=S.f-no.T;if(dt<0||dt>QK.WIN)continue;if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;
-      const x=X+QK_TX[no.d===4?0:1],pop=dt<4?(4-dt)*2:0,y=TT-20-pop;
-      if(no.b)qkBomb(x,y+10,f);else{const im=IMG[QK_ITEM[n%3]];if(im&&im.complete)g.drawImage(im,x-10,y);else R(x-10,y,20,20,'#e8a040');}
-      const w=Math.round(28*(1-dt/QK.WIN));R(x-14,y-8,28,4,MAP.ink);R(x-14,y-8,w,4,no.b?'#ff5a5a':dt<QK.RT[0]?MAP.yellow:dt<QK.RT[1]?'#58d838':'#00ccf3');   /* 남은 시간 막대 */
-      if(!no.b&&dt<12&&(dt>>1)%2===0)K('!',x,y-24,'#ff5a5a','center',10);}
-    // 가운데 쿵야: 누른 쪽으로 몸을 기울이고 다리를 뻗음
-    const lean=S.f-S.ff[i]<10?(S.face[i]===4?-6:6):0,hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8&&typeof x[1]==='number'),bob=lean?0:(((f>>5)+i)%2?-1:0);
-    koongWalk(i,cx+lean,QH-4+bob,lean?Math.sign(lean)*3:0,lean?Math.sign(lean)*3:0,hit?2:0);
-    // 효과: 잡은 음식이 쿵야에게 날아옴 · 점수 글자
-    for(const[ii,q,at,n,pts]of S.fxs){if(ii!==i)continue;const k=S.f-at;
-      if(typeof q==='number'&&n>=0&&k<8&&pd.N){const sx=X+QK_TX[pd.N[n].d===4?0:1],im=IMG[QK_ITEM[n%3]],x=Math.round(sx+(cx-sx)*k/8),y=Math.round(TT-20+k*8);if(im&&im.complete)g.drawImage(im,x-10,y);}
-      if(q==='boom'&&k<14&&pd.N){const bx=X+QK_TX[pd.N[n].d===4?0:1];for(let p=0;p<10;p++){const a=p*.628,r=4+k*2;R(Math.round(bx+Math.cos(a)*r),Math.round(TT-10+Math.sin(a)*r*.8),2,2,p%2?'#ff9a3a':'#fff419');}}
-      const lab=typeof q==='number'?`${QK.QN[q]}`:q==='boom'?'BOOM!':q==='wrong'?'반대쪽!':'성급해요!',col=typeof q==='number'?QK.QC[q]:'#ff5a5a';
-      if(k<24){K(lab,cx,QB+30-Math.floor(k/3),col,'center',typeof q==='number'&&q===0?12:10);txt((pts>0?'+':'')+pts,cx,QB+46-Math.floor(k/3),pts>0?'#fff':'#ff5a5a','center',8);}}
-    if(S.streak[i]>=3)K(`${S.streak[i]}연속!`,cx,QB+6,'#fff','center',9);
+/* ---------- 그리기: 세로 4분할 · 칸마다 가운데에 접시 더미(맨 아래가 지금 접시), 양옆 손님 테이블, 맨 아래 쿵야 ---------- */
+const QK_BASE=190,QK_STEP=17;   /* 맨 아래 접시 y · 접시 사이 간격 */
+function qkDish(x,y,no,cur){const w=cur?32:24,c=no.g?MAP.yellow:no.r?'#ff5a5a':'#fff',e=no.g?'#c8a000':no.r?'#b02a2a':'#a8b8c8';
+  R(x-w/2-1,y-1,w+2,8,MAP.ink);R(x-w/2,y,w,6,c);R(x-w/2+2,y+4,w-4,2,e);R(x-w/2+3,y+1,w-6,1,'#fff');
+  const sd=no.d===4?-1:1,lx=x+sd*(w/2+(no.r?14:8));   /* 표시는 접시 바깥쪽 옆 (같은 높이) */
+  if(no.r)K('반대',lx,y-4,'#ff5a5a','center',8);else K(no.d===4?'◀':'▶',lx,y-4,no.g?'#c8a000':MAP.blue,'center',8);}
+function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
+  for(let i=0;i<4;i++){const X=qx(i),cx=X+QW/2,mine=i===me&&pd.my;
+    R(X,QB,QW,QH-QB,i===me?MAP.hi:MAP.green);R(X,QH-42,QW,42,MAP.mint);R(X,QH-42,QW,2,MAP.blue);   /* 바닥 */
+    for(const sx of [X+12,X+QW-12]){R(sx-9,QH-64,18,4,MAP.ink);R(sx-8,QH-63,16,2,'#fff');R(sx-1,QH-60,2,20,MAP.ink);}   /* 양옆 손님 테이블 */
+    const k=mine?Math.max(S.k[i],pd.my.k):S.k[i],stun=S.f-(mine?pd.my.stun:S.st[i])<QK.STUN;   /* 내 칸 멈춤은 내 기기 기준만 (방장 확인을 기다리면 멈춤이 길어짐) */
+    // 접시 더미: 맨 아래 = 지금 접시 (놓인 쪽으로 치우침)
+    if(N)for(let n=QK.SHOW-1;n>=0;n--){const no=N[k+n];if(!no)continue;const side=no.d===4?-1:1,x=cx+side*(n?10:16)+(stun&&!n?((f>>1)&1?2:-2):0),y=QK_BASE-n*QK_STEP;
+      if(y-12<QB+2)continue;qkDish(x,y,no,!n);}
+    // 날아가는 접시 (내 칸은 내 기기 기준으로 바로)
+    const fxs=(mine?pd.my.fx:S.fx).filter(x=>x[0]===i&&S.f-x[2]>=0&&S.f-x[2]<14);
+    for(const[ii,ok,at,d,gold]of fxs){const t=S.f-at,side=d===4?-1:1;
+      if(ok){const x=Math.round(cx+side*(16+t*4)),y=Math.round(QK_BASE+t*t*.3);R(x-10,y,20,5,gold?MAP.yellow:'#fff');R(x-10,y+5,20,1,MAP.ink);}
+      else if(t<12){for(let p=0;p<6;p++)R(Math.round(cx+side*12+(p-3)*t),Math.round(QK_BASE+4+t*t*.12-(p%2)*t),3,2,p%2?'#fff':'#a8b8c8');}}   /* 와장창 조각 */
+    // 쿵야: 두다다다 — 누를 때마다 누른 쪽으로 몸이 쏠리고 다리가 번갈아 뻗음 · 틀리면 빨갛게
+    const last=fxs.length?fxs[fxs.length-1]:null,lt=last?S.f-last[2]:99,lean=lt<6?(last[3]===4?-5:5):0;
+    koongWalk(i,cx+lean,QH-4,lean?(lean<0?-4:3):0,lean?(lean<0?3:-4):0,lt<4?2:0,stun?{tint:'#ff8a8a'}:{});
+    const c=S.combo[i];if(c>=5)K(`${c} COMBO`,cx,QB+4,c>=50?'#fff419':'#fff','center',c>=50?11:9);
+    if(stun)K('와장창!',cx,QB+20,'#ff5a5a','center',11);
     quadFrame(i,S,me);}
-  if(S.ph==='cd'){R(60,86,360,96,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,94,'#fff419','center',16);K('음식이 나온 쪽 버튼을 최대한 빨리!',240,118,'#fff','center',11);
-    K('◀ 왼쪽  ·  ▶ 오른쪽  ·  폭탄은 참기',240,136,'#d4f4ff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,158,'#fff','center',14);}
+  if(S.ph==='cd'){R(50,80,380,104,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,88,'#fff419','center',16);K('맨 아래 접시가 놓인 쪽 버튼을 두다다다!',240,112,'#fff','center',11);
+    K('빨간 반대 접시는 반대쪽 · 틀리면 와장창 멈춤',240,130,'#ffb0b0','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,160,'#fff','center',14);}
   if(S.ph==='end'){R(110,112,260,46,'rgba(42,58,72,.92)');K('그만!',240,124,'#fff419','center',16);}}
 regGame({id:'quick',title:'쿵야 순발력',icon:'①',
-  ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','음식이 나타난 쪽 버튼을 최대한 빨리!','빠를수록 점수 UP · 반대쪽 / 미리 누르기는 감점'],
-  gimmick:'<b>폭탄</b> — 폭탄이 나오면 꾹 참기! 누르면 -100',
-  win:'40초 동안 개인 점수 1위! (4명 모두 같은 순서 · 같은 타이밍)',
-  desc:'왼쪽 / 오른쪽에 음식이 나오면 그쪽 버튼을 최대한 빨리!<br>세로 4분할 개인전 · 40초',
-  controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 음식이 나온 쪽을 최대한 빨리! · 폭탄은 누르지 마세요'},
-  demoSkip:110,
+  ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','맨 아래 접시가 놓인 쪽을 <b>두다다다</b> 연타!','틀리면 와장창 — 0.6초 멈추고 콤보 끊김'],
+  gimmick:'<b>빨간 반대 접시</b> — 반대쪽 버튼! · <b>황금 접시</b> 3배 점수',
+  win:'60초 동안 개인 점수 1위! (4명 모두 같은 접시 순서 · 콤보가 길수록 접시당 점수 UP)',
+  desc:'맨 아래 접시가 놓인 쪽 버튼을 두다다다 연타!<br>세로 4분할 개인전 · 60초',
+  controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 맨 아래 접시 쪽을 두다다다! · 빨간 반대 접시는 반대쪽'},
+  demoSkip:20,
   newSim:(s,c)=>new QuickSim(s,c),
-  newView:()=>({N:null,J:[{},{},{},{}],myJ:{}}),
+  newView:()=>({N:null,my:{k:0,stun:-99,fx:[]}}),
   full:true,
-  applyFull(pd,F){if(F){pd.N=qkChart(F.seed,F.start);pd.J=[{},{},{},{}];pd.myJ={};}},
-  applyDelta(pd,S){(S.jn||[]).forEach((L,i)=>L.forEach(([n,q])=>{pd.J[i][n]=q;}));},
-  /* 내 화면 기준 판정: 지금 내 화면에 떠 있는 음식을 찾아 반응 프레임(rt)까지 재서 보냄 (◀ ▶ 만 사용) */
-  prep(e,S,me,pd){if(!e.tap||(e.d!==2&&e.d!==4))return null;if(!S||!pd.N)return e;const J=pd.J[me],M=pd.myJ,f=S.f;let n=-1;
-    pd.N.forEach((no,k)=>{if(n<0&&J[k]==null&&M[k]==null&&f>=no.T&&f-no.T<=QK.WIN)n=k;});
-    if(n<0)return{tap:1,early:1,d:e.d};M[n]=1;return{tap:1,n,d:e.d,rt:Math.round(f-pd.N[n].T)};},
+  applyFull(pd,F){if(F){pd.N=qkChart(F.seed);pd.my={k:0,stun:-99,fx:[]};}},
+  /* 내 기기에서 바로 판정: 멈춤 중이면 무시 · 맞으면 다음 접시로 · 틀리면 멈춤 (◀ ▶ 만 사용) */
+  prep(e,S,me,pd){if(!e.tap||(e.d!==2&&e.d!==4))return null;if(!S||!pd.N||S.ph!=='play')return null;const M=pd.my,f=S.f;
+    if(f-M.stun<QK.STUN)return null;const k=Math.max(M.k,S.k[me]),no=pd.N[k];if(!no)return null;
+    const ok=e.d===qkWant(no);M.fx=M.fx.filter(x=>f-x[2]<14);M.fx.push([me,ok?1:0,f,ok?no.d:e.d,no.g]);if(ok)M.k=k+1;else{M.k=k;M.stun=f;}
+    AU.sfx(ok?(no.g?'pickup':'tap'):'ouch');if(!ok)SHAKE=Math.max(SHAKE,2);return{tap:1,d:e.d,k,ok:ok?1:0};},
   lerp(a,b,k){return{...b,f:a.f+(b.f-a.f)*k};},
   draw:quickDraw});

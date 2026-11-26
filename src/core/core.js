@@ -100,19 +100,25 @@ const AU=(()=>{let ac=null,master=null,bgmG=null,bgmS=null,want=false;const BUF=
     hit(){noise(.06,.18,1200);tone(180,.06,'square',.06,90);},big(){noise(.25,.3,300);tone(120,.25,'sawtooth',.1,40);},tap(){tone(1100,.03,'square',.025);},win(){[523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>tone(f,.14),i*90));}};
   return{init,bgm,sfx:n=>{if(S[n])S[n]();},vol(){if(master)master.gain.value=CFG.sound?.5:0;}};})();
 /* ---------- 입력: 방향(누르고 있는 마지막 방향) + A 버튼(누를 때마다) ---------- */
-const DIRK={ArrowUp:1,KeyW:1,ArrowRight:2,KeyD:2,ArrowDown:3,KeyS:3,ArrowLeft:4,KeyA:4};
-const AKEYS=new Set(['KeyZ','Space','KeyJ','Enter','NumpadEnter','KeyK']);
+/* 키 한정: 화면에 표기된 단축키만 받음 (키보드 · 마우스 기준)
+   방향키 ← ↑ → ↓ · Enter 결정 · Esc 닫기(게임 설명 · 설정) · 게임 중 Z / Space = A 버튼 · 관전 중 숫자 1~4
+   그 밖의 키(WASD · J · K · X · Backspace · Tab …)와 마우스 오른쪽 메뉴는 무시 · 입력칸에 글자 입력은 그대로 */
+const DIRK={ArrowUp:1,ArrowRight:2,ArrowDown:3,ArrowLeft:4};
+const AKEYS=new Set(['KeyZ','Space']);
 const held=new Set();
 function curDir(){let d=0;for(const k of held)d=k;return d;}
 addEventListener('keydown',e=>{AU.init();const inInput=e.target&&e.target.tagName==='INPUT';
-  if(DIRK[e.code]&&!(inInput&&/Key[WASD]/.test(e.code))){held.delete(DIRK[e.code]);held.add(DIRK[e.code]);if(!e.repeat)onDir(DIRK[e.code]);if(!inInput)e.preventDefault();}
+  if(e.code==='Tab'){e.preventDefault();return;}   /* Tab 으로 포커스가 옮겨 가지 않게 */
+  if(DIRK[e.code]){held.delete(DIRK[e.code]);held.add(DIRK[e.code]);if(!e.repeat)onDir(DIRK[e.code]);if(!inInput)e.preventDefault();}
   if(e.repeat)return;
   if(screen==='game'&&/^(Digit|Numpad)[1-4]$/.test(e.code)&&isSpec()){specSet(+e.code.slice(-1)-1);return;}   /* 관전: 숫자로 시점 바로 선택 */
   if(screen==='game'&&AKEYS.has(e.code)){e.preventDefault();if(GAME&&GAME.intro>0)return;sendA();return;}
   if(HOW_ON&&DIRK[e.code]&&(DIRK[e.code]===2||DIRK[e.code]===4)){howFlip(DIRK[e.code]===2?1:-1);return;}
-  if(e.code==='Enter'||e.code==='NumpadEnter'||(e.code==='Space'&&!inInput)||(e.code==='KeyZ'&&!inInput)){e.preventDefault();onOK();}
-  else if(e.code==='Escape'||(e.code==='KeyX'&&!inInput)||(e.code==='Backspace'&&!inInput)){e.preventDefault();onBack();}});
+  if(e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();onOK();}
+  else if(e.code==='Escape'){e.preventDefault();onBack();}
+  else if(e.code==='Space'&&!inInput)e.preventDefault();});
 addEventListener('keyup',e=>{if(DIRK[e.code]){held.delete(DIRK[e.code]);dirUp();}});
+addEventListener('contextmenu',e=>e.preventDefault());   /* 마우스 오른쪽 메뉴 막기 */
 addEventListener('blur',()=>{held.clear();});
 let padPrev={};
 function pollPad(){const P=[...(navigator.getGamepads?navigator.getGamepads():[])].filter(Boolean)[0];if(!P)return;
@@ -154,7 +160,7 @@ const NET={ch:null,inCh:null,inSend:null,id:'',hostId:'',room:'',role:'player',m
         if(L.length>12)return fail('full');
         done=true;clearTimeout(to);this.on=true;this.inSend=c.channel('kyb-in-'+room);this.applyMembers(L);res();return;}
       if(this.on)this.applyMembers(L);});
-    ch.subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({name:CFG.name||'PLAYER',role,t:Date.now()});}
+    ch.subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({name:role==='spectator'?'관전':CFG.name||'PLAYER',role,t:Date.now()});}
       else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){if(!done)fail('closed');else if(this.on&&this.ch===ch){this.on=false;onNetLost();}}});});},
   readMembers(){const st=this.ch?this.ch.presenceState():{},L=[];
     for(const k in st){const p=st[k]&&st[k][0];if(p)L.push({id:k,name:badName(p.name)?'PLAYER':String(p.name||'PLAYER').slice(0,10),   /* 다른 기기에서 걸러지지 않은 이름도 방에선 PLAYER 로 */role:p.role==='spectator'?'spectator':'player',t:+p.t||0});}
@@ -184,7 +190,7 @@ function paintSel(){btns().forEach((b,i)=>b.classList.toggle('sel',i===sel));}
 function toast(m,ms=2200){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms);}
 document.addEventListener('click',e=>{const b=e.target.closest('.btn');if(!b)return;AU.init();const L=btns();sel=Math.max(0,L.indexOf(b));paintSel();act(b.dataset.act);});
 function onOK(){if(screen==='game')return;if(HOW_ON){closeHow();return;}const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
-function onBack(){if(HOW_ON){closeHow();return;}if(screen==='main')return;if(screen==='game'){if(GAME&&GAME.local)backToRoom();return;}if(screen==='lobby'||screen==='result'){leaveToMain();return;}AU.sfx('move');show('main');}
+function onBack(){if(HOW_ON){closeHow();return;}if(screen==='settings'){AU.sfx('move');closeSettings();}}   /* Esc = 게임 설명 · 설정 닫기만 (나가기는 버튼으로) */
 function onDir(d){if(HOW_ON)return;if(screen==='game'){if(isSpec()){if(d===2||d===4)specSet(SPEC_I+(d===2?1:-1));return;}if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
   spatialMove(d);}
 function act(a){switch(a){
@@ -194,7 +200,7 @@ function act(a){switch(a){
   case 'pick':if(typeof initLocalRoom==='function')initLocalRoom();break;   /* 혼자 연습은 core/test.js 가 있을 때만 메뉴에 나타남 */
   case 'fs':try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}catch(e){}break;
   case 'settings':openSettings();break;
-  case 'back':show('main');break;
+  case 'back':closeSettings();break;
   case 'ready':lobbyReady();break;
   case 'leave':leaveToMain();break;
   case 'home':leaveToMain();break;
@@ -217,15 +223,23 @@ function needName(){const n=$('nameIn').value.trim().slice(0,10);if(!n){toast('�
 const STAGE_PASS='YCC1211',STAGE_ROOM='YCC1211';
 function needPass(){const p=$('passIn').value.trim().toUpperCase();if(p===STAGE_PASS)return true;
   toast(p?'비밀번호가 맞지 않습니다':'비밀번호를 입력해 주세요');$('passIn').value='';$('passIn').focus();return false;}
-async function enterRoom(role){if(!needName()||!needPass())return;toast('입장하는 중…',8000);
+async function enterRoom(role){if(role==='spectator'?!needPass():!needName()||!needPass())return;   /* 관전은 닉네임 없이 비밀번호만 */toast('입장하는 중…',8000);
   try{await NET.connect(STAGE_ROOM,role,'any');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);}}
 function netErr(e){return{full:'방이 가득 찼습니다',timeout:'서버 응답이 없습니다. 잠시 후 다시 시도해 주세요',url:'서버 주소 설정 오류',closed:'서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요'}[e]||'연결 오류: '+e;}
-function openSettings(keep){$('setFlt').textContent='화면 필터: '+(CFG.filter?'켬':'끔');$('setSnd').textContent='사운드: '+(CFG.sound?'켬':'끔');if(!keep)show('settings');}
+let SET_BACK='main';
+function closeSettings(){show(SET_BACK);if(SET_BACK==='lobby'){renderLobby();focusMain();}}
+function openSettings(keep){if(!keep&&screen!=='settings')SET_BACK=screen==='lobby'?'lobby':'main';$('setFlt').textContent='화면 필터: '+(CFG.filter?'켬':'끔');$('setSnd').textContent='사운드: '+(CFG.sound?'켬':'끔');if(!keep)show('settings');}
 /* ---------- 대기방 (개인전) · 1P~4P 네 칸 · 칸마다 위에서부터 닉네임 / 캐릭터 / READY
    · 캐릭터는 입장할 때 방장이 남은 캐릭터 중 랜덤으로 정해 고정
    · 사람 모두 READY → 3초 카운트 → 게임 3종 연속 시작 (빈 자리는 AI)
    · 온라인(방장이 관리) / 연습(LOBBY.local, 서버 없이 AI와) ---------- */
 const COUNT_SEC=3;
+/* ★ 테스트 기간 스위치 ★ TEST_AI = true  → 사람 2명 이상 모두 READY 하면 시작 · 빈 자리는 AI가 채움 (테스트 2주 동안)
+                         TEST_AI = false → 사람 4명이 모두 들어와 READY 해야 시작 · AI 없음 (실제 행사)
+   어느 쪽이든 혼자 실수로 READY 눌러서 시작되지는 않음 · 혼자 연습(test.html)은 1명 + AI 3명 */
+const TEST_AI=true;
+const MIN_HUMANS=TEST_AI?2:4;
+const needHumans=()=>isLocal()?1:MIN_HUMANS;
 let LOBBY=null,CD_END=0,LAST_CD=0;
 const isLocal=()=>!!(LOBBY&&LOBBY.local);
 const myId=()=>isLocal()?'local':NET.id;
@@ -241,7 +255,8 @@ function syncSlots(){if(!LOBBY||isLocal())return;const ids=new Set(players().map
 function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});renderLobby();}
 function charImg(id,k=2){const B=CHS[charOf(id).big];return `<img src="${B.src}" style="width:${B.w*k}px;height:${B.h*k}px">`;}
 function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
-  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+'모두 <b>READY</b> 하면 3초 뒤 게임 3종 시작 · 빈 자리는 AI';
+  const hn=L?L.slots.filter(s=>s&&!s.bot).length:0,need=needHumans();
+  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와':need>1?`${need}명 이상 들어와`:''} 모두 <b>READY</b> 하면 3초 뒤 시작`+(need<4?' · 빈 자리는 AI':'')+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId());
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
@@ -254,7 +269,7 @@ function focusMain(){const L=btns(),i=L.findIndex(b=>b.dataset.act==='ready');se
 function lobbyReady(){if(!LOBBY||!(isLocal()||NET.role==='player'))return;if(amHost())hostReady(myId());else NET.send({t:'ready'},NET.hostId);}
 function hostReady(id){const s=LOBBY.slots.find(s=>s&&s.id===id);if(!s)return;s.ready=!s.ready;pushLobby();}
 /* 방장: 모두 READY 인지 매 프레임 확인 → 3초 카운트 (누가 READY 를 풀거나 새로 들어오면 취소) */
-function lobbyTick(){if(screen!=='lobby'||!LOBBY||GAME||!amHost())return;const hum=LOBBY.slots.filter(s=>s&&!s.bot),all=hum.length>0&&hum.every(s=>s.ready),now=performance.now();
+function lobbyTick(){if(!(screen==='lobby'||screen==='settings'&&SET_BACK==='lobby')||!LOBBY||GAME||!amHost())return;const hum=LOBBY.slots.filter(s=>s&&!s.bot),all=hum.length>=needHumans()&&hum.every(s=>s.ready),now=performance.now();
   if(!all){CD_END=0;if(LOBBY.cd){LOBBY.cd=0;pushLobby();}return;}
   if(!CD_END)CD_END=now+COUNT_SEC*1000;
   const c=Math.max(0,Math.ceil((CD_END-now)/1000));if(c!==LOBBY.cd&&c>0){LOBBY.cd=c;pushLobby();}

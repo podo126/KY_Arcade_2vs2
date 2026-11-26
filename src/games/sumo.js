@@ -1,23 +1,23 @@
 /* ┌─────────────────────────────────────────────────────────
    │ ③ 쿵야 스모 — 둥근 씨름판에서 부딪쳐 상대를 밖으로 밀어내기 (개인전 · 4명 난투)
-   │ 방향키 이동 · A 돌진(1초 재사용) · 최대 3판, 먼저 2판 이기면 끝 · 한 판 40초, 20초부터 씨름판이 줄어듦
-   │ 판 승리 = 마지막까지 남은 한 명 (시간이 다 되면 남은 쿵야 중 가운데에 가장 가까운 쿵야)
+   │ 방향키 이동 · A 돌진(1초 재사용) · 전체 60초 동안 판을 계속 반복 (판마다 12초부터 씨름판이 줄어듦)
+   │ 판 승리 = 마지막까지 남은 한 명 · 전체 시간이 다 되면 그 판은 남은 쿵야 중 가운데에 가장 가까운 쿵야 승리
    │ 개인 점수: 상대를 떨어뜨림 +300 · 판 승리 +500 · 혼자 떨어짐 -50
    │ (예전 2:2 스모를 개인전 · 비율 조정한 원본 그림(big_*) 1배 · 정수 좌표로 다시 만듦)
    └───────────────────────────────────────────────────────── */
-/* 조절값: R0 처음 씨름판 반지름 · R1 최소 · PR 몸 반지름 · ACC 가속 · FRIC 마찰 · MAX 최고 속도 · DASH 돌진 힘 · DCD 돌진 재사용(프레임) · SQ 화면 세로 눌림 */
-const SUMO={SEC:40,CX:240,CY:150,R0:124,R1:72,PR:17,ACC:.22,FRIC:.9,MAX:2.1,DASH:5.4,DCD:60,SQ:.6,KO:300,WIN:500,SELF:50,
+/* 조절값: SEC 전체 시간 · SHRINK 판마다 줄어들기 시작(초)·줄어드는 시간(초) · LAST 남은 시간이 이보다 적으면 새 판 없이 끝 · R0 처음 씨름판 반지름 · R1 최소 · PR 몸 반지름 · ACC 가속 · FRIC 마찰 · MAX 최고 속도 · DASH 돌진 힘 · DCD 돌진 재사용(프레임) · SQ 화면 세로 눌림 */
+const SUMO={SEC:60,SHRINK:[12,8],LAST:6,CX:240,CY:150,R0:124,R1:72,PR:17,ACC:.22,FRIC:.9,MAX:2.1,DASH:5.4,DCD:60,SQ:.6,KO:300,WIN:500,SELF:50,
   START:[[180,104],[300,104],[180,196],[300,196]]};
 const SUMO_DX=[0,0,1,0,-1],SUMO_DY=[0,-1,0,1,0];
 class SumoSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ko=[0,0,0,0];this.ev=[];this.done=false;this.wins=[0,0,0,0];this.r=0;this.dir=[0,0,0,0];this.round();}
-  round(){this.ph='cd';this.t=150;this.tm=SUMO.SEC*60;this.R=SUMO.R0;this.rw=-1;
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ko=[0,0,0,0];this.ev=[];this.done=false;this.wins=[0,0,0,0];this.r=0;this.dir=[0,0,0,0];this.tm=SUMO.SEC*60;this.round();}
+  round(){this.ph='cd';this.t=this.r?100:150;this.rt=0;this.R=SUMO.R0;this.rw=-1;this.dir=[0,0,0,0];   /* 남은 전체 시간(tm)은 이어짐 · 2판부터 카운트 짧게 */
     this.P=SUMO.START.map(([x,y],i)=>({x,y,vx:0,vy:0,fx:i%2?-1:1,fy:0,st:'in',t:0,dash:0,cd:0,last:-1,lt:-999,sq:0}));}
   input(i,e){if('d' in e)this.dir[i]=e.d;if(e.a&&this.ph==='play'){const p=this.P[i];if(p.st==='in'&&p.cd<=0){p.vx+=p.fx*SUMO.DASH;p.vy+=p.fy*SUMO.DASH;p.dash=14;p.cd=SUMO.DCD;this.ev.push('tap');}}}
   step(){this.f++;
     if(this.ph==='cd'){if(this.t%50===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
-    if(this.ph==='end'){if(--this.t<=0){if(this.wins.some(w=>w>=2)||this.r>=2)this.done=true;else{this.r++;this.round();}}return;}
-    this.tm--;const el=SUMO.SEC*60-this.tm;if(el>20*60)this.R=Math.max(SUMO.R1,SUMO.R0-(el-20*60)*(SUMO.R0-SUMO.R1)/(10*60));   // 20초부터 10초 동안 줄어듦
+    if(this.ph==='end'){if(--this.t<=0){if(this.tm<=SUMO.LAST*60)this.done=true;else{this.r++;this.round();}}return;}
+    this.tm--;this.rt++;const s0=SUMO.SHRINK[0]*60;if(this.rt>s0)this.R=Math.max(SUMO.R1,SUMO.R0-(this.rt-s0)*(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60));   // 판마다 12초부터 8초 동안 줄어듦
     this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
       if(d){p.vx+=SUMO_DX[d]*SUMO.ACC;p.vy+=SUMO_DY[d]*SUMO.ACC;p.fx=SUMO_DX[d];p.fy=SUMO_DY[d];}
       p.vx*=SUMO.FRIC;p.vy*=SUMO.FRIC;const sp=Math.hypot(p.vx,p.vy),mx=p.dash>0?9:SUMO.MAX;if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
@@ -63,19 +63,19 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
     koong(i,X,py+(sq2>4?1:0),{flip:fx<0});   // 부딪치면 1도트 눌림
     R(X-11,py+3,22,4,MAP.ink);R(X-10,py+4,Math.round(20*(1-cd/C.DCD)),2,cd>0?MAP.blue:MAP.yellow);   // 돌진 게이지
     const{h}=koongSize(i);if(i===me)meMark(X,py-h-12);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',X,py+8,PCOL[i],'center',8);}
-  // 위쪽: 1P~4P 판 승리 표시 (2칸) · 가운데 남은 시간
+  // 위쪽: 1P~4P 판 승리 수 · 가운데 남은 시간
   for(let i=0;i<4;i++){const bx=i<2?8+i*96:480-8-(4-i)*96;R(bx,4,90,16,MAP.ink);R(bx+2,6,8,12,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,5):'',bx+14,5,'#fff','left',8);
-    for(let k=0;k<2;k++){R(bx+66+k*11,7,9,10,k<S.wins[i]?MAP.yellow:'#3a4a58');}}
-  const sec=Math.max(0,Math.ceil(S.tm/60));R(204,4,72,18,MAP.ink);txt(`R${S.r+1} ${sec}`,240,9,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
+    K(`${S.wins[i]}승`,bx+86,5,S.wins[i]?MAP.yellow:'#8a9aa8','right',8);}
+  const sec=Math.max(0,Math.ceil(S.tm/60));R(204,4,72,18,MAP.ink);txt(`R${S.r+1} ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,9,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
   if(S.R<C.R0&&S.ph==='play')K('씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
   if(S.ph==='cd'){R(100,40,280,64,'rgba(42,58,72,.92)');K(`ROUND ${S.r+1} · 쿵야 스모`,240,48,MAP.yellow,'center',14);K('방향키로 움직이고 A로 돌진! 밖으로 밀어내기',240,70,'#fff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,86,'#fff','center',12);}
   if(S.ph==='end'){const w=S.rw;R(110,40,260,50,'rgba(42,58,72,.92)');K(w<0?'무승부!':`${GAME.slots[w]?GAME.slots[w].name:''} 승리!`,240,50,w<0?'#fff':PCOL[w],'center',16);
-    K(S.wins.some(v=>v>=2)||S.r>=2?'스모 끝!':`다음 판 준비…`,240,72,'#fff','center',11);}}
+    K(S.tm<=SUMO.LAST*60?'스모 끝!':`다음 판 준비…`,240,72,'#fff','center',11);}}
 regGame({id:'sumo',title:'쿵야 스모',icon:'③',
   ctrl:['방향키로 이동','A 버튼으로 돌진 (1초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
-  gimmick:'<b>줄어드는 씨름판</b> — 20초부터 씨름판이 점점 작아져요',
-  win:'4명 난투! 마지막까지 남으면 그 판 승리 · 먼저 2판 승리 (최대 3판) · 밀어낸 만큼 점수 UP',
-  desc:'방향키로 움직이고 A로 돌진! 다른 쿵야를 씨름판 밖으로 밀어내세요<br>개인전 · 최대 3판 · 20초부터 씨름판이 점점 줄어들어요',
+  gimmick:'<b>줄어드는 씨름판</b> — 판마다 12초부터 씨름판이 점점 작아져요',
+  win:'60초 동안 4명 난투를 계속! 마지막까지 남으면 판 승리 +500 · 밀어내면 +300 · 개인 점수 1위',
+  desc:'방향키로 움직이고 A로 돌진! 다른 쿵야를 씨름판 밖으로 밀어내세요<br>개인전 · 60초 동안 판 반복 · 판마다 씨름판이 점점 줄어들어요',
   controls:{dir:'hold',a:true,label:'방향키 + A 버튼',hint:'<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 이동 · <span class="kk">Z</span><span class="kk">Space</span> 돌진'},
   newSim:(s,c)=>new SumoSim(s,c),
   lerp(a,b,k){return{...b,P:b.P.map((p,i)=>{const q=a.P[i]||p;return[q[0]+(p[0]-q[0])*k,q[1]+(p[1]-q[1])*k,...p.slice(2)];})};},

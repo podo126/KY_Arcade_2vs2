@@ -212,7 +212,7 @@ body.touch .how-x .keys{display:none}
 .pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
 .pslot .rst.on{color:#000;background:#58d838;border-color:#000}
 .pslot.rd{box-shadow:inset 0 -6px 0 #58d838}
-#scr-lobby .lob-btns{bottom:58px;width:560px;margin-left:-280px}
+#scr-lobby .lob-btns{bottom:58px;width:840px;margin-left:-420px}
 #lbCd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;font:160px var(--pf);color:var(--yellow);pointer-events:none}
 #lbCd[hidden]{display:none}
 
