@@ -99,6 +99,7 @@ function curDir(){let d=0;for(const k of held)d=k;return d;}
 addEventListener('keydown',e=>{AU.init();const inInput=e.target&&e.target.tagName==='INPUT';
   if(DIRK[e.code]&&!(inInput&&/Key[WASD]/.test(e.code))){held.delete(DIRK[e.code]);held.add(DIRK[e.code]);if(!e.repeat)onDir(DIRK[e.code]);if(!inInput)e.preventDefault();}
   if(e.repeat)return;
+  if(screen==='game'&&/^(Digit|Numpad)[1-4]$/.test(e.code)&&isSpec()){specSet(+e.code.slice(-1)-1);return;}   /* 관전: 숫자로 시점 바로 선택 */
   if(HOLD.on&&e.code==='KeyZ'&&!inInput){e.preventDefault();holdPress('k',true);return;}   /* 진행 대기 중: Z 꾹 누르기 */
   if(screen==='game'&&AKEYS.has(e.code)){e.preventDefault();if(GAME&&GAME.intro>0)return;sendA();return;}
   if(HOW_ON&&DIRK[e.code]&&(DIRK[e.code]===2||DIRK[e.code]===4)){howFlip(DIRK[e.code]===2?1:-1);return;}
@@ -149,7 +150,7 @@ const NET={ch:null,inCh:null,inSend:null,id:'',hostId:'',room:'',role:'player',m
     ch.subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({name:CFG.name||'PLAYER',role,t:Date.now()});}
       else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){if(!done)fail('closed');else if(this.on&&this.ch===ch){this.on=false;onNetLost();}}});});},
   readMembers(){const st=this.ch?this.ch.presenceState():{},L=[];
-    for(const k in st){const p=st[k]&&st[k][0];if(p)L.push({id:k,name:String(p.name||'PLAYER').slice(0,10),role:p.role==='spectator'?'spectator':'player',t:+p.t||0});}
+    for(const k in st){const p=st[k]&&st[k][0];if(p)L.push({id:k,name:badName(p.name)?'PLAYER':String(p.name||'PLAYER').slice(0,10),   /* 다른 기기에서 걸러지지 않은 이름도 방에선 PLAYER 로 */role:p.role==='spectator'?'spectator':'player',t:+p.t||0});}
     return L.sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));},
   applyMembers(L){const was=this.hostId;this.members=L.map(({id,name,role})=>({id,name,role}));
     const h=L.find(m=>m.role==='player')||L[0];this.hostId=h?h.id:'';   /* 방장 = 가장 먼저 들어온 플레이어 */
@@ -176,22 +177,22 @@ function paintSel(){btns().forEach((b,i)=>b.classList.toggle('sel',i===sel));}
 function toast(m,ms=2200){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms);}
 document.addEventListener('click',e=>{const b=e.target.closest('.btn');if(!b)return;AU.init();const L=btns();sel=Math.max(0,L.indexOf(b));paintSel();act(b.dataset.act);});
 function onOK(){if(screen==='game')return;if(screen==='char'){confirmChar();return;}if(HOW_ON){closeHow();return;}if(screen==='lobby'&&document.activeElement.tagName!=='INPUT'){lobbyOK();return;}const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
-function onBack(){if(HOW_ON){closeHow();return;}if(screen==='main')return;if(screen==='char'){show('main');return;}if(screen==='game'){if(GAME&&GAME.local)backToRoom();return;}if(screen==='lobby'||screen==='result'){if(screen==='lobby'&&document.activeElement.tagName==='INPUT'){document.activeElement.blur();return;}leaveToMain();return;}AU.sfx('move');show('main');}
-function onDir(d){if(screen==='char'){if(d===2||d===4)pickChar(charSel+(d===2?1:-1));return;}if(HOW_ON)return;if(screen==='game'){if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
+function onBack(){if(HOW_ON){closeHow();return;}if(screen==='main')return;if(screen==='char'){show(CHAR_NEXT==='joinGo'?'join':'main');return;}if(screen==='game'){if(GAME&&GAME.local)backToRoom();return;}if(screen==='lobby'||screen==='result'){if(screen==='lobby'&&document.activeElement.tagName==='INPUT'){document.activeElement.blur();return;}leaveToMain();return;}AU.sfx('move');show('main');}
+function onDir(d){if(screen==='char'){if(d===2||d===4)pickChar(charSel+(d===2?1:-1));return;}if(HOW_ON)return;if(screen==='game'){if(isSpec()){if(d===2||d===4)specSet(SPEC_I+(d===2?1:-1));return;}if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
   if(screen==='rank'&&(d===2||d===4))return;
   if(screen==='lobby'&&document.activeElement.tagName==='INPUT')return;
   if(screen!=='rank'){spatialMove(d);return;}
   if(d===1||d===3){const L=btns();if(!L.length)return;sel=(sel+(d===3?1:-1)+L.length)%L.length;paintSel();AU.sfx('move');const f=document.querySelector('#scr-'+screen+' input');if(f)f.blur();}}
 function act(a){switch(a){
   case 'create':openChar('create');break;
-  case 'join':openChar('join');break;
+  case 'join':if(needName()){show('join');$('codeIn').value='';}break;   /* 입장 · 관전을 먼저 고르고, 플레이어만 캐릭터 고르기 */
   case 'how':openHow();break;
   case 'pick':openChar('local');break;   /* 혼자 연습은 core/test.js 가 있을 때만 메뉴에 나타남 */
   case 'col0':cycleCol(0);break;
   case 'col1':cycleCol(1);break;
   case 'fs':try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}catch(e){}break;
   case 'settings':openSettings();break;
-  case 'joinGo':joinRoom('player');break;
+  case 'joinGo':if(codeOK())openChar('joinGo');break;
   case 'watch':joinRoom('spectator');break;
   case 'back':show('main');break;
   case 'team':lobbyTeam();break;
@@ -202,23 +203,34 @@ function act(a){switch(a){
   case 'flt':CFG.filter=!CFG.filter;LS.set('filter',CFG.filter);applyFilter();openSettings(true);break;
   case 'snd':CFG.sound=!CFG.sound;LS.set('sound',CFG.sound);AU.vol();openSettings(true);break;
 }}
-/* 캐릭터 선택: 메인 → (닉네임) → 캐릭터 고르기 → 대기방 만들기 / 방 코드 입장 / 혼자 연습 */
+/* 캐릭터 선택: 메인 → (닉네임) → 캐릭터 고르기 → 대기방 만들기 / 혼자 연습
+   방 코드: 메인 → 방 코드 화면에서 입장 · 관전 먼저 선택 → 플레이어만 캐릭터 고르기 (관전은 바로 입장) */
 let CHAR_NEXT=null,charSel=0;
 function openChar(next){if(!needName())return;CHAR_NEXT=next;charSel=Math.max(0,CHARS.findIndex(c=>c.id===CFG.char));show('char');renderChar();}
 function renderChar(){$('charList').innerHTML=CHARS.map((c,i)=>{const B=CHS[c.big];return `<div class="ch ${i===charSel?'fr-on on':'fr-item'}" data-i="${i}"><div class="chimg"><img src="${B.src}" style="width:${B.w*2}px;height:${B.h*2}px"></div><b class="ol2">${esc(c.name)}</b></div>`;}).join('');}
 function pickChar(i){charSel=(i+CHARS.length)%CHARS.length;AU.sfx('move');renderChar();}
 function confirmChar(){CFG.char=CHARS[charSel].id;LS.set('char',CFG.char);AU.sfx('ok');const n=CHAR_NEXT;CHAR_NEXT=null;
-  if(n==='create')createRoom();else if(n==='join'){show('join');$('codeIn').value='';}else if(n==='local'&&typeof initLocalRoom==='function')initLocalRoom();}
+  if(n==='create')createRoom();else if(n==='joinGo')joinRoom('player');else if(n==='local'&&typeof initLocalRoom==='function')initLocalRoom();}
 document.addEventListener('click',e=>{const c=e.target.closest('#charList .ch');if(c){AU.init();charSel=+c.dataset.i;renderChar();confirmChar();}});
-function needName(){const n=$('nameIn').value.trim().slice(0,10);if(!n){toast('닉네임을 입력해 주세요');$('nameIn').focus();return false;}CFG.name=n;LS.set('name',n);return true;}
+/* 욕설 방지: 닉네임 · 팀 이름에 아래 단어가 들어 있으면 사용 불가 (추가는 이 목록에 그대로 적으면 됨)
+   공백 · 숫자 · 기호를 빼고 비교 → "씨 1 발", "f.u.c.k" 도 걸러짐 · 영문은 0→o 1→i 3→e 4→a 5→s @→a $→s 로 바꿔서도 비교 */
+const BAD_WORDS=['시발','씨발','씨바','씨빨','씨팔','시팔','십팔','쓰발','쓰바','씹','ㅅㅂ','ㅆㅂ','ㅅ발','ㅆ발','시벌','씨벌','싀발',
+  '병신','븅신','빙신','병쉰','ㅂㅅ','ㅄ','좆','좃','존나','졸라','존내','ㅈㄴ','개새','개색','개세','개쉐','새끼','새키','섀키','쌔끼','ㅅㄲ',
+  '니미','니애미','느금','느개비','ㄴㄱㅁ','애미','애비','에미','엠창','앰창','염병','지랄','ㅈㄹ','미친','미췬','ㅁㅊ','또라이','돌아이','등신','썅','쌍놈','쌍년',
+  '걸레','창녀','창년','보지','자지','섹스','야동','딸딸','꼴리','닥쳐','꺼져','엿먹','호로새','호로자','호래자','후장','빠구리','븅','찐따','한남','김치녀','된장녀','일베','메갈','틀딱','짱깨','쪽바리',
+  'fuck','fuk','fck','fxck','shit','bitch','biatch','asshole','dick','pussy','cunt','nigger','nigga','faggot','bastard','slut','whore','porn','sex','penis','vagina','wtf','stfu','damn'];
+function badName(s){s=String(s||'').toLowerCase();const a=s.replace(/[^a-z가-힣ㄱ-ㅎㅏ-ㅣ]/g,''),b=s.replace(/[0134@$5]/g,c=>({'0':'o','1':'i','3':'e','4':'a','@':'a','$':'s','5':'s'}[c])).replace(/[^a-z]/g,'');
+  return BAD_WORDS.some(w=>a.includes(w)||(/^[a-z]+$/.test(w)&&b.includes(w)));}
+function needName(){const n=$('nameIn').value.trim().slice(0,10);if(!n){toast('닉네임을 입력해 주세요');$('nameIn').focus();return false;}
+  if(badName(n)){toast('사용할 수 없는 단어가 들어 있어요. 다른 닉네임을 입력해 주세요',3000);$('nameIn').value='';$('nameIn').focus();return false;}CFG.name=n;LS.set('name',n);return true;}
 const CODECH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 async function createRoom(){if(!needName())return;toast('방을 만드는 중…',8000);
   for(let i=0;i<4;i++){const code=Array.from({length:4},()=>CODECH[Math.floor(Math.random()*CODECH.length)]).join('');
     try{await NET.connect(code,'player','create');toast('방을 만들었습니다: '+code);initLobby();return;}catch(e){if(e!=='exists'){toast(netErr(e),4000);return;}}}
   toast('방 코드를 만들지 못했습니다. 다시 시도해 주세요');}
-async function joinRoom(role){if(!needName())return;const code=$('codeIn').value.trim().toUpperCase();
-  if(!/^[A-Z0-9]{4}$/.test(code)){toast('방 코드 4자리를 입력해 주세요');$('codeIn').focus();return;}
-  toast('접속하는 중…',8000);try{await NET.connect(code,role,'join');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);}}
+function codeOK(){const code=$('codeIn').value.trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(code))return code;if(screen!=='join')show('join');toast('방 코드 4자리를 입력해 주세요');$('codeIn').focus();return '';}
+async function joinRoom(role){if(!needName())return;const code=codeOK();if(!code)return;
+  toast('접속하는 중…',8000);try{await NET.connect(code,role,'join');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);if(screen==='char'){CHAR_NEXT=null;show('join');}}}   /* 실패하면 방 코드 화면으로 */
 function netErr(e){return{noroom:'방을 찾을 수 없습니다. 코드를 확인해 주세요',full:'방이 가득 찼습니다',exists:'같은 코드의 방이 있어 다시 만듭니다',timeout:'서버 응답이 없습니다. 잠시 후 다시 시도해 주세요',url:'서버 주소 설정 오류',closed:'서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요'}[e]||'연결 오류: '+e;}
 function openSettings(keep){$('setFlt').textContent='화면 필터: '+(CFG.filter?'켬':'끔');$('setSnd').textContent='사운드: '+(CFG.sound?'켬':'끔');if(!keep)show('settings');}
 /* ---------- 대기방 · 0·1번 = 팀 1, 2·3번 = 팀 2 · 온라인(방장이 관리) / 연습(LOBBY.local, 서버 없이 AI와) ---------- */
@@ -263,8 +275,8 @@ function lobbyReady(){if(NET.role!=='player'||amHost())return;AU.sfx('ok');NET.s
 function lobbyOK(){const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
 /* 팀 이름·색: 방장은 두 팀 모두, 참가자는 자기 팀만 */
 function setTeam(t,o,from){const T=LOBBY.teams;if(o.col&&(o.col===T[1-t].col||!TEAM_COLORS.includes(o.col)))return;
-  if(o.name!=null){o.name=String(o.name).trim().slice(0,8);if(!o.name)return;}Object.assign(T[t],o);pushLobby();}
-function reqTeam(t,o){if(!LOBBY||!canEditTeam(t))return;if(amHost())setTeam(t,o);else NET.send({t:'tset',k:t,o},NET.hostId);}
+  if(o.name!=null){o.name=String(o.name).trim().slice(0,8);if(!o.name||badName(o.name)){renderLobby();return;}}Object.assign(T[t],o);pushLobby();}
+function reqTeam(t,o){if(!LOBBY||!canEditTeam(t))return;if(o.name!=null&&badName(o.name)){toast('사용할 수 없는 단어가 들어 있어요',3000);$('tn'+t).value=LOBBY.teams[t].name;return;}if(amHost())setTeam(t,o);else NET.send({t:'tset',k:t,o},NET.hostId);}
 function cycleCol(t){const T=LOBBY.teams;let k=TEAM_COLORS.indexOf(T[t].col);for(let n=0;n<TEAM_COLORS.length;n++){k=(k+1)%TEAM_COLORS.length;if(TEAM_COLORS[k]!==T[1-t].col)break;}AU.sfx('move');reqTeam(t,{col:TEAM_COLORS[k]});}
 [0,1].forEach(t=>{const inp=$('tn'+t);inp.addEventListener('change',()=>reqTeam(t,{name:inp.value}));inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();inp.blur();reqTeam(t,{name:inp.value});}});
   $('tc'+t).addEventListener('click',e=>{const c=e.target.dataset&&e.target.dataset.c;if(c)reqTeam(t,{col:c});});});
@@ -328,6 +340,16 @@ function showIntro(){$('intro').hidden=false;const M=GAME&&GAME.match;
 function endIntro(){if(!GAME||GAME.intro<=0)return;GAME.intro=0;$('intro').hidden=true;if(HOLD.kind==='intro')closeHold();if(GAME.host&&!GAME.local)NET.send({t:'go'});}
 function sendFull(){if(GAME&&GAME.host&&!GAME.local)NET.send({t:'F',F:GDEF.full?GAME.sim.full():null,slots:GAME.slots,gid:GAME.gid,teams:[{...TEAM[0]},{...TEAM[1]}]});}
 function myIndex(){if(!GAME)return-1;return GAME.slots.findIndex(s=>(s.human||!s.bot)&&(GAME.local?s.id==='local':s.id===NET.id));}
+/* 관전 시점: 관전자는 ←→ (패드 · 화면 위 ◀▶ · 게임 화면 탭 · 숫자 1~4)로 볼 플레이어를 바꿈
+   → 그 플레이어가 "나"처럼 표시됨 (노란 화살표 · 강조 칸 · 점수표 강조) · 입력은 보내지 않음 */
+let SPEC_I=0;
+const isSpec=()=>!!GAME&&!GAME.local&&!GAME.host&&myIndex()<0;
+function viewIndex(){const me=myIndex();return me>=0?me:isSpec()?SPEC_I:-1;}
+function specSet(i){if(!isSpec())return;SPEC_I=(i+4)%4;AU.sfx('move');BOARD_T=0;renderSpec();}
+function renderSpec(){const el=$('gSpec'),on=isSpec();el.hidden=!on;if(!on)return;const s=GAME.slots[SPEC_I],n=$('gSpecN');
+  n.textContent=`${SPEC_I+1}P ${s?s.name:''} 시점`;n.style.color=TEAM[teamOf(SPEC_I)].col;}
+$('gSpec').addEventListener('click',e=>{const b=e.target.closest('[data-sd]');if(b){AU.init();specSet(SPEC_I+(+b.dataset.sd));}});
+gc.addEventListener('click',()=>{if(isSpec())specSet(SPEC_I+1);});
 /* 입력 보내기: 게임이 prep 을 두면 "내가 본 화면" 기준으로 먼저 판정해서 보냄 (타이밍 게임의 지연 보정) */
 function sendInput(e){if(!GAME||screen!=='game')return;const me=myIndex();if(me<0)return;if(GDEF.prep){e=GDEF.prep(e,LASTS,me,GAME.host?GAME.sim:GAME.pd);if(!e)return;}
   if(GAME.host)hostInput(me,e);else if(NET.role==='player')NET.send({t:'in',e},NET.hostId);}
@@ -344,17 +366,23 @@ function viewState(){const b=GAME.buf;if(!b.length)return null;if(!GDEF.lerp)ret
 let SHAKE=0,FLASH=0;
 function fx(e){if(e.startsWith('shake')){SHAKE=Math.max(SHAKE,+(e.split(':')[1]||4));return;}if(e==='flash')return;AU.sfx(e);}   /* 섬광 효과는 쓰지 않음 */
 function toGame(){show('game');fit();showIntro();$('bdN0').textContent=TEAM[0].name;$('bdN1').textContent=TEAM[1].name;$('bdN0').parentNode.style.color=TEAM[0].col;$('bdN1').parentNode.style.color=TEAM[1].col;AU.bgm(GDEF.bgm!==false);$('gTitle').textContent=GDEF.title;$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'ROOM '+NET.room;$('gHint').innerHTML=GDEF.controls.hint||'';
-  document.body.classList.toggle('needA',!!GDEF.controls.a);document.body.classList.toggle('needDir',!!GDEF.controls.dir);buildBoard();}
+  document.body.classList.toggle('needA',!!GDEF.controls.a);document.body.classList.toggle('needDir',!!GDEF.controls.dir);buildBoard();
+  if(isSpec())$('gHint').innerHTML='관전 중 · <span class="kk">←</span><span class="kk">→</span> 또는 화면을 눌러 볼 플레이어 바꾸기 · <span class="kk">1</span>~<span class="kk">4</span> 바로 선택';renderSpec();}
 /* ---------- 대기방 게임 설명: 예시 화면(AI 4명 데모) + 설명 ---------- */
 let HOW_ON=false,HOW=null;const hc=$('howCv');
 let HOW_I=0;
 function howFlip(d){HOW_I=(HOW_I+d+GAMES.length)%GAMES.length;AU.sfx('move');openHow(true);}
-function openHow(keep){if(!keep)HOW_I=0;const G=GAMES[HOW_I];HOW_ON=true;$('how').hidden=false;$('howBody').innerHTML=`<div class="intro-m">◀ ${HOW_I+1} / ${GAMES.length} ▶ (←→로 넘기기)</div>`+howHTML(G);
+function openHow(keep){if(!keep)HOW_I=0;const G=GAMES[HOW_I];HOW_ON=true;$('how').hidden=false;$('howBody').innerHTML=`<div class="intro-m"><b class="hf" data-hf="-1">◀</b> ${HOW_I+1} / ${GAMES.length} <b class="hf" data-hf="1">▶</b></div>`+howHTML(G);
   const slots=[0,1,2,3].map(i=>({id:0,name:charOf(CHARS[i%CHARS.length].id).name,bot:true,ch:CHARS[i%CHARS.length].id}));HOW={G,sim:demoSim(G,slots),slots,t:performance.now()};
   const q=SC*(devicePixelRatio||1);HOW.cs=Math.max(1,Math.ceil(640/GW*q-1e-6));hc.width=GW*HOW.cs;hc.height=GH*HOW.cs;hc.style.width='640px';hc.style.height='360px';}
 /* 예시 화면은 카운트다운 없이 바로 플레이 장면부터 (demoSkip: 첫 장면이 빌 때 미리 돌려 둘 프레임 수) */
 function demoSim(G,slots){const m=G.newSim(slots.map(s=>({...s})),{local:true,demo:true});if(m.ph==='cd')m.t=1;for(let k=0;k<(G.demoSkip||0);k++){m.step();if(m.ev)m.ev.length=0;}return m;}
 function closeHow(){HOW_ON=false;HOW=null;$('how').hidden=true;}
+/* 게임 설명 창 터치 · 마우스: ◀ ▶ · 이전/다음 · 닫기 버튼, 바깥 어두운 곳 누르면 닫기, 좌우로 밀어서 넘기기 */
+{const H=$('how');let sx=null;
+  H.addEventListener('click',e=>{if(!HOW_ON)return;AU.init();const f=e.target.closest('[data-hf]');if(f){howFlip(+f.dataset.hf);return;}if(e.target.closest('[data-hx]')||e.target===H){AU.sfx('ok');closeHow();}});
+  H.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+  H.addEventListener('touchend',e=>{if(sx==null||!HOW_ON)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50)howFlip(dx<0?1:-1);},{passive:true});}
 function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-HOW.t)/16.67));HOW.t+=n*16.67;const sim=HOW.sim;
   while(n-->0){sim.step();if(sim.ev)sim.ev.length=0;if(sim.done){HOW.sim=demoSim(HOW.G,HOW.slots);break;}}
   const og=g,ocs=CS,oG=GAME,oD=GDEF;g=hc.getContext('2d');CS=HOW.cs;GAME={slots:HOW.slots};GDEF=HOW.G;   /* 같은 그리기 함수를 미리보기 캔버스에 */
@@ -364,7 +392,7 @@ function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-H
 function fitText(el,max,min){let z=max;el.style.fontSize=z+'px';while(z>min&&el.scrollWidth>el.clientWidth+1){z=z>16?16:z>12?12:z-2;el.style.fontSize=z+'px';}}
 let BOARD_T=0;
 function buildBoard(){$('bdRows').innerHTML=[0,1,2,3].map(i=>`<div class="bd-row" id="bd${i}" style="transform:translateY(${i*62}px)"><b class="rk">${i+1}</b><span class="sw" style="background:${TEAM[teamOf(i)].col}"></span><span class="nm">${esc(GAME&&GAME.slots[i]?GAME.slots[i].name:"")}</span><span class="tg"></span><span class="pt"></span></div>`).join('');}
-function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOARD_T<100)return;BOARD_T=now;const me=myIndex();
+function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOARD_T<100)return;BOARD_T=now;const me=viewIndex();
   const order=[0,1,2,3].sort((a,b)=>S.ps[b]-S.ps[a]||a-b);
   order.forEach((i,r)=>{const el=$('bd'+i),s=GAME.slots[i];el.style.transform=`translateY(${r*62}px)`;el.classList.toggle('me',i===me);el.classList.toggle('top',r===0&&S.ps[i]>0);
     const sub=s&&s.left?'연결 끊김 · AI 대행':S.tag?S.tag[i]||'':'';el.classList.toggle('ai',!!(s&&s.left));
@@ -433,7 +461,7 @@ function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=M
   updBoard(S);}
 function draw(S,pd){const f=performance.now()/16.67|0;g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;
   if(SHAKE>0){g.translate(Math.round((Math.random()*2-1)*SHAKE),Math.round((Math.random()*2-1)*SHAKE));SHAKE=SHAKE>.5?SHAKE*.82:0;}
-  GDEF.draw(g,S,pd,myIndex(),f);}
+  GDEF.draw(g,S,pd,viewIndex(),f);}
 /* ---------- 시작 ---------- */
 $('logoImg').src=LOGO;$('nameIn').value=CFG.name;
 applyFilter();fit();show('main');requestAnimationFrame(loop);

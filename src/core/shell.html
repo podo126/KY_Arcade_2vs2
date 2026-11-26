@@ -35,8 +35,8 @@
     <h1 class="title ol" style="top:120px">방 코드 입력</h1>
     <div class="menu" style="top:220px">
       <div class="field fr"><label>코드</label><input id="codeIn" class="code" maxlength="4" placeholder="ABCD" autofocus autocomplete="off" autocapitalize="characters"></div>
-      <div class="btn fr-item" data-act="joinGo">플레이어로 입장</div>
-      <div class="btn fr-item" data-act="watch">관전하기 (큰 화면용)</div>
+      <div class="btn fr-item" data-act="joinGo">플레이어로 입장 → 캐릭터 고르기</div>
+      <div class="btn fr-item" data-act="watch">관전하기 (큰 화면용 · 바로 입장)</div>
       <div class="btn fr-item" data-act="back">돌아가기</div>
     </div>
   </section>
@@ -58,11 +58,11 @@
     </div>
     <div class="hint" id="lbHint"></div>
     <div id="how" hidden><div class="how-in fr"><div class="how-top"><div class="how-l"><canvas id="howCv"></canvas></div><div class="how-r" id="howBody"></div></div>
-      <div class="how-x small"><span class="kk">Enter</span><span class="kk">Esc</span> 닫기</div></div></div>
+      <div class="how-x small"><span class="keys"><span class="kk">←</span><span class="kk">→</span> 넘기기 · <span class="kk">Enter</span><span class="kk">Esc</span> 닫기</span><b class="hbtn" data-hf="-1">◀ 이전</b><b class="hbtn" data-hf="1">다음 ▶</b><b class="hbtn x" data-hx="1">닫기 ✕</b></div></div></div>
   </section>
   <!-- 게임: 게임 화면 + 개인 점수표 -->
   <section class="scr" id="scr-game">
-    <div id="gHead"><b id="gTitle" class="ol"></b><span id="gRoom"></span></div>
+    <div id="gHead"><b id="gTitle" class="ol"></b><span id="gSpec" hidden><b class="sd" data-sd="-1">◀</b><span id="gSpecN" class="ol2"></span><b class="sd" data-sd="1">▶</b></span><span id="gRoom"></span></div>
     <canvas id="gc"></canvas>
     <aside id="board" class="fr">
       <div id="bdTime">0:00</div>
@@ -73,7 +73,7 @@
     <div id="gHint"></div>
     <div id="pad"><div class="u" data-d="1">▲</div><div class="r" data-d="2">▶</div><div class="d" data-d="3">▼</div><div class="l" data-d="4">◀</div></div>
     <div id="abtn">A</div>
-    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f">모두 또는 방장이 Z · 패드 A 를 꾹 누르면 시작합니다</div></div></div>
+    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f">모두 또는 방장이 Z · 패드 A <span class="tonly">· 우측 하단 칸</span>을 꾹 누르면 시작합니다</div></div></div>
   </section>
   <!-- 결과 -->
   <section class="scr" id="scr-result">

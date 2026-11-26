@@ -57,12 +57,35 @@ function srvLegs(t,k,x,fall,f){const V=SRVL;if(f<V.f-5||f>V.f+30){V.x=[[x,x],[x,
   if(fall){const q=(f>>2)&1;return{a:q?-5:-3,b:q?4:6,st:0,j:q?1:-1};}   /* 놓쳤을 땐 다리를 쩍 벌리고 버둥 */
   const ph=x*.55+k*1.3,w=Math.sin(ph),wob=Math.sin(ph*2.3+t+k*2);   /* 2.3배 박자로 한 번 더 꺾여서 어설프게 */
   return{a:Math.round(A*(7*w+3*wob)),b:Math.round(A*(-7*w+3*wob)),st:Math.round(A*6*Math.abs(Math.cos(ph))),j:0};}
+/* 배경 창문 간격(도트): 128 = 예전(64)의 절반 빈도 */
+const SRV_WIN=128;
+/* 도착 테이블 (x = 결승선 화면 좌표, gy = 바닥선): 바닥 체크 결승선 + 흰 식탁보 테이블 · 그 위 꽃병 · 빈 접시 자리 · 뒤에 의자 */
+function srvTable(x,gy){if(x>540||x<-120)return;const W='#fff',SH='#d8e4ec',WD='#b07a48',WK='#7a5030',INK=MAP.ink;
+  for(let y=gy+2;y<gy+22;y+=4)for(let k=0;k<2;k++)R(x+k*4-4,y,4,4,((y-gy-2)/4+k)%2?INK:W);   /* 결승선 체크 */
+  const cx=x+18;   /* 의자 (테이블 뒤) */R(cx+52,gy-38,4,39,WK);R(cx+52,gy-38,14,4,WK);R(cx+62,gy-38,4,39,WK);R(cx+48,gy-16,22,4,WD);R(cx+48,gy-16,22,1,'#d8a878');
+  const tx=x+12,tw=64,ty=gy-28;   /* 테이블 */
+  R(tx+6,ty+8,4,gy+1-ty-8,WK);R(tx+tw-10,ty+8,4,gy+1-ty-8,WK);R(tx+7,ty+8,1,gy+1-ty-8,WD);R(tx+tw-9,ty+8,1,gy+1-ty-8,WD);   /* 다리 */
+  R(tx-1,ty-1,tw+2,10,INK);R(tx,ty,tw,8,W);R(tx,ty,tw,2,'#fff');R(tx,ty+6,tw,2,SH);   /* 상판 + 식탁보 */
+  for(let k=0;k<tw;k+=8){R(tx+k,ty+8,8,3,W);R(tx+k+2,ty+11,4,1,W);R(tx+k,ty+8,8,1,MAP.blue);R(tx+k,ty+10,1,1,SH);}R(tx-1,ty+8,1,3,INK);R(tx+tw,ty+8,1,3,INK);   /* 식탁보 물결 끝단 + 파랑 줄 */
+  R(tx+8,ty-2,16,2,SH);R(tx+10,ty-3,12,1,W);R(tx+12,ty-2,8,1,MAP.blue);   /* 빈 접시 자리 */
+  const vx=tx+44;R(vx,ty-9,6,9,MAP.blue);R(vx+1,ty-8,1,6,MAP.hi);R(vx-1,ty-10,8,1,INK);   /* 꽃병 */
+  R(vx+2,ty-16,2,6,'#3a9a48');R(vx-2,ty-19,4,4,'#ff5ad0');R(vx+4,ty-21,4,4,MAP.yellow);R(vx+1,ty-23,4,4,'#ff7a5a');R(vx-1,ty-18,1,1,W);R(vx+5,ty-20,1,1,W);
+  R(x+27,gy-64,40,20,INK);R(x+28,gy-63,38,18,MAP.blue);R(x+28,gy-63,38,2,'#7fe0ff');R(x+46,gy-44,2,6,INK);K('도착',x+47,gy-60,'#fff','center',8);}   /* 표지판 */
+/* 근경 레이어: 카메라보다 빠르게(1.6배) 지나가는 화분 · 의자 등받이 · 손님 테이블 — 바닥 아래쪽에 걸쳐 캐릭터 발 앞을 지나감 */
+const SRV_FRONT=[[0,'plant'],[150,'chair'],[310,'plant'],[420,'tbl'],[600,'chair'],[760,'plant'],[900,'tbl'],[1080,'chair'],[1230,'plant'],[1400,'tbl'],[1580,'plant'],[1740,'chair'],[1900,'tbl']];
+function srvFront(cam,oy,gy){const b=oy+134,P=1.6;
+  for(const[x0,k]of SRV_FRONT){const x=Math.round(x0-cam*P+40);if(x<-60||x>500)continue;
+    if(k==='plant'){R(x,b-12,16,12,'#c86a3a');R(x-1,b-13,18,3,'#e08850');R(x,b-10,16,1,'#8a4020');   /* 화분 */
+      R(x+2,b-22,4,9,'#3a9a48');R(x+7,b-27,4,14,'#58b858');R(x+11,b-21,4,8,'#3a9a48');R(x+5,b-25,2,2,'#8ad878');R(x+12,b-20,2,2,'#8ad878');}
+    else if(k==='chair'){R(x,b-26,4,26,'#7a5030');R(x+20,b-26,4,26,'#7a5030');R(x,b-26,24,4,'#b07a48');R(x,b-26,24,1,'#d8a878');R(x+4,b-17,16,3,'#b07a48');}   /* 의자 등받이 */
+    else{R(x,b-18,40,6,'#fff');R(x,b-18,40,1,MAP.ink);R(x,b-13,40,1,'#d8e4ec');for(let k2=0;k2<40;k2+=8)R(x+k2,b-12,8,2,MAP.blue);R(x+4,b-10,4,10,'#7a5030');R(x+32,b-10,4,10,'#7a5030');   /* 손님 테이블 + 접시 */
+      R(x+10,b-21,12,3,'#fff');R(x+12,b-22,8,1,'#e84a3a');R(x+26,b-24,5,6,MAP.blue);R(x+27,b-23,1,4,MAP.hi);}}}
 function srvDraw(g,S,pd,me,f){
   for(const t of [0,1]){const H=S.H[t],oy=t?136:0,mid=(H.x[0]+H.x[1])/2,cam=clamp(mid-150,0,SRV.LEN-300),gy=oy+112;
     g.save();g.beginPath();g.rect(0,oy,480,134);g.clip();
-    wallTiles(0,oy,480,gy-oy);for(let x=-Math.round(cam*.3%64);x<480;x+=64){R(x+8,oy+18,40,30,MAP.blue);R(x+11,oy+21,34,24,MAP.hi);R(x+11,oy+21,34,3,MAP.blue);R(x+27,oy+21,2,24,MAP.blue);}   // 크림 벽(2.5D 타일) · 파랑 창
+    wallTiles(0,oy,480,gy-oy);for(let x=-Math.round(cam*.3%SRV_WIN);x<480;x+=SRV_WIN){R(x+8,oy+18,40,30,MAP.blue);R(x+11,oy+21,34,24,MAP.hi);R(x+11,oy+21,34,3,MAP.blue);R(x+27,oy+21,2,24,MAP.blue);}   // 크림 벽(2.5D 타일) · 파랑 창 (창 간격 SRV_WIN)
     R(0,gy,480,22,MAP.mint);R(0,gy,480,2,MAP.blue);for(let x=-(cam%32);x<480;x+=32){R(x,gy+2,16,20,MAP.green);R(x,gy+2,16,1,'#fff');}   // 바닥: 민트 · 연두 바둑판
-    const tx=Math.round(SRV.LEN-cam+12);R(tx-1,gy-27,62,10,MAP.ink);R(tx,gy-26,60,8,MAP.yellow);R(tx,gy-26,60,2,'#fff');R(tx+6,gy-18,4,18,MAP.ink);R(tx+50,gy-18,4,18,MAP.ink);K('테이블',tx+30,gy-40,MAP.blue,'center',8);   // 도착 테이블
+    srvTable(Math.round(SRV.LEN-cam),gy);   // 도착 지점: 결승선 + 손님 테이블
     for(const[a,b2]of SRV.PUD){const px=Math.round(a-cam);if(px>480||b2-cam<0)continue;const w=b2-a;R(px+4,gy+2,w-8,4,MAP.blue);R(px,gy+4,w,6,MAP.blue);R(px+8,gy+3,10,2,'#fff');R(px+w-30,gy+6,14,2,'#fff');}   /* 물웅덩이 (파랑) */
     for(const d of S.drops)if(d.team===t){const dx=Math.round(d.x-cam+d.dir*d.t*1.6),dy=Math.round(gy-80+d.t*d.t*.06);if(dy<gy+10){R(dx-6,dy,12,3,'#fff');R(dx-4,dy-2,8,2,'#e8a040');}}
     const XF=Math.round(H.x[0]-cam),XB=Math.round(H.x[1]-cam),fall=H.st==='fall',col=TEAM[t].col;
@@ -76,6 +99,7 @@ function srvDraw(g,S,pd,me,f){
     // 접시: 세 군데에 쌓고, 출렁이면 미끄러짐
     for(let k=0;k<H.d;k++){const s=k%3,lv=Math.floor(k/3),cx=Math.round(x0+len*(.25+s*.25)+(fall?0:H.w*(3+lv*2))),y=(fall?gy-4:py(cx))-4-lv*4;
       R(cx-7,y,14,3,'#fff');R(cx-7,y+2,14,1,'#a8b8c8');R(cx-5,y-2,10,2,['#e84a3a','#f8d84a','#6ab84a'][k%3]);}
+    srvFront(cam,oy,gy);   // 근경 레이어: 캐릭터 앞을 더 빨리 지나가는 소품
     if(me===t*2||me===t*2+1){const k=me===t*2?0:1;meMark(k?XB:XF,gy-Math.max(SZ[0].h,SZ[1].h)-26);}
     K(`${TEAM[t].name}  ${Math.floor(H.x[0]/SRV.LEN*100)}%  접시 ${H.d}`,8,oy+4,col,'left',9);
     if(H.done)K(`${H.rank}등 도착!`,240,oy+40,'#fff419','center',16);
