@@ -42,7 +42,7 @@
   </section>
   <!-- 대기방 -->
   <section class="scr" id="scr-lobby">
-    <div class="rm-head"><span class="ol">대기방</span><b id="lbCode">----</b><span id="lbCount" class="small"></span></div>
+    <div class="rm-head"><span class="ol">대기방</span></div>
     <div class="teams">
       <div class="team t0 fr"><div class="thead"><input class="tname ol2" id="tn0" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb0" data-act="col0">팀 색</div></div><div class="chips" id="tc0"></div><div class="slot" id="slot0"></div><div class="slot" id="slot1"></div></div>
       <div class="team t1 fr"><div class="thead"><input class="tname ol2" id="tn1" maxlength="8" placeholder="팀 이름"><div class="btn fr-item tcb" id="tcb1" data-act="col1">팀 색</div></div><div class="chips" id="tc1"></div><div class="slot" id="slot2"></div><div class="slot" id="slot3"></div></div>
@@ -65,14 +65,15 @@
     <div id="gHead"><b id="gTitle" class="ol"></b><span id="gRoom"></span></div>
     <canvas id="gc"></canvas>
     <aside id="board" class="fr">
-      <div class="bd-top"><span class="bd-t"><span id="bdN0">SKY</span> <b id="bdT0">0</b></span><span id="bdTime">0:00</span><span class="bd-t"><span id="bdN1">YELLOW</span> <b id="bdT1">0</b></span></div>
+      <div id="bdTime">0:00</div>
+      <div class="bd-sc"><div class="bd-t"><span id="bdN0">SKY</span><b id="bdT0">0</b></div><div class="bd-t"><span id="bdN1">YELLOW</span><b id="bdT1">0</b></div></div>
       <div class="bd-cap">개인 순위 · 실시간</div>
       <div id="bdRows"></div>
     </aside>
     <div id="gHint"></div>
     <div id="pad"><div class="u" data-d="1">▲</div><div class="r" data-d="2">▶</div><div class="d" data-d="3">▼</div><div class="l" data-d="4">◀</div></div>
     <div id="abtn">A</div>
-    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f"><b id="introSec">8</b>초 후 시작 · <span id="introWho"></span></div></div></div>
+    <div id="intro" hidden><div class="intro-in fr"><div id="introBody"></div><div class="intro-f">모두 또는 방장이 Z · 패드 A 를 꾹 누르면 시작합니다</div></div></div>
   </section>
   <!-- 결과 -->
   <section class="scr" id="scr-result">
@@ -82,7 +83,7 @@
       <div class="res" id="resBox"></div>
       <div id="resPs"></div>
       <div class="small" id="resNote" style="margin:10px 0 4px"></div>
-      <div class="row" style="margin-top:10px"><div class="btn fr-item" id="bAgain" data-act="again">대기방으로</div><div class="btn fr-item" data-act="home">메인으로</div></div>
+      <div class="row" style="margin-top:10px"><div class="btn fr-item" data-act="home">메인으로</div></div>
     </div>
   </section>
   <!-- 설정 (오락실 파일과 같은 구성) -->
@@ -95,6 +96,8 @@
       <div class="btn fr-item" data-act="back">닫기</div>
     </div>
   </section>
+  <!-- 꾹 누르기 진행: 누르는 사람 실시간 표시 (게임 시작 전 설명창 · 최종 결과) -->
+  <div id="hold" class="fr-dark" hidden><div id="holdList"></div><div class="hd-bar"><i id="holdBar"></i></div></div>
   <div id="toast" class="fr-dark"></div>
 </div>
 <div id="rot" class="ol">📱 휴대폰을 가로로 돌려 주세요</div>

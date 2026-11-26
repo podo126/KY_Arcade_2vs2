@@ -53,8 +53,11 @@ body.touch .hint{display:none}
 #gTitle{font-size:30px;color:var(--yellow)}#gRoom{font:14px var(--pf);color:var(--dim)}
 #gc{position:absolute;left:12px;top:90px;width:960px;height:540px;image-rendering:pixelated;background:#000;outline:4px solid #000}
 #board{position:absolute;left:984px;top:82px;width:284px;height:556px;padding:10px 12px}
-.bd-top{display:flex;justify-content:space-between;align-items:center;font-size:15px}.bd-t b{display:block;font:15px var(--pf);margin-top:4px}
-#bdTime{font:20px var(--pf);color:#fff}
+#bdTime{font:24px var(--pf);color:#fff;text-align:center;padding:4px 0 10px}
+.bd-sc{display:flex;gap:8px}
+.bd-t{flex:1 1 0;min-width:0;text-align:center;background:#064f75;border:3px solid #000;padding:6px 4px;font-size:15px}
+.bd-t span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd-t b{display:block;font:20px var(--pf);margin-top:6px;overflow:hidden;white-space:nowrap}
 .bd-cap{font-size:14px;color:var(--dim);text-align:center;margin:14px 0 8px;border-top:2px solid #7fe0ff;padding-top:8px}
 #bdRows{position:relative;height:248px}
 .bd-row{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#085a84;border:3px solid #000;transition:transform .35s cubic-bezier(.2,.8,.3,1.2);box-sizing:border-box}
@@ -62,7 +65,7 @@ body.touch .hint{display:none}
 .bd-row .sw{width:10px;height:10px;border:2px solid #000}
 .bd-row .nm{flex:1;min-width:0;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bd-row .tg{font-size:11px;color:var(--dim);position:absolute;left:58px;bottom:3px}
-.bd-row .pt{font:14px var(--pf);color:#fff}
+.bd-row .pt{font:14px var(--pf);color:#fff;flex:0 1 auto;min-width:0;max-width:96px;overflow:hidden;white-space:nowrap;text-align:right}
 .bd-row.me{background:var(--yellow);color:#000}.bd-row.me .pt,.bd-row.me .rk,.bd-row.me .tg{color:#000}
 .bd-row.bump .pt{animation:bump .25s}
 @keyframes bump{40%{transform:scale(1.35);color:var(--yellow)}}
@@ -161,3 +164,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 
 .intro-m{font-size:18px;color:var(--yellow);margin:-4px 0 8px;text-align:center}
 .res .tb .rd{line-height:1.7}
+
+/* 꾹 누르기 진행 (우측 하단) */
+#hold{position:absolute;right:8px;bottom:8px;width:262px;z-index:30;padding:6px 10px;font-size:16px;cursor:pointer;touch-action:none}
+#hold[hidden]{display:none}
+#hold .hd-t{font-size:15px;color:var(--yellow);text-align:center}
+#hold .hd-s{font-size:13px;color:var(--dim);text-align:center;margin-top:2px}
+#hold .hd-bar{height:12px;border:2px solid #000;background:#064f75;margin-top:8px}
+#holdBar{display:block;height:100%;width:0;background:var(--yellow)}
+#hold .hl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 8px;margin-top:4px;background:#085a84;border:2px solid #000}
+#hold .hl .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hold .hl b{flex:none;font-size:13px;color:var(--dim)}
+#hold .hl small{font-size:12px;color:var(--yellow)}
+#hold .hl.on{background:var(--yellow);color:#000}#hold .hl.on b{color:#000}#hold .hl.on small{color:#5a4a00}

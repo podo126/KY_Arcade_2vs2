@@ -86,26 +86,27 @@ function curDir(){let d=0;for(const k of held)d=k;return d;}
 addEventListener('keydown',e=>{AU.init();const inInput=e.target&&e.target.tagName==='INPUT';
   if(DIRK[e.code]&&!(inInput&&/Key[WASD]/.test(e.code))){held.delete(DIRK[e.code]);held.add(DIRK[e.code]);if(!e.repeat)onDir(DIRK[e.code]);if(!inInput)e.preventDefault();}
   if(e.repeat)return;
-  if(screen==='game'&&AKEYS.has(e.code)){e.preventDefault();if(GAME&&GAME.intro>0){if(GAME.host)endIntro();return;}sendA();return;}
+  if(HOLD.on&&e.code==='KeyZ'&&!inInput){e.preventDefault();holdPress('k',true);return;}   /* 진행 대기 중: Z 꾹 누르기 */
+  if(screen==='game'&&AKEYS.has(e.code)){e.preventDefault();if(GAME&&GAME.intro>0)return;sendA();return;}
   if(HOW_ON&&DIRK[e.code]&&(DIRK[e.code]===2||DIRK[e.code]===4)){howFlip(DIRK[e.code]===2?1:-1);return;}
   if(e.code==='Enter'||e.code==='NumpadEnter'||(e.code==='Space'&&!inInput)||(e.code==='KeyZ'&&!inInput)){e.preventDefault();onOK();}
   else if(e.code==='Escape'||(e.code==='KeyX'&&!inInput)||(e.code==='Backspace'&&!inInput)){e.preventDefault();onBack();}});
-addEventListener('keyup',e=>{if(DIRK[e.code]){held.delete(DIRK[e.code]);dirUp();}});
-addEventListener('blur',()=>held.clear());
+addEventListener('keyup',e=>{if(DIRK[e.code]){held.delete(DIRK[e.code]);dirUp();}if(e.code==='KeyZ')holdPress('k',false);});
+addEventListener('blur',()=>{held.clear();holdPress('k',false);});
 let padPrev={};
 function pollPad(){const P=[...(navigator.getGamepads?navigator.getGamepads():[])].filter(Boolean)[0];if(!P)return;
   const b=i=>P.buttons[i]&&P.buttons[i].pressed,ax=P.axes||[];
   const now={u:b(12)||ax[1]<-.5,d:b(13)||ax[1]>.5,l:b(14)||ax[0]<-.5,r:b(15)||ax[0]>.5,a:b(0)||b(2),b:b(1),s:b(9)};
   const map={u:1,r:2,d:3,l:4};
   for(const k in map){if(now[k]&&!padPrev[k]){held.delete(map[k]);held.add(map[k]);onDir(map[k]);AU.init();}if(!now[k]&&padPrev[k]){held.delete(map[k]);dirUp();}}
-  if(now.a&&!padPrev.a){AU.init();if(screen==='game')sendA();else onOK();}if(now.s&&!padPrev.s&&screen!=='game')onOK();if(now.b&&!padPrev.b)onBack();padPrev=now;}
+  if(now.a&&!padPrev.a){AU.init();if(HOLD.on)holdPress('p',true);else if(screen==='game')sendA();else onOK();}if(!now.a&&padPrev.a)holdPress('p',false);if(now.s&&!padPrev.s&&screen!=='game')onOK();if(now.b&&!padPrev.b)onBack();padPrev=now;}
 /* 터치: 십자 패드 · A 버튼 · 스와이프 */
 if('ontouchstart' in window||navigator.maxTouchPoints>0)document.body.classList.add('touch');
 document.querySelectorAll('#pad div').forEach(el=>{const d=+el.dataset.d;
   const on=e=>{e.preventDefault();AU.init();held.delete(d);held.add(d);el.classList.add('on');onDir(d);},off=e=>{e.preventDefault();held.delete(d);el.classList.remove('on');dirUp();};
   el.addEventListener('touchstart',on,{passive:false});el.addEventListener('touchend',off,{passive:false});el.addEventListener('touchcancel',off,{passive:false});
   el.addEventListener('mousedown',on);el.addEventListener('mouseup',off);el.addEventListener('mouseleave',off);});
-{const A=$('abtn');const on=e=>{e.preventDefault();AU.init();A.classList.add('on');sendA();},off=e=>{e.preventDefault();A.classList.remove('on');};
+{const A=$('abtn');const on=e=>{e.preventDefault();AU.init();A.classList.add('on');if(HOLD.on)holdPress('t',true);else sendA();},off=e=>{e.preventDefault();A.classList.remove('on');holdPress('t',false);};
   A.addEventListener('touchstart',on,{passive:false});A.addEventListener('touchend',off,{passive:false});A.addEventListener('mousedown',on);A.addEventListener('mouseup',off);}
 let sw=null;
 gc.addEventListener('touchstart',e=>{const t=e.touches[0];sw={x:t.clientX,y:t.clientY};},{passive:true});
@@ -184,7 +185,6 @@ function act(a){switch(a){
   case 'ready':lobbyReady();break;
   case 'start':lobbyStart();break;
   case 'leave':leaveToMain();break;
-  case 'again':if(LAST_RESULT&&LAST_RESULT.local||NET.isHost){backToRoom();}else toast('곧 대기방으로 돌아갑니다');break;
   case 'home':leaveToMain();break;
   case 'flt':CFG.filter=!CFG.filter;LS.set('filter',CFG.filter);applyFilter();openSettings(true);break;
   case 'snd':CFG.sound=!CFG.sound;LS.set('sound',CFG.sound);AU.vol();openSettings(true);break;
@@ -228,16 +228,15 @@ function syncSlots(){if(!LOBBY||isLocal())return;const ids=new Set(players().map
 function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});renderLobby();}
 function myTeam(){const i=LOBBY?LOBBY.slots.findIndex(s=>s&&s.id===myId()):-1;return i<0?-1:teamOf(i);}
 const canEditTeam=t=>amHost()||myTeam()===t;
-function renderLobby(){const L=LOBBY,T=(L&&L.teams)||DEF_TEAMS(),specs=NET.members.filter(m=>m.role==='spectator');
-  $('lbCode').textContent=isLocal()?'연습':NET.room;
-  $('lbCount').textContent=isLocal()?'빈 자리는 AI가 채웁니다':`플레이어 ${players().length} · 관전 ${specs.length}`;
-  $('lbMembers').innerHTML=isLocal()?'연습 모드 · 서버 없이 이 기기에서 AI 3명과 진행 · 랭킹에는 올라가지 않습니다':'접속자: '+NET.members.map(m=>esc(m.name)+(m.id===NET.hostId?' 👑':'')+(m.role==='spectator'?' (관전)':'')).join(' · ');
+function renderLobby(){const L=LOBBY,T=(L&&L.teams)||DEF_TEAMS();
+  const hm=NET.members.find(m=>m.id===NET.hostId);
+  $('lbMembers').innerHTML=isLocal()?'연습 모드 · 서버 없이 이 기기에서 AI 3명과 진행 · 빈 자리는 AI가 채웁니다':hm?'방장: '+esc(hm.name):'';
   for(const t of [0,1]){const inp=$('tn'+t);if(document.activeElement!==inp)inp.value=T[t].name;inp.disabled=!canEditTeam(t);inp.style.color=T[t].col;
     $('tc'+t).innerHTML=TEAM_COLORS.map(c=>`<i data-t="${t}" data-c="${c}" class="${c===T[t].col?'on':''}${c===T[1-t].col?' x':''}" style="background:${c}"></i>`).join('');
     $('tc'+t).classList.toggle('ro',!canEditTeam(t));$('tcb'+t).hidden=!canEditTeam(t);}
-  $('gCard').innerHTML=`<div class="gi">${GAMES.length}판</div><div><div class="gt ol">미니게임 ${GAMES.length}판 연속</div><div class="gd">${GAMES.map((G,i)=>`${i+1}. ${esc(G.title)}`).join(' → ')}<br>게임마다 이긴 팀 1승 · 3판이 끝나면 최종 결과</div></div><div class="gn">게임 설명 버튼에서<br>←→로 3개 모두 보기</div>`;
+  $('gCard').innerHTML=`<div><div class="gt ol">미니게임 ${GAMES.length}종</div></div><div class="gn">게임 설명 버튼에서<br>←→로 3개 모두 보기</div>`;
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i];el.className='slot '+(s&&s.id===myId()?'fr-on me':'fr-item')+(s?'':' empty');
-    el.innerHTML=s?`<span class="sw" style="background:${T[teamOf(i)].col}"></span><span class="nm">${esc(s.name)}${!isLocal()&&s.id===NET.hostId?' 👑':''}${s.id===myId()?' (나)':''} <small class="chn">${esc(charOf(s.ch).name)}</small></span><span class="st ${s.ready?'ok':'wait'}">${isLocal()?'':s.ready?'준비 완료':'대기 중'}</span>`:'빈 자리 · 시작하면 AI가 들어갑니다';}
+    el.innerHTML=s?`<span class="sw" style="background:${T[teamOf(i)].col}"></span><span class="nm">${esc(s.name)}${s.id===myId()?' (나)':''} <small class="chn">${esc(charOf(s.ch).name)}</small></span><span class="st ${s.ready?'ok':'wait'}">${isLocal()?'':s.ready?'준비 완료':'대기 중'}</span>`:'빈 자리 · 시작하면 AI가 들어갑니다';}
   const host=amHost(),amP=isLocal()||NET.role==='player';$('bTeam').hidden=!amP;$('bReady').hidden=!amP||host;$('bStart').hidden=!host;
   const me=L&&L.slots.find(s=>s&&s.id===myId());$('bReady').textContent=me&&me.ready?'준비 해제':'준비';
   $('lbHint').innerHTML='<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 버튼 이동 · <span class="kk">Enter</span> 결정'+(amP?' · 팀은 "팀 바꾸기" 버튼으로':'')+(host?' · 팀 이름 칸을 눌러 이름 입력':'');
@@ -267,10 +266,10 @@ function matchInfo(){const w=[0,0];MATCH.res.forEach(R=>{const t=R.sc[0]===R.sc[
   return{i:MATCH.i,n:MATCH.order.length,wins:w,last:last?{gid:last.gid,w:last.sc[0]===last.sc[1]?-1:last.sc[0]>last.sc[1]?0:1}:null};}
 function startMatchGame(){const gid=MATCH.order[MATCH.i],slots=MATCH.i>0&&GAME&&GAME.slots?GAME.slots.map(s=>({...s})):MATCH.slots;
   startHost(gid,slots,isLocal());GAME.match=matchInfo();if(!isLocal()){NET.send({t:'start',slots:GAME.slots,gid,teams:LOBBY.teams,M:GAME.match});sendFull();}toGame();}
-function toLobby(){GAME=null;clearInterval(RET_T);AU.bgm(false);if(isLocal()){show('lobby');renderLobby();focusMain();return;}
+function toLobby(){GAME=null;closeHold();AU.bgm(false);if(isLocal()){show('lobby');renderLobby();focusMain();return;}
   if(NET.isHost){LOBBY.slots=LOBBY.slots.map(s=>s&&s.bot?null:s);LOBBY.slots.forEach(s=>{if(s)s.ready=s.id===NET.hostId;});syncSlots();pushLobby();}show('lobby');renderLobby();focusMain();}
 function backToRoom(){if(isLocal()){toLobby();return;}if(!NET.isHost)return;NET.send({t:'tolobby'});toLobby();}
-function leaveToMain(){NET.close();clearInterval(RET_T);GAME=null;LOBBY=null;AU.bgm(false);show('main');}
+function leaveToMain(){NET.close();closeHold();GAME=null;LOBBY=null;AU.bgm(false);show('main');}
 function onMembers(wasHost){
   if(GAME&&!GAME.host&&wasHost&&wasHost!==NET.hostId){toast('방장 연결이 끊겨 게임을 끝냅니다',4000);leaveToMain();return;}
   if(NET.isHost){if(!LOBBY)LOBBY={slots:[null,null,null,null],game:0,teams:DEF_TEAMS()};if(!LOBBY.teams)LOBBY.teams=DEF_TEAMS();
@@ -294,23 +293,26 @@ function onNet(o){switch(o.t){
   case 's':if(GAME&&!GAME.host&&o.g===GAME.gid){if(GAME.intro>0)endIntro();recvSnap(o);}break;   /* 다른 게임의 화면은 무시 */
   case 'in':if(GAME&&GAME.host){const i=GAME.slots.findIndex(s=>!s.bot&&s.id===o.from);if(i>=0)hostInput(i,o.e);}break;
   case 'final':if(o.from===NET.hostId)showFinal(o.F);break;
-  case 'tolobby':if(o.from===NET.hostId)toLobby();break;}}
+  case 'tolobby':if(o.from===NET.hostId)toLobby();break;
+  case 'hk':if(NET.isHost&&HOLD.on){if(o.on)HOLD.ids.add(o.from);else HOLD.ids.delete(o.from);}break;   /* 참가자 → 방장: 꾹 누름 상태 */
+  case 'hold':if(o.from===NET.hostId&&!HOLD.on&&o.k==='end'&&GAME&&!GAME.host&&screen==='game'&&!(GAME.intro>0))openHold('end');   /* 게임 끝 화면: 방장이 멈추면 따라서 대기 */
+    if(o.from===NET.hostId&&HOLD.on&&o.k===HOLD.kind){HOLD.ids=new Set(o.ids||[]);HOLD.list=o.L||[];HOLD.p=+o.p||0;renderHold();}break;}}
 /* ---------- 게임 실행 ---------- */
 /* 연결이 끊긴 자리는 그 판이 끝날 때까지 AI가 대신 플레이 */
 let GAME=null,GDEF=null,LASTS=null;
-const INTRO_SEC=8;   /* 게임 시작 전 설명창 표시 시간(초) · 방장은 A/Enter로 바로 시작 */   // 방장: {host:true, sim, slots, local}  ·  다른 기기: {host:false, slots, pd, buf}
+/* 게임 시작 전 설명창: 시간제한 없음 · MC 진행 후 모두 또는 방장이 Z(패드 A)를 꾹 누르면 시작 (GAME.intro>0 = 설명창 표시 중) */   // 방장: {host:true, sim, slots, local}  ·  다른 기기: {host:false, slots, pd, buf}
 const gdef=id=>GAMES.find(G=>G.id===id)||GAMES[0];
-function startHost(gid,slots,local){GDEF=gdef(gid);const sim=GDEF.newSim(slots.map(s=>({...s,human:!s.bot})),{local});GAME={host:true,local,sim,slots:sim.slots||slots,gid:GDEF.id,intro:INTRO_SEC*60};}
+function startHost(gid,slots,local){GDEF=gdef(gid);const sim=GDEF.newSim(slots.map(s=>({...s,human:!s.bot})),{local});GAME={host:true,local,sim,slots:sim.slots||slots,gid:GDEF.id,intro:1};}
 function hostInput(i,e){GAME.sim.input(i,e);}
-function startView(gid,slots){GDEF=gdef(gid);GAME={host:false,slots,gid:GDEF.id,pd:GDEF.newView?GDEF.newView():{},buf:[],intro:INTRO_SEC*60};}
+function startView(gid,slots){GDEF=gdef(gid);GAME={host:false,slots,gid:GDEF.id,pd:GDEF.newView?GDEF.newView():{},buf:[],intro:1};}
 /* 설명창 내용: 게임별 howto · 조작 · 점수 */
 /* 게임 설명: [조작] [기믹] [승리조건] 세 칸만, 한눈에 */
 function howHTML(G){return `<h3 class="ol">${esc(G.title)}</h3><div class="hw"><b>조작</b><ul>${(G.ctrl||[]).map(t=>`<li>${t}</li>`).join('')}</ul></div>`+
   (G.gimmick?`<div class="hw"><b>기믹</b><p>${G.gimmick}</p></div>`:'')+`<div class="hw"><b>승리조건</b><p>${G.win||''}</p></div>`;}
 function showIntro(){$('intro').hidden=false;const M=GAME&&GAME.match;
   const head=M?`<div class="intro-m">게임 ${M.i+1} / ${M.n}${M.last?` · 지난 게임 ${M.last.w<0?'무승부':esc(TEAM[M.last.w].name)+' 승'}`:''} · 현재 <b style="color:${TEAM[0].col}">${esc(TEAM[0].name)} ${M.wins[0]}</b> : <b style="color:${TEAM[1].col}">${M.wins[1]} ${esc(TEAM[1].name)}</b></div>`:'';
-  $('introBody').innerHTML=head+howHTML(GDEF);}
-function endIntro(){if(!GAME||GAME.intro<=0)return;GAME.intro=0;$('intro').hidden=true;if(GAME.host&&!GAME.local)NET.send({t:'go'});}
+  $('introBody').innerHTML=head+howHTML(GDEF);openHold('intro');}
+function endIntro(){if(!GAME||GAME.intro<=0)return;GAME.intro=0;$('intro').hidden=true;if(HOLD.kind==='intro')closeHold();if(GAME.host&&!GAME.local)NET.send({t:'go'});}
 function sendFull(){if(GAME&&GAME.host&&!GAME.local)NET.send({t:'F',F:GDEF.full?GAME.sim.full():null,slots:GAME.slots,gid:GAME.gid,teams:[{...TEAM[0]},{...TEAM[1]}]});}
 function myIndex(){if(!GAME)return-1;return GAME.slots.findIndex(s=>(s.human||!s.bot)&&(GAME.local?s.id==='local':s.id===NET.id));}
 /* 입력 보내기: 게임이 prep 을 두면 "내가 본 화면" 기준으로 먼저 판정해서 보냄 (타이밍 게임의 지연 보정) */
@@ -320,7 +322,7 @@ function sendDir(d,tap){sendInput(tap?{d,tap:1}:{d});}
 function dirUp(){if(screen==='game'&&GDEF&&GDEF.controls.dir==='hold')sendInput({d:curDir()});if(screen==='game'&&GDEF&&GDEF.controls.dir==='bits')sendBits();}
 /* 동시에 누르는 키 상태: ◀=1 ▶=2 ↑=4 ↓=8 */
 function sendBits(){let m=0;if(held.has(4))m|=1;if(held.has(2))m|=2;if(held.has(1))m|=4;if(held.has(3))m|=8;sendInput({m});}
-function sendA(){if(GDEF&&GDEF.controls.a)sendInput({a:1});}
+function sendA(){if(GAME&&GAME.intro>0)return;if(GDEF&&GDEF.controls.a)sendInput({a:1});}
 function recvSnap(o){if(o.ai)o.ai.forEach((v,i)=>{const s=GAME.slots[i];if(s)s.left=v===2;});if(GDEF.applyDelta)GDEF.applyDelta(GAME.pd,o.S);for(const e of o.ev||[])fx(e);o.S._at=performance.now();GAME.buf.push(o.S);if(GAME.buf.length>6)GAME.buf.shift();}
 function viewState(){const b=GAME.buf;if(!b.length)return null;if(!GDEF.lerp)return b[b.length-1];const rtm=performance.now()-150;let a=b[0],c=b[b.length-1];
   for(let i=0;i<b.length-1;i++)if(b[i]._at<=rtm&&b[i+1]._at>=rtm){a=b[i];c=b[i+1];break;}
@@ -344,7 +346,9 @@ function howTick(now){if(!HOW_ON||!HOW)return;let n=Math.min(4,Math.floor((now-H
   while(n-->0){sim.step();if(sim.ev)sim.ev.length=0;if(sim.done){HOW.sim=demoSim(HOW.G,HOW.slots);break;}}
   const og=g,ocs=CS,oG=GAME,oD=GDEF;g=hc.getContext('2d');CS=HOW.cs;GAME={slots:HOW.slots};GDEF=HOW.G;   /* 같은 그리기 함수를 미리보기 캔버스에 */
   try{g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;HOW.G.draw(g,HOW.sim.snap(false),HOW.sim.pd||HOW.sim,-1,now/16.67|0);}finally{g=og;CS=ocs;GAME=oG;GDEF=oD;}}
-/* ---------- 개인 점수표 (게임 화면 옆, 실시간 순위) ---------- */
+/* ---------- 개인 점수표 (게임 화면 옆): 위에서부터 남은 시간 · 팀 점수 · 실시간 개인 순위 ---------- */
+/* 점수 자릿수가 늘어 칸을 넘으면 글자를 8의 배수(Press Start 2P 도트 크기)로 줄임 */
+function fitText(el,max,min){let z=max;el.style.fontSize=z+'px';while(z>min&&el.scrollWidth>el.clientWidth+1){z=z>16?16:z>12?12:z-2;el.style.fontSize=z+'px';}}
 let BOARD_T=0;
 function buildBoard(){$('bdRows').innerHTML=[0,1,2,3].map(i=>`<div class="bd-row" id="bd${i}" style="transform:translateY(${i*62}px)"><b class="rk">${i+1}</b><span class="sw" style="background:${TEAM[teamOf(i)].col}"></span><span class="nm">${esc(GAME&&GAME.slots[i]?GAME.slots[i].name:"")}</span><span class="tg"></span><span class="pt"></span></div>`).join('');}
 function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOARD_T<100)return;BOARD_T=now;const me=myIndex();
@@ -352,8 +356,8 @@ function updBoard(S){if(!S||!S.ps)return;const now=performance.now();if(now-BOAR
   order.forEach((i,r)=>{const el=$('bd'+i),s=GAME.slots[i];el.style.transform=`translateY(${r*62}px)`;el.classList.toggle('me',i===me);el.classList.toggle('top',r===0&&S.ps[i]>0);
     const sub=s&&s.left?'연결 끊김 · AI 대행':S.tag?S.tag[i]||'':'';el.classList.toggle('ai',!!(s&&s.left));
     el.querySelector('.rk').textContent=r+1;el.querySelector('.nm').textContent=s?s.name:'';el.querySelector('.tg').textContent=sub;
-    const pt=el.querySelector('.pt'),v=S.ps[i];if(pt.dataset.v!==String(v)){pt.dataset.v=v;pt.textContent=v.toLocaleString();el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}});
-  $('bdT0').textContent=S.sc[0].toLocaleString();$('bdT1').textContent=S.sc[1].toLocaleString();
+    const pt=el.querySelector('.pt'),v=S.ps[i];if(pt.dataset.v!==String(v)){pt.dataset.v=v;pt.textContent=v.toLocaleString();fitText(pt,14,8);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}});
+  [0,1].forEach(t=>{const el=$('bdT'+t),v=S.sc[t].toLocaleString();if(el.textContent!==v){el.textContent=v;fitText(el,20,8);}});
   const sec=Math.max(0,Math.ceil((S.tm||0)/60));$('bdTime').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;}
 /* ---------- 결과 ---------- */
 let LAST_RESULT=null;
@@ -367,7 +371,6 @@ function finalResult(){const res=MATCH.res,w=[0,0],first=[0,0,0,0],tot=[0,0];
   const last=games[games.length-1];let win=w[0]===w[1]?(last?last.w:-1):w[0]>w[1]?0:1;
   const lastRank=[0,1,2,3].sort((a,b)=>last.ps[b]-last.ps[a]),mvp=[0,1,2,3].sort((a,b)=>first[b]-first[a]||lastRank.indexOf(a)-lastRank.indexOf(b))[0];
   return{games,wins:w,win,first,mvp,tot,teams:[{...TEAM[0]},{...TEAM[1]}],slots:GAME.slots.map(s=>({name:s.name,ch:s.ch,bot:!s.human})),local:isLocal()};}
-let RET_T=0;const RET_SEC=10;   // 결과 화면 후 대기방 자동 복귀(초)
 function showFinal(F){applyTeams(F.teams);LAST_RESULT=F;AU.bgm(false);AU.sfx('win');show('result');const w=F.win;
   $('resTitle').textContent=w<0?'무승부!':`${TEAM[w].name} 팀 우승!`;$('resGame').textContent=`미니게임 ${F.games.length}판 결과 · ${F.wins[0]} : ${F.wins[1]}`;
   $('resBox').innerHTML=[0,1].map(t=>`<div class="tb fr${w===t?'-on win':''} t${t}"><div style="color:${TEAM[t].col}" class="${w===t?'':'ol2'}">${esc(TEAM[t].name)}</div><div class="sc">${F.wins[t]}승</div>
@@ -375,20 +378,43 @@ function showFinal(F){applyTeams(F.teams);LAST_RESULT=F;AU.bgm(false);AU.sfx('wi
     <div class="rd">${F.games.map(g=>`${esc(gdef(g.gid).title)} ${g.w===t?'승':g.w<0?'무':'패'} (${g.sc[t].toLocaleString()})`).join('<br>')}</div></div>`).join('');
   $('resPs').innerHTML=`<span class="mvp"><i style="background:${TEAM[teamOf(F.mvp)].col}"></i>MVP ${esc(F.slots[F.mvp].name)} · 게임별 1위 ${F.first[F.mvp]}회</span>`+
     F.games.filter(g=>g.top>=0).map(g=>`<span><i style="background:${TEAM[teamOf(g.top)].col}"></i>${esc(gdef(g.gid).title)} 1위 ${esc(F.slots[g.top].name)}</span>`).join('');
-  $('bAgain').hidden=!(NET.isHost||F.local);$('bAgain').textContent='지금 대기방으로';
-  clearInterval(RET_T);{let n=RET_SEC;const tick=()=>{$('resNote').textContent=`${n}초 후 ${F.local?'':'모두 '}대기방으로 돌아갑니다`;if(n--<=0){clearInterval(RET_T);if(screen==='result')backToRoom();}};tick();RET_T=setInterval(tick,1000);}
-  if(GAME&&GAME.local)GAME=null;MATCH=null;}
+  $('resNote').textContent=F.local?'Z · 패드 A 를 꾹 누르면 대기방으로 돌아갑니다':'모두 또는 방장이 Z · 패드 A 를 꾹 누르면 대기방으로 돌아갑니다';
+  openHold('result');if(GAME&&GAME.local)GAME=null;MATCH=null;}
+/* ---------- 꾹 누르기 진행 (MC 진행 시간 확보): 게임 시작 전 설명창 · 최종 결과 화면
+   모두(사람 플레이어 전원) 또는 방장이 Z(패드 A · 터치는 A 버튼/우측 하단 칸)를 HOLD_SEC 초 동안 누르고 있으면 다음으로.
+   누르는 사람은 우측 하단에 실시간 표시 · 판정은 방장 기기에서 하고 모두에게 알림 ---------- */
+const HOLD_SEC=1.5;
+const HOLD={on:false,kind:'',ids:new Set(),list:[],p:0,me:false,src:new Set(),sig:'',sentAt:0,dom:''};
+function gateList(){if(GAME&&GAME.slots&&GAME.host)return GAME.slots.filter(s=>s.human&&!s.left).map(s=>({id:s.id,name:s.name}));return HOLD.list;}
+function openHold(kind){Object.assign(HOLD,{on:true,kind,ids:new Set(),p:0,me:false,sig:'',sentAt:0,dom:''});HOLD.src.clear();HOLD.list=amHost()?gateList():[];renderHold();}
+function closeHold(){HOLD.on=false;HOLD.kind='';HOLD.me=false;HOLD.src.clear();renderHold();}
+function holdPress(src,on){if(on)HOLD.src.add(src);else HOLD.src.delete(src);const me=HOLD.src.size>0;if(me===HOLD.me)return;HOLD.me=me;if(!HOLD.on)return;
+  if(amHost()){if(me)HOLD.ids.add(myId());else HOLD.ids.delete(myId());}else if(NET.role==='player')NET.send({t:'hk',on:me?1:0},NET.hostId);renderHold();}
+function holdTick(dt){if(!HOLD.on||!amHost())return;HOLD.list=gateList();const ids=HOLD.ids,ok=ids.has(myId())||(HOLD.list.length>0&&HOLD.list.every(m=>ids.has(m.id)));
+  HOLD.p=ok?HOLD.p+dt/1000/HOLD_SEC:0;
+  if(HOLD.p>=1){const k=HOLD.kind;HOLD.p=1;holdSync(true);closeHold();AU.sfx('ok');if(k==='intro')endIntro();else if(k==='end')finishHost();else if(k==='result')backToRoom();return;}
+  holdSync(false);renderHold();}
+function holdSync(force){if(isLocal()||!NET.on)return;const now=performance.now(),sig=[...HOLD.ids].sort().join()+'|'+HOLD.list.map(m=>m.id).join()+'|'+(HOLD.p>0);
+  if(!force&&sig===HOLD.sig&&now-HOLD.sentAt<(HOLD.p>0?120:1000))return;HOLD.sig=sig;HOLD.sentAt=now;NET.send({t:'hold',k:HOLD.kind,ids:[...HOLD.ids],L:HOLD.list,p:Math.round(HOLD.p*100)/100});}
+function renderHold(){const el=$('hold');if(!HOLD.on){el.hidden=true;return;}el.hidden=false;$('holdBar').style.width=Math.min(100,HOLD.p*100)+'%';
+  const me=myId(),host=isLocal()?'local':NET.hostId,
+    h=`<div class="hd-t">${HOLD.kind==='intro'?'게임 시작':HOLD.kind==='end'?(GAME&&GAME.match&&GAME.match.i+1>=GAME.match.n?'최종 결과':'다음 게임'):'대기방으로'} · Z · A 꾹 누르기</div>`+(isLocal()?'':'<div class="hd-s">모두 또는 방장이 누르면 진행</div>')+
+      HOLD.list.map(m=>{const on=HOLD.ids.has(m.id)||(m.id===me&&HOLD.me);return `<div class="hl${on?' on':''}"><span class="nm">${esc(m.name)}${m.id===host?' <small>방장</small>':''}${m.id===me?' (나)':''}</span><b>${on?'누르는 중':'대기'}</b></div>`;}).join('');
+  if(h!==HOLD.dom){HOLD.dom=h;$('holdList').innerHTML=h;}}
+{const el=$('hold'),on=e=>{e.preventDefault();AU.init();holdPress('m',true);},off=()=>holdPress('m',false);
+  el.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(t=>el.addEventListener(t,off));}
 /* ---------- 메인 루프 ---------- */
 let acc=0,lastT=performance.now(),FR=0;
-function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=Math.min(100,now-lastT);lastT=now;if(screen!=='game'||!GAME)return;
+function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=Math.min(100,now-lastT);lastT=now;holdTick(dt);if(screen!=='game'||!GAME)return;
   let S;
-  if(GAME.intro>0){GAME.intro-=dt*60/1000;$('introSec').textContent=Math.max(1,Math.ceil(GAME.intro/60));if(GAME.intro<=0&&GAME.host){GAME.intro=1;endIntro();}else if(GAME.intro<=0)GAME.intro=1;
-    const S0=GAME.host?GAME.sim.snap(false):viewState();if(S0){LASTS=S0;draw(S0,GAME.host?(GAME.sim.pd||GAME.sim):GAME.pd);}else{g.setTransform(CS,0,0,CS,0,0);R(0,0,GW,GH,'#000');}$('introWho').textContent=GAME.host?(GAME.local?'Enter · A 를 누르면 바로 시작':'방장: Enter · A 를 누르면 바로 시작'):'방장이 시작하면 바로 진행됩니다';return;}
+  if(GAME.intro>0){   /* 설명창: 시간제한 없이 꾹 누르기(HOLD)로 시작 */
+    const S0=GAME.host?GAME.sim.snap(false):viewState();if(S0){LASTS=S0;draw(S0,GAME.host?(GAME.sim.pd||GAME.sim):GAME.pd);}else{g.setTransform(CS,0,0,CS,0,0);R(0,0,GW,GH,'#000');}return;}
+  if(GAME.host&&GAME.ended){S=GAME.sim.snap(false);LASTS=S;draw(S,GAME.sim.pd||GAME.sim);updBoard(S);return;}   /* 게임 끝 화면에서 멈춤 · 꾹 누르기로 다음 */
   if(GAME.host){acc+=dt;while(acc>=1000/60){acc-=1000/60;
       const sim=GAME.sim;sim.step();const ev=sim.ev||[];for(const e of ev)fx(e);
       if(!GAME.local){GAME.evq=(GAME.evq||[]).concat(ev);if(++FR%SNAP_EVERY===0){NET.send({t:'s',g:GAME.gid,S:sim.snap(true),ev:GAME.evq,ai:GAME.slots.map(s=>s.left?2:0)});GAME.evq=[];}}
       if(sim.ev)sim.ev.length=0;
-      if(sim.done){finishHost();return;}}
+      if(sim.done){GAME.ended=true;acc=0;if(!GAME.local)NET.send({t:'s',g:GAME.gid,S:sim.snap(true),ev:GAME.evq||[],ai:GAME.slots.map(s=>s.left?2:0)});GAME.evq=[];openHold('end');holdSync(true);return;}}
     S=GAME.sim.snap(false);LASTS=S;draw(S,GAME.sim.pd||GAME.sim);}
   else{S=viewState();if(S){LASTS=S;draw(S,GAME.pd);}else{g.setTransform(CS,0,0,CS,0,0);R(0,0,GW,GH,'#000');K('방장의 화면을 받는 중…',GW/2,GH/2,'#fff','center',12);}}
   updBoard(S);}
@@ -398,4 +424,4 @@ function draw(S,pd){const f=performance.now()/16.67|0;g.setTransform(CS,0,0,CS,0
 /* ---------- 시작 ---------- */
 $('logoImg').src=LOGO;$('nameIn').value=CFG.name;
 applyFilter();fit();show('main');requestAnimationFrame(loop);
-setInterval(()=>{$('netst').textContent=NET.on?`ROOM ${NET.room} · ${NET.isHost?'HOST':NET.role==='spectator'?'관전':'PLAYER'} · ${NET.members.length}명`:'';},500);
+setInterval(()=>{$('netst').textContent=NET.on?`ROOM ${NET.room}`:isLocal()&&screen==='lobby'?'연습 모드':'';},500);

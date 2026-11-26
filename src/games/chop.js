@@ -34,6 +34,14 @@ class ChopSim{
   result(){return{sc:this.sc,ps:this.ps,lines:[0,1].map(t=>`최고 콤보 ${Math.max(...this.best.filter((b,i)=>teamOf(i)===t))}`)};}
 }
 const chopX=i=>8+i*118;
+/* 재료 그림을 사선(/)으로 나눈 두 조각 + 조각 색표 (터지는 픽셀 색) — 처음 한 번만 만듦 */
+const CHOP_HALF={};
+function chopHalves(key){if(CHOP_HALF[key])return CHOP_HALF[key];const im=IMG[key];if(!im||!im.complete||!im.naturalWidth)return null;
+  const W=20,mk=()=>{const c=document.createElement('canvas');c.width=W;c.height=W;return c;},src=mk(),sx=src.getContext('2d');sx.drawImage(im,0,0);
+  const D=sx.getImageData(0,0,W,W),A=mk(),B=mk(),ax=A.getContext('2d'),bx=B.getContext('2d'),da=ax.createImageData(W,W),db=bx.createImageData(W,W),pal=new Set();
+  for(let y=0;y<W;y++)for(let x=0;x<W;x++){const o=(y*W+x)*4,T=x+y<W-1?da:db;for(let c=0;c<4;c++)T.data[o+c]=D.data[o+c];
+    if(D.data[o+3]>200){const h='#'+[0,1,2].map(c=>D.data[o+c].toString(16).padStart(2,'0')).join('');if(h!=='#000000')pal.add(h);}}
+  ax.putImageData(da,0,0);bx.putImageData(db,0,0);return CHOP_HALF[key]={a:A,b:B,pal:[...pal]};}
 function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);
   for(let i=0;i<4;i++){const x=chopX(i),t=teamOf(i);R(x,0,110,270,i===me?MAP.hi:MAP.green);R(x,0,110,4,TEAM[t].col);R(x,4,110,1,MAP.ink);R(x+109,0,1,270,MAP.shade);
     K(GAME.slots[i]?GAME.slots[i].name.slice(0,8):'',x+55,8,TEAM[t].col,'center',8);
@@ -47,9 +55,13 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);
       if(no.b){const yy=Math.round(y)-9,X=lx+3;R(X+6,yy,4,3,'#3a8a28');R(X+7,yy-2,2,2,'#3a8a28');R(X+3,yy+3,10,9,'#e83a2a');R(X+4,yy+12,8,3,'#e83a2a');R(X+6,yy+15,4,2,'#c82a1a');R(X+4,yy+4,2,4,'#ff9a8a');continue;}   /* 매운 고추 (도트) */
       if(im&&im.complete)g.drawImage(im,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,'#e8a040');}}
   // 썰기 효과: 칼 + 반으로 갈라져 튀는 재료
-  for(const[i,q,at,d,nn]of S.fxs){if(q===3){const k=S.f-at;K('매워! 콤보 끊김',chopX(i)+55,CHOP.HITY-44-k,'#ff5a5a','center',10);R(chopX(i)+8+(d-1)*24+2-k,CHOP.HITY-6,4,4,'#e83a2a');R(chopX(i)+8+(d-1)*24+14+k,CHOP.HITY-6,4,4,'#e83a2a');continue;}const k=S.f-at,lx=chopX(i)+8+(d-1)*24,im=IMG[KITEM[(nn!=null?nn:at)%3]];
-    R(lx+2,CHOP.HITY-30+Math.min(k,4)*5,16,3,MAP.ink);R(lx+3,CHOP.HITY-29+Math.min(k,4)*5,14,1,'#e8ecf4');R(lx+16,CHOP.HITY-32+Math.min(k,4)*5,4,6,'#6a4028');
-    if(im&&im.complete){const yy=Math.round(CHOP.HITY-6-k*1.2+k*k*.08),dx=Math.round(k*1.6);g.drawImage(im,0,0,10,20,lx-dx,yy-4,10,20);g.drawImage(im,10,0,10,20,lx+10+dx,yy-4,10,20);}   /* 4K: 정수 좌표 */
+  for(const[i,q,at,d,nn]of S.fxs){if(q===3){const k=S.f-at;K('매워! 콤보 끊김',chopX(i)+55,CHOP.HITY-44-k,'#ff5a5a','center',10);R(chopX(i)+8+(d-1)*24+2-k,CHOP.HITY-6,4,4,'#e83a2a');R(chopX(i)+8+(d-1)*24+14+k,CHOP.HITY-6,4,4,'#e83a2a');continue;}const k=S.f-at,lx=chopX(i)+8+(d-1)*24;
+    const y0=CHOP.HITY-10,HV=chopHalves(KITEM[(nn!=null?nn:at)%3]),fl=Math.round(k*k*.07),dx=Math.round(k*1.3);
+    if(HV){g.drawImage(HV.a,lx-dx,y0-Math.round(k*.9)+fl);g.drawImage(HV.b,lx+dx,y0+Math.round(k*.4)+fl);}   /* 사선(/)으로 갈라진 두 조각 · 정수 좌표 */
+    if(k<4)for(let j=-4;j<=23;j++)R(lx+19-j,y0+j,1,1,'#fff');   /* 썰리는 순간 흰 사선 */
+    {const r=chopRng((nn!=null?nn:at)*7919+i*131),pal=HV?HV.pal:['#fff'],n=[14,10,6][q];   /* 터지는 1픽셀 조각 (모든 기기에서 같은 모양) */
+      for(let p=0;p<n;p++){const an=r()*6.283,sp=.7+r()*1.6,life=9+r()*7,c=r()<.25?'#fff':pal[Math.floor(r()*pal.length)];if(k>life)continue;
+        R(Math.round(lx+10+Math.cos(an)*sp*k),Math.round(y0+10+Math.sin(an)*sp*k+k*k*.05),1,1,c);}}
     if(k<12)K(CHOP.QN[q],chopX(i)+55,CHOP.HITY-44-k,CHOP.QC[q],'center',q===0?12:10);}
   /* 레인 아래 요리사 쿵야: 썰 때마다 팔을 휘두르고 1도트 숙임, 평소엔 숨쉬기 (남은 시간은 오른쪽 점수표에 표시) */
   for(let i=0;i<4;i++){const hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8),bob=hit?1:(((f>>5)+i)%2?-1:0);koong(i,chopX(i)+18,268+bob,{s:1,fr:hit?3:0});}
