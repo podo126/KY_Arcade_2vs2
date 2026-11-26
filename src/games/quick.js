@@ -57,8 +57,8 @@ function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
     // 쿵야: 두다다다 — 누를 때마다 누른 쪽으로 몸이 쏠리고 다리가 번갈아 뻗음 · 틀리면 빨갛게
     const last=fxs.length?fxs[fxs.length-1]:null,lt=last?S.f-last[2]:99,lean=lt<6?(last[3]===4?-5:5):0;
     koongWalk(i,cx+lean,QH-4,lean?(lean<0?-4:3):0,lean?(lean<0?3:-4):0,lt<4?2:0,stun?{tint:'#ff8a8a'}:{});
-    const c=S.combo[i];if(c>=5)K(`${c} COMBO`,cx,QB+4,c>=50?'#fff419':'#fff','center',c>=50?11:9);
-    if(stun)K('와장창!',cx,QB+20,'#ff5a5a','center',11);
+    const c=S.combo[i];if(c>=5)K(`${c} COMBO`,cx,QB+2,c>=50?'#fff419':'#fff','center',9);
+    if(stun)K('와장창!',cx,QB+20,'#ff5a5a','center',10);
     quadFrame(i,S,me);}
   if(S.ph==='cd')banner([['쿵야 순발력!','#fff419',16],['맨 아래 접시가 놓인 쪽 버튼을 두다다다!','#fff',11],['빨간 반대 접시는 반대쪽 · 틀리면 와장창 멈춤','#ffb0b0',10],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]]);
   if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}

@@ -64,7 +64,7 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,TY,2,HY-TY,MAP.shade);}
     R(x+4,HY+12,102,20,MAP.mint);R(x+4,HY+12,102,3,'#fff');R(x+4,HY+30,102,2,MAP.blue);   // 도마 (민트)
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,HY-6,MAP.blue,'center',9);}   /* 판정 칸 (재료 크기 20) */
-    const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+3,c>=30?'#fff419':'#fff','center',c>=30?11:9);}
+    const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+2,c>=30?'#fff419':'#fff','center',9);}
   // 떨어지는 재료
   if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
     for(let i=0;i<4;i++){if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;const lx=chopLX(i,no.d),im=IMG[KITEM[n%3]];
@@ -72,7 +72,7 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
       if(im&&im.complete)g.drawImage(im,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,'#e8a040');}}
   // 썰기 효과: 사선으로 반 갈라져 튀는 재료 + 1픽셀 조각
   for(const[i,q,at,d,nn]of S.fxs){const k=S.f-at,lx=chopLX(i,d),tx=qx(i)+QW/2;
-    if(q===3){K('매워! 콤보 끊김',tx,HY-44-k,'#ff5a5a','center',10);R(lx+2-k,HY-6,4,4,'#e83a2a');R(lx+14+k,HY-6,4,4,'#e83a2a');continue;}
+    if(q===3){K('Miss!',tx,HY-44-k,'#ff5a5a','center',10);R(lx+2-k,HY-6,4,4,'#e83a2a');R(lx+14+k,HY-6,4,4,'#e83a2a');continue;}
     const y0=HY-10,HV=chopHalves(KITEM[(nn!=null?nn:at)%3]),fl=Math.round(k*k*.07),dx=Math.round(k*1.3);
     if(HV){g.drawImage(HV.a,lx-dx,y0-Math.round(k*.9)+fl);g.drawImage(HV.b,lx+dx,y0+Math.round(k*.4)+fl);}   /* 사선(/)으로 갈라진 두 조각 · 정수 좌표 */
     if(k<4)for(let j=-4;j<=23;j++)R(lx+19-j,y0+j,1,1,'#fff');   /* 썰리는 순간 흰 사선 */

@@ -64,9 +64,9 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
     R(X-11,py+3,22,4,MAP.ink);R(X-10,py+4,Math.round(20*(1-cd/C.DCD)),2,cd>0?MAP.blue:MAP.yellow);   // 돌진 게이지
     const{h}=koongSize(i);if(i===me){meMark(X,py-h-12);txt('YOU',X,py-h-24,MAP.yellow,'center',8);}K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',X,py+8,PCOL[i],'center',8);}
   // 위쪽: 1P~4P 판 승리 수 · 가운데 남은 시간
-  for(let i=0;i<4;i++){const bx=i<2?8+i*96:480-8-(4-i)*96;R(bx,4,90,16,MAP.ink);R(bx+2,6,8,12,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,5):'',bx+14,5,'#fff','left',8);
-    K(`${S.wins[i]}승`,bx+86,5,S.wins[i]?MAP.yellow:'#8a9aa8','right',8);}
-  const sec=Math.max(0,Math.ceil(S.tm/60));R(204,4,72,18,MAP.ink);txt(`R${S.r+1} ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,9,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
+  for(let i=0;i<4;i++){const bx=i<2?6+i*100:280+(i-2)*100;R(bx,3,94,20,MAP.ink);R(bx+2,5,6,16,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,3):'',bx+11,5,'#fff','left',8);
+    K(`${S.wins[i]}승`,bx+90,5,S.wins[i]?MAP.yellow:'#8a9aa8','right',8);}
+  const sec=Math.max(0,Math.ceil(S.tm/60));R(206,3,68,20,MAP.ink);txt(`R${S.r+1} ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,5,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
   if(S.R<C.R0&&S.ph==='play')K('씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
   if(S.ph==='cd')banner([[`ROUND ${S.r+1} · 쿵야 씨름`,MAP.yellow,16],['방향키로 움직이고 A로 돌진! 밖으로 밀어내기','#fff',10],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]],240,72);
   if(S.ph==='end'){const w=S.rw,nm=w<0?'무승부!':`${GAME.slots[w]?GAME.slots[w].name:''} 승리!`,col=w<0?'#fff':PCOL[w];
