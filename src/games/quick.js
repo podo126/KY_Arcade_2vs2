@@ -1,5 +1,5 @@
 /* ┌─────────────────────────────────────────────────────────
-   │ ① 쿵야 순발력 — 투 버튼 순발력 아케이드 (4분할 · 1vs1vs1vs1)
+   │ ① 쿵야 순발력 — 투 버튼 순발력 아케이드 (세로 4분할 · 1vs1vs1vs1)
    │ 왼쪽 / 오른쪽 테이블에 음식이 "딱" 나타나면 그쪽 버튼(◀ ▶)을 최대한 빨리!
    │ 빠를수록 점수 UP (최대 200) · 반대쪽 -50 · 아무것도 없을 때 누르면 -20 · 폭탄은 누르면 -100
    │ 4명 모두 같은 순서 · 같은 타이밍 · 반응 속도는 각자 기기 화면 기준으로 재서(prep) 인터넷 지연과 무관 · 40초
@@ -40,40 +40,41 @@ class QuickSim{
   full(){return{seed:this.seed,start:this.start};}
   result(){return{ps:this.ps,lines:[0,1,2,3].map(i=>`성공 ${this.hits[i]}회 · 최고 반응 ${this.best[i]<99?Math.round(this.best[i]*16.7)+'ms':'-'}`)};}
 }
-/* ---------- 그리기: 4분할 · 칸마다 왼쪽/오른쪽 테이블 + 가운데 쿵야 ---------- */
-const QK_TX=[40,200],QK_ITEM=['kc_carrot','kc_tofu','kc_tomato'];   /* 칸 안의 왼쪽 · 오른쪽 테이블 가운데 x */
+/* ---------- 그리기: 세로 4분할 · 칸마다 위쪽 = 왼쪽/오른쪽 테이블, 아래쪽 = 가운데 쿵야 ---------- */
+const QK_TX=[24,96],QK_ITEM=['kc_carrot','kc_tofu','kc_tomato'],QK_TOP=112,QK_FLOOR=150;   /* 테이블 가운데 x(칸 안) · 테이블 윗면 y · 바닥선 y */
 function qkBomb(x,y,f){R(x-6,y-4,12,12,'#2a2a3a');R(x-7,y-2,14,8,'#2a2a3a');R(x-4,y-3,3,3,'#6a6a8a');R(x+2,y-8,2,4,'#a08060');R(x+3,y-10,2,2,(f>>2)&1?'#fff419':'#ff5a5a');
   if((f>>3)&1){R(x-8,y-6,16,1,'#ff5a5a');R(x-8,y+9,16,1,'#ff5a5a');}}
-function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);
-  for(let i=0;i<4;i++){const X=qx(i),Y=qy(i),fy=Y+92;
-    wallTiles(X+1,Y+13,QW-2,fy-Y-13);R(X+1,fy,QW-2,QH-(fy-Y)-1,MAP.mint);R(X+1,fy,QW-2,2,MAP.blue);for(let k=0;k<QW-2;k+=32)R(X+1+k,fy+2,16,QH-(fy-Y)-3,MAP.green);   /* 벽 · 바닥 */
-    for(const tx of QK_TX){const x=X+tx;R(x-17,fy-11,3,46,MAP.ink);R(x+14,fy-11,3,46,MAP.ink);R(x-23,fy-19,46,8,MAP.ink);R(x-22,fy-18,44,6,'#fff');R(x-22,fy-13,44,1,'#d8e4ec');for(let k=0;k<44;k+=8)R(x-22+k,fy-12,8,2,MAP.blue);}   /* 왼쪽 · 오른쪽 테이블 */
-    // 떠 있는 음식 (아직 아무도 판정 안 된 것 · 내 화면에선 내가 누른 건 바로 사라짐)
+function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const TT=QK_TOP,FY=QK_FLOOR;
+  for(let i=0;i<4;i++){const X=qx(i),cx=X+QW/2;
+    wallTiles(X+1,QB,QW-2,FY-QB);R(X+1,FY,QW-2,QH-FY-1,MAP.mint);R(X+1,FY,QW-2,2,MAP.blue);for(let k=0;k<QW-2;k+=32)R(X+1+k,FY+2,16,QH-FY-3,MAP.green);   /* 벽 · 바닥 */
+    if(i===me)R(X+1,QB+1,QW-2,2,MAP.yellow);
+    for(const t of QK_TX){const x=X+t;R(x-14,TT+7,3,FY+8-TT-7,MAP.ink);R(x+11,TT+7,3,FY+8-TT-7,MAP.ink);R(x-19,TT-1,38,8,MAP.ink);R(x-18,TT,36,6,'#fff');R(x-18,TT+5,36,1,'#d8e4ec');for(let k=0;k<36;k+=6)R(x-18+k,TT+6,6,2,MAP.blue);}   /* 왼쪽 · 오른쪽 테이블 */
+    K('◀',X+QK_TX[0],TT+12,MAP.blue,'center',8);K('▶',X+QK_TX[1],TT+12,MAP.blue,'center',8);
+    // 떠 있는 음식 (아직 판정 안 된 것 · 내 화면에선 내가 누른 건 바로 사라짐)
     if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=S.f-no.T;if(dt<0||dt>QK.WIN)continue;if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;
-      const x=X+QK_TX[no.d===4?0:1],pop=dt<4?(4-dt)*2:0,y=fy-39-pop;
+      const x=X+QK_TX[no.d===4?0:1],pop=dt<4?(4-dt)*2:0,y=TT-20-pop;
       if(no.b)qkBomb(x,y+10,f);else{const im=IMG[QK_ITEM[n%3]];if(im&&im.complete)g.drawImage(im,x-10,y);else R(x-10,y,20,20,'#e8a040');}
-      const w=Math.round(30*(1-dt/QK.WIN));R(x-15,y-8,30,4,MAP.ink);R(x-15,y-8,w,4,no.b?'#ff5a5a':dt<QK.RT[0]?MAP.yellow:dt<QK.RT[1]?'#58d838':'#00ccf3');   /* 남은 시간 막대 */
+      const w=Math.round(28*(1-dt/QK.WIN));R(x-14,y-8,28,4,MAP.ink);R(x-14,y-8,w,4,no.b?'#ff5a5a':dt<QK.RT[0]?MAP.yellow:dt<QK.RT[1]?'#58d838':'#00ccf3');   /* 남은 시간 막대 */
       if(!no.b&&dt<12&&(dt>>1)%2===0)K('!',x,y-24,'#ff5a5a','center',10);}
     // 가운데 쿵야: 누른 쪽으로 몸을 기울이고 다리를 뻗음
-    const lean=S.f-S.ff[i]<10?(S.face[i]===4?-8:8):0,hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8&&typeof x[1]==='number'),bob=lean?0:(((f>>5)+i)%2?-1:0);
-    koongWalk(i,X+120+lean,Y+QH-4+bob,lean?Math.sign(lean)*3:0,lean?Math.sign(lean)*3:0,hit?2:0);
+    const lean=S.f-S.ff[i]<10?(S.face[i]===4?-6:6):0,hit=S.fxs.some(x=>x[0]===i&&S.f-x[2]<8&&typeof x[1]==='number'),bob=lean?0:(((f>>5)+i)%2?-1:0);
+    koongWalk(i,cx+lean,QH-4+bob,lean?Math.sign(lean)*3:0,lean?Math.sign(lean)*3:0,hit?2:0);
     // 효과: 잡은 음식이 쿵야에게 날아옴 · 점수 글자
     for(const[ii,q,at,n,pts]of S.fxs){if(ii!==i)continue;const k=S.f-at;
-      if(typeof q==='number'&&n>=0&&k<8&&pd.N){const sx=X+QK_TX[pd.N[n].d===4?0:1],ex=X+120,im=IMG[QK_ITEM[n%3]],x=Math.round(sx+(ex-sx)*k/8),y=Math.round(fy-39-Math.sin(k/8*3.14)*14);if(im&&im.complete)g.drawImage(im,x-10,y);}
-      if(q==='boom'&&k<14&&pd.N){const bx=X+QK_TX[pd.N[n].d===4?0:1];for(let p=0;p<10;p++){const a=p*.628,r=4+k*2;R(Math.round(bx+Math.cos(a)*r),Math.round(fy-30+Math.sin(a)*r*.7),2,2,p%2?'#ff9a3a':'#fff419');}}
-      const lab=typeof q==='number'?`${QK.QN[q]} +${pts}`:q==='boom'?'BOOM! -100':q==='wrong'?'반대쪽! -50':'성급해요! -20',col=typeof q==='number'?QK.QC[q]:'#ff5a5a';
-      if(k<24)K(lab,X+120,Y+22-Math.floor(k/3),col,'center',typeof q==='number'&&q===0?12:10);}
-    if(S.streak[i]>=3)K(`${S.streak[i]}연속!`,X+120,Y+40,'#fff','center',9);
+      if(typeof q==='number'&&n>=0&&k<8&&pd.N){const sx=X+QK_TX[pd.N[n].d===4?0:1],im=IMG[QK_ITEM[n%3]],x=Math.round(sx+(cx-sx)*k/8),y=Math.round(TT-20+k*8);if(im&&im.complete)g.drawImage(im,x-10,y);}
+      if(q==='boom'&&k<14&&pd.N){const bx=X+QK_TX[pd.N[n].d===4?0:1];for(let p=0;p<10;p++){const a=p*.628,r=4+k*2;R(Math.round(bx+Math.cos(a)*r),Math.round(TT-10+Math.sin(a)*r*.8),2,2,p%2?'#ff9a3a':'#fff419');}}
+      const lab=typeof q==='number'?`${QK.QN[q]}`:q==='boom'?'BOOM!':q==='wrong'?'반대쪽!':'성급해요!',col=typeof q==='number'?QK.QC[q]:'#ff5a5a';
+      if(k<24){K(lab,cx,QB+30-Math.floor(k/3),col,'center',typeof q==='number'&&q===0?12:10);txt((pts>0?'+':'')+pts,cx,QB+46-Math.floor(k/3),pts>0?'#fff':'#ff5a5a','center',8);}}
+    if(S.streak[i]>=3)K(`${S.streak[i]}연속!`,cx,QB+6,'#fff','center',9);
     quadFrame(i,S,me);}
-  const sec=Math.max(0,Math.ceil(S.tm/60));R(222,116,36,18,MAP.ink);txt(String(sec),240,121,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
-  if(S.ph==='cd'){R(80,86,320,96,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,94,'#fff419','center',16);K('음식이 나온 쪽 버튼을 최대한 빨리!',240,118,'#fff','center',11);
+  if(S.ph==='cd'){R(60,86,360,96,'rgba(42,58,72,.92)');K('쿵야 순발력!',240,94,'#fff419','center',16);K('음식이 나온 쪽 버튼을 최대한 빨리!',240,118,'#fff','center',11);
     K('◀ 왼쪽  ·  ▶ 오른쪽  ·  폭탄은 참기',240,136,'#d4f4ff','center',10);txt(String(Math.max(1,Math.ceil(S.t/50))),240,158,'#fff','center',14);}
   if(S.ph==='end'){R(110,112,260,46,'rgba(42,58,72,.92)');K('그만!',240,124,'#fff419','center',16);}}
 regGame({id:'quick',title:'쿵야 순발력',icon:'①',
   ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','음식이 나타난 쪽 버튼을 최대한 빨리!','빠를수록 점수 UP · 반대쪽 / 미리 누르기는 감점'],
   gimmick:'<b>폭탄</b> — 폭탄이 나오면 꾹 참기! 누르면 -100',
   win:'40초 동안 개인 점수 1위! (4명 모두 같은 순서 · 같은 타이밍)',
-  desc:'왼쪽 / 오른쪽에 음식이 나오면 그쪽 버튼을 최대한 빨리!<br>4분할 개인전 · 40초',
+  desc:'왼쪽 / 오른쪽에 음식이 나오면 그쪽 버튼을 최대한 빨리!<br>세로 4분할 개인전 · 40초',
   controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 음식이 나온 쪽을 최대한 빨리! · 폭탄은 누르지 마세요'},
   demoSkip:110,
   newSim:(s,c)=>new QuickSim(s,c),
