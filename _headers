@@ -1,0 +1,8 @@
+# Cloudflare Pages: 행사 중 수정이 바로 반영되도록 HTML은 캐시하지 않음
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/test.html
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex
