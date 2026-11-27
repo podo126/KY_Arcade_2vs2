@@ -1,5 +1,5 @@
 /* ┌─────────────────────────────────────────────────────────
-   │ KY 미니게임 배틀 공통 틀 (core)
+   │ 미니게임 배틀 공통 틀 (core)
    │ 메인(닉네임 · 비밀번호) · 대기방(개인전 4칸, 모두 READY → 3초 뒤 시작) · 게임 3종 연속 + 개인 점수표 · 최종 결과 → 대기방 · 설정
    │ 게임은 games/*.js 가 regGame({...}) 로 등록합니다 (규칙은 games/README 참고).
    └───────────────────────────────────────────────────────── */
@@ -266,7 +266,7 @@ const STAGE_PASS='YCC1211',STAGE_ROOM='YCC1211';
 function needPass(){const p=$('passIn').value.trim().toUpperCase();if(p===STAGE_PASS)return true;
   toast(p?'비밀번호가 맞지 않습니다':'비밀번호를 입력해 주세요');$('passIn').value='';$('passIn').focus();return false;}
 async function enterRoom(role){if(role==='spectator'?!needPass():!needName()||!needPass())return;   /* 관전은 닉네임 없이 비밀번호만 */toast('입장하는 중…',8000);
-  try{await NET.connect(STAGE_ROOM,role,'any');toast(role==='spectator'?'관전으로 입장했습니다':'입장했습니다');initLobby();}catch(e){toast(netErr(e),4000);}}
+  try{await NET.connect(STAGE_ROOM,role,'any');$('toast').style.display='none';initLobby();}catch(e){toast(netErr(e),4000);}}
 function netErr(e){return{full:'방이 가득 찼습니다',timeout:'서버 응답이 없습니다. 잠시 후 다시 시도해 주세요',url:'서버 주소 설정 오류',closed:'서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요'}[e]||'연결 오류: '+e;}
 let SET_BACK='main';
 function closeSettings(){show(SET_BACK);if(SET_BACK==='lobby'){renderLobby();focusMain();}}

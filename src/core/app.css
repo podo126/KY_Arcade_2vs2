@@ -332,3 +332,4 @@ body.touch .how-x .keys{display:none}
 .btn{transition:transform .08s,filter .08s}
 .btn.press,.btn:active{transform:translateY(3px)!important;--S:transparent;filter:brightness(.92)}
 .hbtn:active,#gSpec .sd:active{transform:translateY(2px);filter:brightness(.9)}
+.pslot .rst{font:32px var(--pf)}   /* 다른 사람 칸 READY! · 대기 중 = 내 READY / START 버튼과 같은 32px */

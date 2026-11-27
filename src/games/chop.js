@@ -5,7 +5,7 @@
    └───────────────────────────────────────────────────────── */
 const KITEM=['kc_carrot','kc_pimento','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 피망 · 토마토) */
 const CHOP={PEPPER:.13,PEPPER_FROM:4,   /* 기믹: 4초 뒤부터 재료의 13%가 돌(kc_stone) — 누르면 콤보 끊김 · -50 (변수 이름은 예전 고추 그대로) */
-  SEC:60,FALL:56,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
+  SEC:60,FALL:65,HITY:188,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
 const chopX=i=>qx(i)+5;   /* 세로 칸 안 레인 영역 왼쪽 (너비 110) */
 const chopLX=(i,d)=>chopX(i)+8+CHOP.COL[d]*24;   /* 레인 왼쪽 x */
 function chopRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -59,16 +59,19 @@ function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}
   for(let k=0;k<n;k++)C.pt.forEach(p=>{p.t++;p.x+=p.vx;p.y+=p.vy;});C.pt=C.pt.filter(p=>p.t<p.l);
   for(const p of C.pt)R(Math.round(p.x),Math.round(p.y),1,1,p.c);}
 /* 세로 4분할 그리기: 칸마다 위 = 레인 4줄 + 판정 칸 + 도마, 아래 = 누른 칸 아래로 이동하는 요리사 쿵야 */
-function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY;
-  for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);
+function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY,LY=HY+14,CROSS=14*CHOP.FALL/(HY-TY);   /* LY = 재료 구간 / 요리사 구간 경계 · CROSS = 재료 가운데가 경계에 닿는 프레임(판정 시각 뒤) */
+  for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);R(X,LY,QW,QH-LY,'#efe6c4');R(X,LY,QW,2,'#d9cfa4');   /* 아래 요리사 구간: 바닥 색 따로 + 경계선 */
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,TY,2,HY-TY,MAP.shade);}
-    R(x+4,HY+12,102,20,MAP.mint);R(x+4,HY+12,102,3,'#fff');R(x+4,HY+30,102,2,MAP.blue);   // 도마 (민트)
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,HY-6,MAP.blue,'center',9);}   /* 판정 칸 (재료 크기 20) */
     const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+2,c>=30?'#fff419':'#fff','center',9);}
   // 떨어지는 재료
-  if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
+  if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-CROSS-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
     for(let i=0;i<4;i++){if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;const lx=chopLX(i,no.d),im=IMG[KITEM[n%3]];
-      const st=no.b?IMG.kc_stone:im;if(st&&st.complete)g.drawImage(st,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,no.b?'#525252':'#e8a040');}}   /* 돌 = 누르면 안 되는 기믹 */
+      if(y>LY){const k=Math.floor(-dt-CROSS);if(k<0||k>=14)continue;   /* 경계를 넘으면 터지며 사라짐: 흰 김 + 재료 색 조각(1~2도트)이 위·옆으로 튐 (모든 기기에서 같은 모양) */
+        const HV=chopHalves(no.b?'kc_stone':KITEM[n%3]),pal=HV?HV.pal:['#fff'],r=chopRng(n*7919+i*131+77);if(k<3){const w=14+k*4;R(lx+10-w/2,LY-7-k,w,4+k,'rgba(255,255,255,.85)');}   /* 퍽: 흰 김 */
+        for(let p=0;p<16;p++){const an=-Math.PI*(.05+r()*.9),sp=1+r()*1.6,c=r()<.2?'#fff':pal[Math.floor(r()*pal.length)],z=p%3?2:1;if(k>8+p%6)continue;
+          R(Math.round(lx+10+Math.cos(an)*sp*k),Math.round(LY-6+Math.sin(an)*sp*k+k*k*.07),z,z,c);}continue;}
+      const st=no.b?IMG.kc_stone:im,Y=Math.round(y)-10,h=Math.min(20,LY-Y);if(h<=0)continue;if(st&&st.complete)g.drawImage(st,0,0,20,h,lx,Y,20,h);else R(lx,Y,20,h,no.b?'#525252':'#e8a040');}}   /* 경계선 아래는 잘라서 그림 (경계로 가라앉다가 터짐) */   /* 돌 = 누르면 안 되는 기믹 */
   // 썰기 효과: 사선으로 반 갈라져 튀는 재료 + 1픽셀 조각
   for(const[i,q,at,d,nn]of S.fxs){const k=S.f-at,lx=chopLX(i,d),tx=qx(i)+QW/2;
     if(q===3){K('Miss!',tx,HY-44-k,'#ff5a5a','center',10);const sh=IMG.kc_stone_hit;if(sh&&sh.complete)g.drawImage(sh,lx+(k<4?(k&1?1:-1):0),HY-10);continue;}   /* 돌을 내리침: 반짝이는 돌 */

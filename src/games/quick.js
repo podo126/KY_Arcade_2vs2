@@ -13,12 +13,17 @@ const qkWant=no=>no.r?6-no.d:no.d;   /* 눌러야 할 버튼: 반대 접시는 �
 function qkRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 /* 접시 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 접시가 놓인 쪽 2(▶) / 4(◀) · r = 반대 접시 · g = 황금 접시 */
 function qkChart(seed){const r=qkRng(seed),N=[];for(let k=0;k<QK.LEN;k++){const rv=k>=QK.REV_FROM&&r()<QK.REV;N.push({d:r()<.5?4:2,r:rv?1:0,g:!rv&&k>10&&r()<QK.GOLD?1:0});}return N;}
+/* 당근 든 손 (시선 끌기): 플레이어마다 60초 안에 2~3번, 랜덤 시각 · 랜덤 높이에 왼쪽/오른쪽 벽에서 튀어나와 3~4초 흔들고 들어감
+   높이는 이름 띠 아래 ~ 화살표 위(y 44~136) → 테이블 · 캐릭터 · 화살표를 가리지 않음 (접시는 손보다 앞 레이어)
+   시드로 만들어서 모든 기기에서 같은 타이밍 · [시작 프레임, 길이, 방향 -1 왼쪽 / 1 오른쪽, y] */
+function qkArms(seed){return[0,1,2,3].map(i=>{const r=qkRng(seed*7+i*131+1),n=r()<.5?2:3,L=QK.SEC*60/n,A=[];
+  for(let k=0;k<n;k++){const dur=180+Math.floor(r()*61);A.push([CD_F+Math.floor(k*L+30+r()*(L-dur-60)),dur,r()<.5?-1:1,44+Math.floor(r()*93)]);}return A;});}
 class QuickSim{
   constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=180;   /* 시작 카운트다운 3초 */
     this.tm=QK.SEC*60;
-    this.seed=(Math.random()*1e9)|0;this.N=qkChart(this.seed);this.k=[0,0,0,0];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.miss=[0,0,0,0];this.st=[-99,-99,-99,-99];
+    this.seed=(Math.random()*1e9)|0;this.N=qkChart(this.seed);this.arm=qkArms(this.seed);this.k=[0,0,0,0];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.miss=[0,0,0,0];this.st=[-99,-99,-99,-99];
     this.fx=[];this.bt=[0,0,0,0];this.my={k:0,stun:-99,fx:[]};}
-  get pd(){return{N:this.N,my:this.my};}
+  get pd(){return{N:this.N,my:this.my,arm:this.arm};}
   /* 입력: {tap,d,k,ok} — k = 그 사람이 처리한 접시 번호 (기기에서 바로 판정해서 보냄) · 소리는 누른 기기에서만 (연타 소리가 겹치지 않게) */
   input(i,e){if(this.ph!=='play'||!e.tap||e.k==null||e.k<this.k[i]||!this.N[e.k])return;this.k[i]=e.k;const no=this.N[e.k];
     if(!e.ok||e.d!==qkWant(no)){this.combo[i]=0;this.miss[i]++;this.ps[i]=Math.max(0,this.ps[i]-QK.MISS);this.st[i]=this.f;this.fx.push([i,0,this.f,e.d,0]);return;}
@@ -42,6 +47,9 @@ function qkDish(x,y,no){const im=qkPlate(no);if(im&&im.complete)g.drawImage(im,M
 function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
   for(let i=0;i<4;i++){const X=qx(i),cx=X+QW/2,mine=i===me&&pd.my;
     R(X,QB,QW,QH-QB,i===me?MAP.hi:MAP.green);R(X,QH-42,QW,42,MAP.mint);R(X,QH-42,QW,2,MAP.blue);   /* 바닥 */
+    {const A=IMG.qk_arm,ev=pd.arm&&pd.arm[i].find(([st,d])=>S.f>=st&&S.f<st+d);   /* 당근 든 손: 벽에서 0.2초 동안 튀어나와 흔들다 들어감 (접시 뒤 레이어) */
+      if(ev&&A&&A.complete){const[st,d,sd,ay]=ev,t=S.f-st,off=Math.round(t<12?(12-t)/12*41:t>d-12?(t-d+12)/12*41:0),y=ay+[0,-2,-5,-7,-5,-2][(f>>2)%6];
+        g.save();g.beginPath();g.rect(X+1,QB,QW-2,QH-QB);g.clip();if(sd>0)g.drawImage(A,X+QW-41+off,y);else{g.translate(X+41-off,y);g.scale(-1,1);g.drawImage(A,0,0);}g.restore();}}
     const k=mine?Math.max(S.k[i],pd.my.k):S.k[i],stun=S.f-(mine?pd.my.stun:S.st[i])<QK.STUN;   /* 내 칸 멈춤은 내 기기 기준만 (방장 확인을 기다리면 멈춤이 길어짐) */
     const TB=IMG.qk_table,cur=N&&N[k];for(const sx of [X+15,X+QW-15]){if(TB&&TB.complete)g.drawImage(TB,sx-9,QH-66);else R(sx-9,QH-66,18,4,MAP.ink);}   /* 양옆 손님 테이블 18x24 (바닥선에 맞춤) */
     if(cur&&IMG.ui_arrow.complete)g.drawImage(IMG.ui_arrow,qkWant(cur)===4?X:X+QW-30,QH-96+((f>>4)&1?2:0));   /* 지금 접시가 갈 테이블 위 화살표 (접시보다 아래 레이어) */
@@ -69,9 +77,9 @@ regGame({id:'quick',title:'쿵야 순발력',icon:'①',
   controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 접시 보내기'},
   demoSkip:20,
   newSim:(s,c)=>new QuickSim(s,c),
-  newView:()=>({N:null,my:{k:0,stun:-99,fx:[]}}),
+  newView:()=>({N:null,arm:null,my:{k:0,stun:-99,fx:[]}}),
   full:true,
-  applyFull(pd,F){if(F){pd.N=qkChart(F.seed);pd.my={k:0,stun:-99,fx:[]};}},
+  applyFull(pd,F){if(F){pd.N=qkChart(F.seed);pd.arm=qkArms(F.seed);pd.my={k:0,stun:-99,fx:[]};}},
   /* 내 기기에서 바로 판정: 멈춤 중이면 무시 · 맞으면 다음 접시로 · 틀리면 멈춤 (◀ ▶ 만 사용) */
   prep(e,S,me,pd){if(!e.tap||(e.d!==2&&e.d!==4))return null;if(!S||!pd.N||S.ph!=='play')return null;const M=pd.my,f=S.f;
     if(f-M.stun<QK.STUN)return null;const k=Math.max(M.k,S.k[me]),no=pd.N[k];if(!no)return null;
