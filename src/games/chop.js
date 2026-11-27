@@ -81,14 +81,14 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
     if(k<12)K(CHOP.QN[q],tx,HY-44-k,CHOP.QC[q],'center',q===0?12:10);}
   chopChefs(S,pd,me,f);   /* 도마 아래 요리사: 누른 키 칸 아래로 미끄러지듯 이동 + 발밑 먼지 */
   for(let i=0;i<4;i++)quadFrame(i,S,me);
-  if(S.ph==='cd')banner([['주방 난타!','#fff419',16],['재료가 화살표에 닿을 때 같은 방향키!','#fff',11],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]]);
+  cdBanner(S);
   if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
 regGame({id:'chop',title:'주방 난타',icon:'②',
   ctrl:['내 이름이 적힌 세로 칸','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
   gimmick:'<b>돌</b> — 돌은 누르지 마세요! 누르면 콤보 끊김',
   win:'60초 동안 개인 점수 1위! (4명 모두 같은 악보)',
   desc:'떨어지는 재료가 화살표에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
-  controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 화살표에 닿을 때 같은 방향!'},
+  controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 썰기'},
   demoSkip:290,   /* 게임 설명: 열자마자 재료가 떨어지는 장면부터 */
   newSim:(s,c)=>new ChopSim(s,c),
   newView:()=>({N:null,J:[{},{},{},{}],myJ:{}}),

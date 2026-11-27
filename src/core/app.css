@@ -211,7 +211,7 @@ body.touch .how-x .keys{display:none}
 .pslot.empty{opacity:.55}
 .pslot.me{border-image-source:var(--f-on)}.pslot.me .pcn{color:#000}.pslot.me .pn b{color:#000;text-shadow:none}
 .pslot .rdy{width:92%;font:32px var(--pf);padding:8px 0}
-.pslot .rdy.on{color:#000;background:#58d838}
+.pslot .rdy.on{color:#000}
 .pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
 .pslot .rst.on{color:#000;background:#58d838;border-color:#000}
 .pslot.rd{box-shadow:inset 0 -6px 0 #58d838}
@@ -259,3 +259,72 @@ body.touch .how-x .keys{display:none}
 #scr-main .field{padding:2px 16px}#scr-main .field label{font-size:16px;min-width:88px}
 #scr-main .field input{padding:0 10px;height:40px;box-sizing:border-box}
 #scr-main .btn{padding:0 14px;line-height:34px}
+
+
+/* ===== 픽셀 모던 스킨: 도트 창틀(모서리 깎기 · 2px 테두리 · 위 하이라이트 · 아래 음영 · 딱딱한 그림자) · 둥근 모서리/흐린 그림자 없음 ===== */
+:root{--ink:#082b44;--ok:#58d838;--cut:polygon(0 2px,2px 2px,2px 0,calc(100% - 2px) 0,calc(100% - 2px) 2px,100% 2px,100% calc(100% - 2px),calc(100% - 2px) calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,2px calc(100% - 2px),0 calc(100% - 2px))}
+/* 창틀 = 그림 조각(border-image) 대신 CSS 사각형 층으로 직접 그림 → 화면 배율이 정수가 아니어도 조각 이음새(얇은 줄)가 생기지 않음
+   --L 테두리 · --F 바탕 · --H 위 하이라이트 · --D 아래 음영 · --S 아래 그림자 (테두리 16px 는 여백 · 창 = 위 0 ~ 아래 4px 전, 그림자 = 맨 아래 4px) */
+.fr,.fr-item,.fr-on,.fr-warn,.fr-dark{border-image:none!important;border-color:transparent;
+  --L:var(--ink);--F:rgba(10,62,98,.86);--H:rgba(255,255,255,.13);--D:rgba(0,0,0,.16);--S:rgba(0,20,40,.35);
+  background:
+    linear-gradient(var(--L),var(--L)) 2px 2px/2px 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) calc(100% - 2px) 2px/2px 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) 2px calc(100% - 6px)/2px 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) calc(100% - 2px) calc(100% - 6px)/2px 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) 4px 0/calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) 4px calc(100% - 4px)/calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--L),var(--L)) 0 4px/2px calc(100% - 12px) no-repeat,
+    linear-gradient(var(--L),var(--L)) 100% 4px/2px calc(100% - 12px) no-repeat,
+    linear-gradient(var(--H),var(--H)) 4px 2px/calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--D),var(--D)) 4px calc(100% - 6px)/calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--F),var(--F)) 2px 2px/calc(100% - 4px) calc(100% - 8px) no-repeat,
+    linear-gradient(var(--S),var(--S)) 4px 100%/calc(100% - 8px) 4px no-repeat;
+  background-origin:border-box;background-clip:border-box}   /* background 한 줄 뒤에 둬야 테두리 영역까지 그림 */
+.fr-item{--F:rgba(255,255,255,.15);--H:rgba(255,255,255,.35)}
+.fr-on,.btn.sel{--F:#fff419;--H:#fffbb0;--D:#d6c800}
+.fr-warn{--F:#e83a2a;--H:#ff8a7a;--D:#b02a1a}
+.fr-dark{--F:rgba(4,26,44,.92);--H:rgba(255,255,255,.1);--D:transparent}
+.btn.sel{color:var(--ink);text-shadow:none}
+.btn.sel::before{content:none}
+.btn.sel{transform:translateY(-2px)}
+/* 배경: 하늘색 그라데이션 + 옅은 체크 */
+.bgck{background:linear-gradient(#12a3dc,#0a8fc6 40%,#06679a)}
+.bgck::after{content:"";position:absolute;inset:0;background:conic-gradient(rgba(255,255,255,.04) 25%,transparent 0 50%,rgba(255,255,255,.04) 0 75%,transparent 0) 0 0/64px 64px}
+/* 글자: 도트 외곽선 → 아래 2px 딱딱한 그림자 */
+.ol,.ol2{text-shadow:0 2px 0 var(--ink)}
+.rm-head .ol{letter-spacing:4px}
+/* 작은 칸들: 모서리 2px 깎기 (도트 모서리) */
+.kk,.hbtn,.pslot .pp,.pslot .pn small,.pslot .rst,.field input,.tname,.bd-row,.bd-t,.rrow,#resPs span,#gSpec .sd,.hw>b{clip-path:var(--cut);border-radius:0}
+.kk{border-width:2px;background:rgba(255,255,255,.08)}
+#gHint{font-size:16px;color:var(--dim)}#gHint .kk{font-size:16px}
+.field input,.tname{background:rgba(4,26,44,.6);border:2px solid rgba(255,255,255,.25)}
+.field input:focus{border-color:var(--yellow)}
+/* 대기방 */
+.pslot .pp{border:0;padding:4px 8px}
+.pslot .pn small{border:0}
+.pslot.me{--L:var(--yellow);--F:rgba(14,74,112,.9);--H:rgba(255,244,25,.35)}.pslot.me .pcn{color:var(--dim)}.pslot.me .pn b{color:#fff;text-shadow:0 2px 0 var(--ink)}
+.pslot .rdy.on{--F:var(--ok);--H:#aaf496;--D:#38a824;color:#062600;text-shadow:none}
+.pslot .rst.on{background:var(--ok);color:#062600}
+.pslot .rst{border:0;background:rgba(0,0,0,.18)}
+.pslot.rd{box-shadow:none}   /* READY 는 버튼 · 상태칸 초록으로만 표시 (칸 아래 초록 띠가 창틀 그림자와 겹쳐 선처럼 보임) */
+/* 게임 화면: 2px 진한 테두리 + 모서리 깎기 + 아래 4px 그림자 (box-shadow 를 위·아래·옆으로만 → 모서리가 비어 도트 모양) */
+#gc{outline:0;box-shadow:0 -4px 0 var(--ink),0 4px 0 var(--ink),-4px 0 0 var(--ink),4px 0 0 var(--ink),0 8px 0 rgba(0,20,40,.35)}
+#howCv{outline:0;box-shadow:0 -2px 0 var(--ink),0 2px 0 var(--ink),-2px 0 0 var(--ink),2px 0 0 var(--ink)}
+/* 점수표 */
+.bd-cap{border-top:2px solid rgba(255,255,255,.15)}
+.bd-row{background:rgba(255,255,255,.08);border:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.bd-row .sw,.rrow .sw,#resPs i{border:0}
+.bd-row.me{background:var(--yellow)}
+.bd-t{background:rgba(255,255,255,.08);border:0}
+#gSpec .sd{border:0}
+/* 결과 */
+.rrow{background:rgba(255,255,255,.08);border:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.rrow .nm,.rrow.win .nm{text-shadow:0 2px 0 var(--ink)}
+.rrow.win{background:rgba(255,244,25,.16);color:#fff;box-shadow:inset 0 0 0 2px var(--yellow),inset 0 -4px 0 rgba(0,0,0,.18)}.rrow.win .rk,.rrow.win .pt{color:var(--yellow)}.rrow.win .gs,.rrow.win .gs b{color:var(--dim)}   /* 1위: 노란 채움 대신 노란 테두리 → 노란 이름도 보임 */
+#resPs span{border:0;background:rgba(255,255,255,.08)}
+/* 게임 설명 창 */
+#how{background:rgba(0,16,32,.62)}
+.hbtn{border:0;font-size:16px;height:40px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
+#pad div{border:0;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+#abtn{border:0;box-shadow:0 6px 0 rgba(0,0,0,.35)}

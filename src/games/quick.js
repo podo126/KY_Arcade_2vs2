@@ -37,22 +37,21 @@ class QuickSim{
 }
 /* ---------- 그리기: 세로 4분할 · 칸마다 가운데에 접시 더미(맨 아래가 지금 접시), 양옆 손님 테이블, 맨 아래 쿵야 ---------- */
 const QK_BASE=190,QK_STEP=17;   /* 맨 아래 접시 y · 접시 사이 간격 */
-function qkDish(x,y,no,cur){const w=cur?32:24,c=no.g?MAP.yellow:no.r?'#ff5a5a':'#fff',e=no.g?'#c8a000':no.r?'#b02a2a':'#a8b8c8';
-  R(x-w/2-1,y-1,w+2,8,MAP.ink);R(x-w/2,y,w,6,c);R(x-w/2+2,y+4,w-4,2,e);R(x-w/2+3,y+1,w-6,1,'#fff');
-  const sd=no.d===4?-1:1,lx=x+sd*(w/2+(no.r?14:8));   /* 표시는 접시 바깥쪽 옆 (같은 높이) */
-  if(no.r)K('반대',lx,y-4,'#ff5a5a','center',8);else K(no.d===4?'◀':'▶',lx,y-4,no.g?'#c8a000':MAP.blue,'center',8);}
+const qkPlate=no=>IMG[no.g?'qk_plate_gold':no.r?'qk_plate_red':'qk_plate'];   /* 접시 리소스 32x8 (일반 · 반대 · 황금) */
+function qkDish(x,y,no){const im=qkPlate(no);if(im&&im.complete)g.drawImage(im,Math.round(x-16),y-1);else R(Math.round(x-16),y-1,32,8,no.g?MAP.yellow:no.r?'#ff5a5a':'#fff');}
 function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
   for(let i=0;i<4;i++){const X=qx(i),cx=X+QW/2,mine=i===me&&pd.my;
     R(X,QB,QW,QH-QB,i===me?MAP.hi:MAP.green);R(X,QH-42,QW,42,MAP.mint);R(X,QH-42,QW,2,MAP.blue);   /* 바닥 */
-    for(const sx of [X+12,X+QW-12]){R(sx-9,QH-64,18,4,MAP.ink);R(sx-8,QH-63,16,2,'#fff');R(sx-1,QH-60,2,20,MAP.ink);}   /* 양옆 손님 테이블 */
     const k=mine?Math.max(S.k[i],pd.my.k):S.k[i],stun=S.f-(mine?pd.my.stun:S.st[i])<QK.STUN;   /* 내 칸 멈춤은 내 기기 기준만 (방장 확인을 기다리면 멈춤이 길어짐) */
+    const TB=IMG.qk_table,cur=N&&N[k];for(const sx of [X+15,X+QW-15]){if(TB&&TB.complete)g.drawImage(TB,sx-9,QH-66);else R(sx-9,QH-66,18,4,MAP.ink);}   /* 양옆 손님 테이블 18x24 (바닥선에 맞춤) */
+    if(cur&&IMG.ui_arrow.complete)g.drawImage(IMG.ui_arrow,qkWant(cur)===4?X:X+QW-30,QH-96+((f>>4)&1?2:0));   /* 지금 접시가 갈 테이블 위 화살표 (접시보다 아래 레이어) */
     // 접시 더미: 맨 아래 = 지금 접시 (놓인 쪽으로 치우침)
     if(N)for(let n=QK.SHOW-1;n>=0;n--){const no=N[k+n];if(!no)continue;const side=no.d===4?-1:1,x=cx+side*(n?10:16)+(stun&&!n?((f>>1)&1?2:-2):0),y=QK_BASE-n*QK_STEP;
-      if(y-12<QB+2)continue;qkDish(x,y,no,!n);}
+      if(y-12<QB+2)continue;qkDish(x,y,no);}
     // 날아가는 접시 (내 칸은 내 기기 기준으로 바로)
     const fxs=(mine?pd.my.fx:S.fx).filter(x=>x[0]===i&&S.f-x[2]>=0&&S.f-x[2]<14);
     for(const[ii,ok,at,d,gold]of fxs){const t=S.f-at,side=d===4?-1:1;
-      if(ok){const x=Math.round(cx+side*(16+t*4)),y=Math.round(QK_BASE+t*t*.3);R(x-10,y,20,5,gold?MAP.yellow:'#fff');R(x-10,y+5,20,1,MAP.ink);}
+      if(ok){qkDish(cx+side*(16+t*4),Math.round(QK_BASE+t*t*.3),{g:gold});}
       else if(t<12){for(let p=0;p<6;p++)R(Math.round(cx+side*12+(p-3)*t),Math.round(QK_BASE+4+t*t*.12-(p%2)*t),3,2,p%2?'#fff':'#a8b8c8');}}   /* 와장창 조각 */
     // 쿵야: 두다다다 — 누를 때마다 누른 쪽으로 몸이 쏠리고 다리가 번갈아 뻗음 · 틀리면 빨갛게
     const last=fxs.length?fxs[fxs.length-1]:null,lt=last?S.f-last[2]:99,lean=lt<6?(last[3]===4?-5:5):0;
@@ -60,14 +59,14 @@ function quickDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const N=pd.N;
     const c=S.combo[i];if(c>=5)K(`${c} COMBO`,cx,QB+2,c>=50?'#fff419':'#fff','center',9);
     if(stun)K('와장창!',cx,QB+20,'#ff5a5a','center',10);
     quadFrame(i,S,me);}
-  if(S.ph==='cd')banner([['쿵야 순발력!','#fff419',16],['맨 아래 접시가 놓인 쪽 버튼을 두다다다!','#fff',11],['빨간 반대 접시는 반대쪽 · 틀리면 와장창 멈춤','#ffb0b0',10],[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]]);
+  cdBanner(S);
   if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
 regGame({id:'quick',title:'쿵야 순발력',icon:'①',
   ctrl:['버튼 두 개: <b>◀ 왼쪽 · ▶ 오른쪽</b>','맨 아래 접시가 놓인 쪽을 <b>두다다다</b> 연타!','틀리면 와장창 — 0.6초 멈추고 콤보 끊김'],
   gimmick:'<b>빨간 반대 접시</b> — 반대쪽 버튼! · <b>황금 접시</b> 3배 점수',
   win:'60초 동안 개인 점수 1위! (4명 모두 같은 접시 순서 · 콤보가 길수록 접시당 점수 UP)',
   desc:'맨 아래 접시가 놓인 쪽 버튼을 두다다다 연타!<br>세로 4분할 개인전 · 60초',
-  controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 맨 아래 접시 쪽을 두다다다! · 빨간 반대 접시는 반대쪽'},
+  controls:{dir:'tap',a:false,label:'◀ ▶ 두 버튼',hint:'<span class="kk">◀</span><span class="kk">▶</span> 접시 보내기'},
   demoSkip:20,
   newSim:(s,c)=>new QuickSim(s,c),
   newView:()=>({N:null,my:{k:0,stun:-99,fx:[]}}),

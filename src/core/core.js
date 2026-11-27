@@ -11,19 +11,18 @@ const LS={get(k,d){try{const v=localStorage.getItem('kyb_'+k);return v===null?d:
 /* 방 연결: Supabase Realtime (KY_Arcade 프로젝트). 바꿀 일이 있으면 이 두 줄만 수정 · 공개용(publishable) 키라 페이지에 넣어도 되는 키 */
 const SB_URL='https://bocghvafjcxhgxuwwrts.supabase.co',SB_KEY='sb_publishable_0rgqKtLgUIosom5C8j_SBw_MsgdLSDb';
 const SNAP_EVERY=6;   /* 방장 화면 전송 간격(프레임): 6 = 초당 10번 (무료 플랜 초당 메시지 한도 안쪽) */
-const CFG={char:LS.get('char','yk'),filter:LS.get('filter',true),sound:LS.get('sound',true),name:LS.get('name','')};
+const CFG={char:LS.get('char','yk'),filter:LS.get('filter2',false),sound:LS.get('sound',true),name:LS.get('name','')};
 /* 개인전: 1P~4P 고유 색 (캐릭터 테두리 · 점수표 · 대기방 칸) */
 const PCOL=['#00ccf3','#fff419','#ff5ad0','#58d838'];
 /* 세로 4분할 화면 (1vs1vs1vs1): i번 플레이어 칸 = 가로 120 x 세로 270, 왼쪽부터 1P 2P 3P 4P · 맨 위 QB 도트 = 이름 · 점수 띠 */
 const QW=120,QH=270,QB=36,qx=i=>i*QW,qy=i=>0;
-/* 세로 4분할 공통 틀: 칸 테두리(플레이어 색) · 위쪽 띠(이름 / YOU · 점수) */
+/* 세로 4분할 공통 틀: 칸 사이 선 · 위쪽 띠(이름 · 점수, 아래에 플레이어 색 줄) */
 function quadFrame(i,S,me){const x=qx(i),y=qy(i),c=PCOL[i],sl=GAME&&GAME.slots&&GAME.slots[i];
-  R(x,y,QW,QB,MAP.ink);R(x+4,y+4,6,6,c);K(sl?sl.name.slice(0,6):'',x+QW/2+3,y+2,c,'center',8);
-  if(i===me)txt('YOU',x+6,y+19,MAP.yellow,'left',8);txt(String(S.ps?S.ps[i]:0),x+QW-6,y+19,'#fff','right',8);
-  R(x,y,QW,1,c);R(x,y+QH-1,QW,1,c);R(x,y,1,QH,c);R(x+QW-1,y,1,QH,c);R(x,y+QB,QW,1,c);
-  if(me>=0&&i!==me)R(x+1,y+QB+1,QW-2,QH-QB-2,'rgba(20,30,40,.14)');   /* 내 칸이 있으면 다른 칸은 살짝 어둡게 */
-  if(i===me){const Y=MAP.yellow;R(x,y,QW,4,Y);R(x,y+QH-4,QW,4,Y);R(x,y,4,QH,Y);R(x+QW-4,y,4,QH,Y);   /* 내 칸: 노란 굵은 테두리(4도트) + 안쪽 진한 선 */
-    R(x+4,y+QB,QW-8,1,MAP.ink);R(x+4,y+QH-5,QW-8,1,MAP.ink);R(x+4,y+QB,1,QH-QB-4,MAP.ink);R(x+QW-5,y+QB,1,QH-QB-4,MAP.ink);}}
+  R(x,y,QW,QB,MAP.ink);R(x,y+QB-2,QW,2,c);R(x+4,y+4,6,6,c);K(sl?sl.name.slice(0,6):'',x+QW/2+3,y+2,c,'center',8);
+  txt(String(S.ps?S.ps[i]:0),x+QW-6,y+19,'#fff','right',8);
+  R(x,y,1,QH,MAP.ink);R(x+QW-1,y,1,QH,MAP.ink);
+  if(me>=0&&i!==me)R(x+1,y+QB,QW-2,QH-QB-1,'rgba(20,30,40,.14)');   /* 내 칸이 있으면 다른 칸은 살짝 어둡게 */
+  if(i===me){const Y=MAP.yellow;R(x,y,QW,2,Y);R(x,y+QH-2,QW,2,Y);R(x,y,2,QH,Y);R(x+QW-2,y,2,QH,Y);R(x,y+QB-2,QW,2,Y);}}   /* 내 칸: 노란 2도트 테두리 */
 /* 맵 색: 진한 색 = 포인트, 연한 색 = 바탕 (logo_yellow · logo_blue · restaurant_floor01/02 · restaurant_wall) */
 const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:'#fefcdd',shade:'#f0edc7',hi:'#fffef0',ink:'#2a3a48'};
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
@@ -105,7 +104,13 @@ function txt(s,x,y,c='#fff',al='left',sz=8,kr){s=String(s);const[f,n]=pxFont(sz,
 /* 딤드 안내 창: 글자 크기에 맞춰 상자 크기를 정함 · lines = [[글, 색, 크기, 한글?(기본 true)], …] · (cx, cy) 가 가운데 */
 function banner(lines,cx=240,cy=135){const B=lines.map(([t,c,sz,kr=true])=>{t=String(t);const[f,n]=pxFont(sz,kr,t);return{t,c,sz,kr,n,w:textBmp(t,f,n,c).tw};});
   const gap=6,px=14,py=10,w=Math.max(...B.map(b=>b.w))+px*2,h=B.reduce((a,b)=>a+b.n,0)+gap*(B.length-1)+py*2,x0=Math.round(cx-w/2);let y=Math.round(cy-h/2);
-  R(x0-1,y-1,w+2,h+2,MAP.ink);R(x0,y,w,h,'rgba(42,58,72,.92)');y+=py;for(const b of B){txt(b.t,cx,y,b.c,'center',b.sz,b.kr);y+=b.n+gap;}}
+  pxBox(x0,y,w,h,'rgba(30,44,58,.94)',MAP.ink);R(x0+2,y+1,w-4,1,'rgba(255,255,255,.16)');y+=py;for(const b of B){txt(b.t,cx,y,b.c,'center',b.sz,b.kr);y+=b.n+gap;}}
+/* 도트 상자: 모서리 1도트 깎기 + 1도트 테두리 + 아래 2도트 그림자 (UI 창과 같은 모양) */
+function pxBox(x,y,w,h,fill,line){R(x+1,y+h+1,w-2,2,'rgba(0,20,40,.3)');R(x+1,y-1,w-2,1,line);R(x+1,y+h,w-2,1,line);R(x-1,y+1,1,h-2,line);R(x+w,y+1,1,h-2,line);
+  R(x,y,1,1,line);R(x+w-1,y,1,1,line);R(x,y+h-1,1,1,line);R(x+w-1,y+h-1,1,1,line);R(x+1,y,w-2,h,fill);R(x,y+1,1,h-2,fill);R(x+w-1,y+1,1,h-2,fill);}
+/* 시작 표시 (3종 공통): 3 → 2 → 1 → START! 만 · 카운트다운은 프레임 0~180, START! 는 시작 뒤 0.75초 */
+const CD_F=180;
+function cdBanner(S,cy=135){if(S.ph==='cd')banner([[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]],240,cy);else if(S.ph==='play'&&S.f-CD_F<45)banner([['START!','#fff419',24,false]],240,cy);}
 /* DOM 에 쓰는 큰 도트 글자(대기방 빈 자리 ? · 시작 카운트다운): Neo둥근모 16도트로 그린 그림을 정수배로 확대한 이미지 → 눌림 · 번짐 없음 */
 const GLY={};
 function glyphImg(t,k,col){const F='16px '+FONT,key=t+'|'+k+'|'+col;let G=GLY[key];
@@ -238,7 +243,7 @@ function act(a){switch(a){
   case 'ready':lobbyReady();break;
   case 'leave':leaveToMain();break;
   case 'home':leaveToMain();break;
-  case 'flt':CFG.filter=!CFG.filter;LS.set('filter',CFG.filter);applyFilter();openSettings(true);break;
+  case 'flt':CFG.filter=!CFG.filter;LS.set('filter2',CFG.filter);applyFilter();openSettings(true);break;
   case 'snd':CFG.sound=!CFG.sound;LS.set('sound',CFG.sound);AU.vol();openSettings(true);break;
 }}
 /* 욕설 방지: 닉네임에 아래 단어가 들어 있으면 사용 불가 (추가는 이 목록에 그대로 적으면 됨)
@@ -386,9 +391,9 @@ function viewState(){const b=GAME.buf;if(!b.length)return null;if(!GDEF.lerp)ret
 /* 효과: 'shake:세기' 'flash' 그 밖에는 소리 이름 */
 let SHAKE=0,FLASH=0;
 function fx(e){if(e.startsWith('shake')){const[v,who]=e.slice(6).split('@');if(who!=null&&!who.split(',').includes(String(viewIndex())))return;SHAKE=Math.max(SHAKE,+(v||4));return;}   /* '@번호' 가 붙으면 그 플레이어 화면만 흔들림 */if(e==='flash')return;AU.sfx(e);}   /* 섬광 효과는 쓰지 않음 */
-function toGame(){show('game');fit();AU.bgm(GDEF.bgm!==false);$('gTitle').textContent=GDEF.title;$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'';$('gHint').innerHTML=GDEF.controls.hint||'';
+function toGame(){show('game');fit();AU.bgm(GDEF.bgm!==false);$('gTitle').textContent='';$('gRoom').textContent=GAME&&GAME.local?'연습 모드':'';$('gHint').innerHTML=GDEF.controls.hint||'';
   document.body.classList.toggle('needA',!!GDEF.controls.a);document.body.classList.toggle('needDir',!!GDEF.controls.dir);buildBoard();
-  if(isSpec())$('gHint').innerHTML='관전 중 · <span class="kk">←</span><span class="kk">→</span> 또는 화면을 눌러 볼 플레이어 바꾸기 · <span class="kk">1</span>~<span class="kk">4</span> 바로 선택';renderSpec();}
+  if(isSpec())$('gHint').innerHTML='<span class="kk">←</span><span class="kk">→</span> 시점 전환 · <span class="kk">1</span>~<span class="kk">4</span> 선택';renderSpec();}
 /* ---------- 대기방 게임 설명: 예시 화면(AI 4명 데모) + 설명 ---------- */
 let HOW_ON=false,HOW=null;const hc=$('howCv');
 let HOW_I=0;
