@@ -28,7 +28,7 @@ const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
 /* 캐릭터: big = 비율 조정한 원본 그림 (선택 화면 · 게임 속 모두 이 그림 하나) */
 const CHARS=[{id:'yk',name:'양파쿵야',short:'양',big:'big_yk'},{id:'jm',name:'주먹밥쿵야',short:'주',big:'big_jm'},
-  {id:'sk',name:'샐쿵',short:'샐',big:'big_sk'},{id:'mk',name:'무쿵',short:'무',big:'big_mk'},{id:'bk',name:'반계',short:'반',big:'big_bk'}];
+  {id:'sk',name:'샐러리쿵야',short:'샐',big:'big_sk'},{id:'mk',name:'무시쿵야',short:'무',big:'big_mk'},{id:'bk',name:'반계쿵야',short:'반',big:'big_bk'}];
 const charOf=id=>CHARS.find(c=>c.id===id)||CHARS[0];
 /* ---------- 이미지 (core/assets.js 의 CHS) ---------- */
 const IMG={};for(const k in CHS){const v=CHS[k],im=new Image();im.src=typeof v==='string'?v:v.src;IMG[k]=im;}
@@ -302,8 +302,8 @@ function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId()),hs=!!(s&&s.id===hostSid()),rl=s&&s.ready?(hs?'START!':'READY!'):'';
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
-      `<div class="pc">${mine&&amP?`<img class="arw" src="${CHS.ui_arrow}">`:''}${s?charImg(s.ch):'<span class="q">'+glyphImg('?',4,'#7fe0ff')+'</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
-      (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${rl||(hs?'START':'READY')}</div>`:`<div class="rst${rl?' on':''}">${s?rl||'대기 중':''}</div>`);}
+      `<div class="pc"><img class="arw${mine&&amP?'':' off'}" src="${CHS.ui_arrow}">${s?charImg(s.ch):'<span class="q">'+glyphImg('?',4,'#7fe0ff')+'</span>'}<div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div></div>`+   /* 화살표 · 캐릭터 · 이름을 한 묶음으로 칸 세로 가운데 (화살표 자리는 모든 칸에 비워 둬서 높이를 맞춤) */
+      (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${rl||(hs?'START':'READY')}</div>`:`<div class="rst fr${rl?' on':''}">${s?rl||'대기 중':'&nbsp;'}</div>`);}
   const cd=L&&L.cd||0;$('lbCd').hidden=!cd;if(cd&&$('lbCd').dataset.v!==String(cd)){$('lbCd').dataset.v=cd;$('lbCd').innerHTML=glyphImg(String(cd),9,'#fff419');}if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
   {const rb=document.querySelector('#scr-lobby [data-act=ready]');if(rb&&PRESS[0]==='ready'&&performance.now()-PRESS[1]<120)rb.classList.add('press'),setTimeout(()=>rb.classList.remove('press'),120);}   /* 다시 그려진 READY 버튼에도 누름 효과 이어서 */
   if(!btns()[sel])sel=0;paintSel();}

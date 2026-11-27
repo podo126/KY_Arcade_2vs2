@@ -58,11 +58,22 @@ function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}
     koongWalk(i,C.x[i],268+bob,leg,leg,0);}
   for(let k=0;k<n;k++)C.pt.forEach(p=>{p.t++;p.x+=p.vx;p.y+=p.vy;});C.pt=C.pt.filter(p=>p.t<p.l);
   for(const p of C.pt)R(Math.round(p.x),Math.round(p.y),1,1,p.c);}
+/* 판정 칸 세모: 7줄(폭 2~14) 도트 세모를 칸 가운데 기준으로 회전 · 세로 위치는 bbox 가운데와 무게중심 사이 → 눈으로 봤을 때 가운데 (시각 보정) */
+const CHOP_TRI=(()=>{const P=[];for(let k=0;k<7;k++)for(let x=-k-1;x<=k;x++)P.push([x+.5,k-3.5]);return P;})();   /* 위쪽 세모 (꼭짓점 위 · 가운데 기준 도트 중심 좌표) */
+function chopTri(cx,cy,d,c){for(const[px,py]of CHOP_TRI){const[x,y]=d===1?[px,py]:d===3?[px,-py]:d===4?[py,px]:[-py,px];R(Math.round(cx+x-.5),Math.round(cy+y-.5),1,1,c);}}
+/* 썬 재료가 요리사 뒤 바닥에 쌓임: 썬 순서대로 반쪽 조각을 9칸 x 최대 9층 무더기로 (층마다 엇갈리게) · 위치는 번호로 정해져 모든 기기에서 같음 */
+function chopPile(i,pd,me,LY){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},L=[];
+  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q!=null&&q<3&&!pd.N[n].b)L.push(n);}
+  const x0=chopX(i)+2,MAX=81,s=Math.max(0,L.length-MAX);
+  for(let j=s;j<L.length;j++){const n=L[j],k=j-s,row=Math.floor(k/9),col=k%9,HV=chopHalves(KITEM[n%3]);if(!HV)continue;
+    const r=chopRng(n*31+i),x=x0+col*11+(row&1?5:0)+Math.round(r()*2-1),y=QH-24-row*5-(col===0||col===8?0:col===1||col===7?2:4)+Math.round(r()*2-1);
+    if(y<LY+2)continue;g.drawImage(n&1?HV.a:HV.b,x-4,y);}}
 /* 세로 4분할 그리기: 칸마다 위 = 레인 4줄 + 판정 칸 + 도마, 아래 = 누른 칸 아래로 이동하는 요리사 쿵야 */
 function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY,LY=HY+14,CROSS=14*CHOP.FALL/(HY-TY);   /* LY = 재료 구간 / 요리사 구간 경계 · CROSS = 재료 가운데가 경계에 닿는 프레임(판정 시각 뒤) */
   for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);R(X,LY,QW,QH-LY,'#efe6c4');R(X,LY,QW,2,'#d9cfa4');   /* 아래 요리사 구간: 바닥 색 따로 + 경계선 */
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,TY,2,HY-TY,MAP.shade);}
-    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,HY-6,MAP.blue,'center',9);}   /* 판정 칸 (재료 크기 20) */
+    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);chopTri(lx+10,HY,d,MAP.blue);}   /* 판정 칸 (재료 크기 20) · 방향 세모 */
+    chopPile(i,pd,me,LY);
     const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+2,c>=30?'#fff419':'#fff','center',9);}
   // 떨어지는 재료
   if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-CROSS-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);

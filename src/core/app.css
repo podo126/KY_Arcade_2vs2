@@ -212,8 +212,6 @@ body.touch .how-x .keys{display:none}
 .pslot.me{border-image-source:var(--f-on)}.pslot.me .pcn{color:#000}.pslot.me .pn b{color:#000;text-shadow:none}
 .pslot .rdy{width:92%;font:32px var(--pf);padding:8px 0}
 .pslot .rdy.on{color:#000}
-.pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
-.pslot .rst.on{color:#000;background:#58d838;border-color:#000}
 .pslot.rd{box-shadow:inset 0 -6px 0 #58d838}
 #scr-lobby .lob-btns{bottom:58px;width:840px;margin-left:-420px}
 #lbCd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;font:160px var(--pf);color:var(--yellow);pointer-events:none}
@@ -295,7 +293,7 @@ body.touch .how-x .keys{display:none}
 .ol,.ol2{text-shadow:0 2px 0 var(--ink)}
 .rm-head .ol{letter-spacing:4px}
 /* 작은 칸들: 모서리 2px 깎기 (도트 모서리) */
-.kk,.hbtn,.pslot .pp,.pslot .pn small,.pslot .rst,.field input,.tname,.bd-row,.bd-t,.rrow,#resPs span,#gSpec .sd,.hw>b{clip-path:var(--cut);border-radius:0}
+.kk,.hbtn,.pslot .pp,.pslot .pn small,.field input,.tname,.bd-row,.bd-t,.rrow,#resPs span,#gSpec .sd,.hw>b{clip-path:var(--cut);border-radius:0}
 .kk{border-width:2px;background:rgba(255,255,255,.08)}
 #gHint{font-size:16px;color:var(--dim)}#gHint .kk{font-size:16px}
 .field input,.tname{background:rgba(4,26,44,.6);border:2px solid rgba(255,255,255,.25)}
@@ -305,8 +303,6 @@ body.touch .how-x .keys{display:none}
 .pslot .pn small{border:0}
 .pslot.me{--L:var(--yellow);--F:rgba(14,74,112,.9);--H:rgba(255,244,25,.35)}.pslot.me .pcn{color:var(--dim)}.pslot.me .pn b{color:#fff;text-shadow:0 2px 0 var(--ink)}
 .pslot .rdy.on{--F:var(--ok);--H:#aaf496;--D:#38a824;color:#062600;text-shadow:none}
-.pslot .rst.on{background:var(--ok);color:#062600}
-.pslot .rst{border:0;background:rgba(0,0,0,.18)}
 .pslot.rd{box-shadow:none}   /* READY 는 버튼 · 상태칸 초록으로만 표시 (칸 아래 초록 띠가 창틀 그림자와 겹쳐 선처럼 보임) */
 /* 게임 화면: 2px 진한 테두리 + 모서리 깎기 + 아래 4px 그림자 (box-shadow 를 위·아래·옆으로만 → 모서리가 비어 도트 모양) */
 #gc{outline:0;box-shadow:0 -4px 0 var(--ink),0 4px 0 var(--ink),-4px 0 0 var(--ink),4px 0 0 var(--ink),0 8px 0 rgba(0,20,40,.35)}
@@ -332,4 +328,10 @@ body.touch .how-x .keys{display:none}
 .btn{transition:transform .08s,filter .08s}
 .btn.press,.btn:active{transform:translateY(3px)!important;--S:transparent;filter:brightness(.92)}
 .hbtn:active,#gSpec .sd:active{transform:translateY(2px);filter:brightness(.9)}
-.pslot .rst{font:32px var(--pf)}   /* 다른 사람 칸 READY! · 대기 중 = 내 READY / START 버튼과 같은 32px */
+/* 대기방 칸: 화살표 · 캐릭터 · 이름 묶음을 세로 가운데 · 다른 사람 상태칸 = 내 READY/START 버튼과 같은 크기(테두리 16 · 위아래 8 · 32px) */
+.pslot .pc{justify-content:center;padding-bottom:0}
+.pslot .pc .arw.off{visibility:hidden;animation:none}
+.pslot .pc .q{margin:0}
+.pslot .pcn{margin:8px 0 0}
+.pslot .rst{width:92%;padding:8px 0;font:32px var(--pf);text-align:center;color:var(--dim);--L:rgba(0,0,0,.28);--F:rgba(0,0,0,.18);--H:transparent;--D:transparent;--S:transparent}
+.pslot .rst.on{--L:var(--ink);--F:var(--ok);--H:#aaf496;--D:#38a824;--S:rgba(0,20,40,.35);color:#062600}

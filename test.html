@@ -228,8 +228,6 @@ body.touch .how-x .keys{display:none}
 .pslot.me{border-image-source:var(--f-on)}.pslot.me .pcn{color:#000}.pslot.me .pn b{color:#000;text-shadow:none}
 .pslot .rdy{width:92%;font:32px var(--pf);padding:8px 0}
 .pslot .rdy.on{color:#000}
-.pslot .rst{width:92%;height:52px;display:flex;align-items:center;justify-content:center;font:16px var(--pf);color:var(--dim);background:rgba(0,40,70,.35);border:3px solid rgba(0,0,0,.35);box-sizing:border-box}
-.pslot .rst.on{color:#000;background:#58d838;border-color:#000}
 .pslot.rd{box-shadow:inset 0 -6px 0 #58d838}
 #scr-lobby .lob-btns{bottom:58px;width:840px;margin-left:-420px}
 #lbCd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;font:160px var(--pf);color:var(--yellow);pointer-events:none}
@@ -311,7 +309,7 @@ body.touch .how-x .keys{display:none}
 .ol,.ol2{text-shadow:0 2px 0 var(--ink)}
 .rm-head .ol{letter-spacing:4px}
 /* 작은 칸들: 모서리 2px 깎기 (도트 모서리) */
-.kk,.hbtn,.pslot .pp,.pslot .pn small,.pslot .rst,.field input,.tname,.bd-row,.bd-t,.rrow,#resPs span,#gSpec .sd,.hw>b{clip-path:var(--cut);border-radius:0}
+.kk,.hbtn,.pslot .pp,.pslot .pn small,.field input,.tname,.bd-row,.bd-t,.rrow,#resPs span,#gSpec .sd,.hw>b{clip-path:var(--cut);border-radius:0}
 .kk{border-width:2px;background:rgba(255,255,255,.08)}
 #gHint{font-size:16px;color:var(--dim)}#gHint .kk{font-size:16px}
 .field input,.tname{background:rgba(4,26,44,.6);border:2px solid rgba(255,255,255,.25)}
@@ -321,8 +319,6 @@ body.touch .how-x .keys{display:none}
 .pslot .pn small{border:0}
 .pslot.me{--L:var(--yellow);--F:rgba(14,74,112,.9);--H:rgba(255,244,25,.35)}.pslot.me .pcn{color:var(--dim)}.pslot.me .pn b{color:#fff;text-shadow:0 2px 0 var(--ink)}
 .pslot .rdy.on{--F:var(--ok);--H:#aaf496;--D:#38a824;color:#062600;text-shadow:none}
-.pslot .rst.on{background:var(--ok);color:#062600}
-.pslot .rst{border:0;background:rgba(0,0,0,.18)}
 .pslot.rd{box-shadow:none}   /* READY 는 버튼 · 상태칸 초록으로만 표시 (칸 아래 초록 띠가 창틀 그림자와 겹쳐 선처럼 보임) */
 /* 게임 화면: 2px 진한 테두리 + 모서리 깎기 + 아래 4px 그림자 (box-shadow 를 위·아래·옆으로만 → 모서리가 비어 도트 모양) */
 #gc{outline:0;box-shadow:0 -4px 0 var(--ink),0 4px 0 var(--ink),-4px 0 0 var(--ink),4px 0 0 var(--ink),0 8px 0 rgba(0,20,40,.35)}
@@ -348,7 +344,13 @@ body.touch .how-x .keys{display:none}
 .btn{transition:transform .08s,filter .08s}
 .btn.press,.btn:active{transform:translateY(3px)!important;--S:transparent;filter:brightness(.92)}
 .hbtn:active,#gSpec .sd:active{transform:translateY(2px);filter:brightness(.9)}
-.pslot .rst{font:32px var(--pf)}   /* 다른 사람 칸 READY! · 대기 중 = 내 READY / START 버튼과 같은 32px */
+/* 대기방 칸: 화살표 · 캐릭터 · 이름 묶음을 세로 가운데 · 다른 사람 상태칸 = 내 READY/START 버튼과 같은 크기(테두리 16 · 위아래 8 · 32px) */
+.pslot .pc{justify-content:center;padding-bottom:0}
+.pslot .pc .arw.off{visibility:hidden;animation:none}
+.pslot .pc .q{margin:0}
+.pslot .pcn{margin:8px 0 0}
+.pslot .rst{width:92%;padding:8px 0;font:32px var(--pf);text-align:center;color:var(--dim);--L:rgba(0,0,0,.28);--F:rgba(0,0,0,.18);--H:transparent;--D:transparent;--S:transparent}
+.pslot .rst.on{--L:var(--ink);--F:var(--ok);--H:#aaf496;--D:#38a824;--S:rgba(0,20,40,.35);color:#062600}
 </style>
 </head>
 <body>
@@ -589,11 +591,22 @@ function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}
     koongWalk(i,C.x[i],268+bob,leg,leg,0);}
   for(let k=0;k<n;k++)C.pt.forEach(p=>{p.t++;p.x+=p.vx;p.y+=p.vy;});C.pt=C.pt.filter(p=>p.t<p.l);
   for(const p of C.pt)R(Math.round(p.x),Math.round(p.y),1,1,p.c);}
+/* 판정 칸 세모: 7줄(폭 2~14) 도트 세모를 칸 가운데 기준으로 회전 · 세로 위치는 bbox 가운데와 무게중심 사이 → 눈으로 봤을 때 가운데 (시각 보정) */
+const CHOP_TRI=(()=>{const P=[];for(let k=0;k<7;k++)for(let x=-k-1;x<=k;x++)P.push([x+.5,k-3.5]);return P;})();   /* 위쪽 세모 (꼭짓점 위 · 가운데 기준 도트 중심 좌표) */
+function chopTri(cx,cy,d,c){for(const[px,py]of CHOP_TRI){const[x,y]=d===1?[px,py]:d===3?[px,-py]:d===4?[py,px]:[-py,px];R(Math.round(cx+x-.5),Math.round(cy+y-.5),1,1,c);}}
+/* 썬 재료가 요리사 뒤 바닥에 쌓임: 썬 순서대로 반쪽 조각을 9칸 x 최대 9층 무더기로 (층마다 엇갈리게) · 위치는 번호로 정해져 모든 기기에서 같음 */
+function chopPile(i,pd,me,LY){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},L=[];
+  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q!=null&&q<3&&!pd.N[n].b)L.push(n);}
+  const x0=chopX(i)+2,MAX=81,s=Math.max(0,L.length-MAX);
+  for(let j=s;j<L.length;j++){const n=L[j],k=j-s,row=Math.floor(k/9),col=k%9,HV=chopHalves(KITEM[n%3]);if(!HV)continue;
+    const r=chopRng(n*31+i),x=x0+col*11+(row&1?5:0)+Math.round(r()*2-1),y=QH-24-row*5-(col===0||col===8?0:col===1||col===7?2:4)+Math.round(r()*2-1);
+    if(y<LY+2)continue;g.drawImage(n&1?HV.a:HV.b,x-4,y);}}
 /* 세로 4분할 그리기: 칸마다 위 = 레인 4줄 + 판정 칸 + 도마, 아래 = 누른 칸 아래로 이동하는 요리사 쿵야 */
 function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY,LY=HY+14,CROSS=14*CHOP.FALL/(HY-TY);   /* LY = 재료 구간 / 요리사 구간 경계 · CROSS = 재료 가운데가 경계에 닿는 프레임(판정 시각 뒤) */
   for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);R(X,LY,QW,QH-LY,'#efe6c4');R(X,LY,QW,2,'#d9cfa4');   /* 아래 요리사 구간: 바닥 색 따로 + 경계선 */
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,TY,2,HY-TY,MAP.shade);}
-    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);K(CHOP.DIRS[d],lx+10,HY-6,MAP.blue,'center',9);}   /* 판정 칸 (재료 크기 20) */
+    for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);chopTri(lx+10,HY,d,MAP.blue);}   /* 판정 칸 (재료 크기 20) · 방향 세모 */
+    chopPile(i,pd,me,LY);
     const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+2,c>=30?'#fff419':'#fff','center',9);}
   // 떨어지는 재료
   if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-CROSS-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
@@ -642,14 +655,14 @@ regGame({id:'chop',title:'주방 난타',icon:'②',
 
 /* ┌─────────────────────────────────────────────────────────
    │ ③ 쿵야 씨름 — 둥근 씨름판에서 부딪쳐 상대를 밖으로 밀어내기 (개인전 · 4명 난투)
-   │ 방향키 이동 · A 돌진(0.7초 재사용) · 60초 동안 한 판 (8초부터 씨름판이 줄어듦)
+   │ 방향키 이동 · A 돌진(0.7초 재사용) · 60초 동안 한 판 (8초부터 30초 동안 씨름판이 천천히 줄어듦)
    │ 승리 = 마지막까지 남은 한 명 · 시간이 다 되면 남은 쿵야 중 가운데에 가장 가까운 쿵야 승리
    │ 기믹 아이템: 씨름판 안에 랜덤으로 떨어짐 → 먹으면 발동 (넉백 강화 · 상대 화면 반전 · 씨름판 축소 가속)
    │ 개인 점수: 상대를 떨어뜨림 +300 · 판 승리 +500 · 혼자 떨어짐 -50
    │ (예전 2:2 씨름을 개인전 · 비율 조정한 원본 그림(big_*) 1배 · 정수 좌표로 다시 만듦)
    └───────────────────────────────────────────────────────── */
 /* 조절값: SEC 시간 · SHRINK 줄어들기 시작(초)·줄어드는 시간(초) · R0 처음 씨름판 반지름 · R1 최소 · PR 몸 반지름 · ACC 가속 · FRIC 마찰 · MAX 최고 속도 · DASH 돌진 힘 · DCD 돌진 재사용(프레임) · SQ 화면 세로 눌림 */
-const SUMO={SEC:60,SHRINK:[8,8],CX:240,CY:150,R0:138,R1:72,PR:17,ACC:.3,FRIC:.9,MAX:2.8,DASH:6.6,DCD:40,SQ:.6,KO:300,WIN:500,SELF:50,
+const SUMO={SEC:60,SHRINK:[8,30],CX:240,CY:150,R0:138,R1:72,PR:17,ACC:.3,FRIC:.9,MAX:2.8,DASH:6.6,DCD:40,SQ:.6,KO:300,WIN:500,SELF:50,
   START:[[172,100],[308,100],[172,200],[308,200]]};
 /* 기믹 아이템: FIRST 첫 등장(초) · EVERY 등장 간격(초, ±1) · LIFE 바닥에 남는 시간(초) · MAX 동시에 최대 · 효과 시간(초) PW 넉백 강화 · FLIP 화면 반전 · FAST 축소 가속 · PICK 먹는 거리
    종류 0 넉백 강화(먹은 쿵야가 부딪치면 2배로 날림) · 1 화면 반전(먹은 쿵야를 뺀 모두의 화면이 좌우/상하로 뒤집힘) · 2 축소 가속(바로 줄어들기 시작 + 2.5배 빠르게) */
@@ -674,7 +687,7 @@ class SumoSim{
   step(){this.f++;
     if(this.ph==='cd'){if(this.t%60===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
     if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
-    this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 8초부터 8초 동안 줄어듦 · 축소 가속 중이면 바로 + 2.5배
+    this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 8초부터 30초 동안 천천히 줄어듦 · 축소 가속 중이면 바로 + 2.5배
     if(this.fast>0){this.fast--;this.R-=sp0*2.5;}else if(this.rt>SUMO.SHRINK[0]*60)this.R-=sp0;this.R=Math.max(SUMO.R1,this.R);
     this.items();
     this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
@@ -715,10 +728,9 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   const fl=S.flip&&S.flip[0]!==me&&S.ph==='play';   /* 화면 반전: 아이템을 먹은 쿵야를 뺀 모두의 화면 (위쪽 띠 · 글자는 그대로) */
   if(fl){g.save();if(S.flip[1]){g.translate(0,270);g.scale(1,-1);}else{g.translate(480,0);g.scale(-1,1);}}
   R(0,0,480,270,MAP.mint);for(let y=0;y<270;y+=16)for(let x=(y/16)%2?16:0;x<480;x+=32)R(x,y,16,16,MAP.green);   // 바닥: 민트 · 연두 바둑판
-  pxEllipse(cx,cy+4,C.R0+14,Math.round((C.R0+14)*sq),MAP.ink);pxEllipse(cx,cy+3,C.R0+12,Math.round((C.R0+12)*sq),MAP.shade);   // 바깥 흙
-  pxEllipse(cx,cy,C.R0+6,Math.round((C.R0+6)*sq),MAP.cream);
-  const r=Math.round(S.R),ry=Math.round(S.R*sq),warn=S.fast>0?(f&4):(S.R<C.R0&&(f&8));pxEllipse(cx,cy,r+2,ry+2,MAP.blue);pxEllipse(cx,cy,r-2,ry-2,MAP.cream);   // 줄어드는 경계 (파랑 4도트 띠)
-  if(warn){pxEllipse(cx,cy,r+5,ry+4,'rgba(255,90,90,.35)');pxEllipse(cx,cy,r+2,ry+2,S.fast>0?'#ff9a30':MAP.blue);pxEllipse(cx,cy,r-2,ry-2,MAP.cream);}
+  const r=Math.round(S.R)+4,warn=S.fast>0&&(f&4);   // 씨름판 자체가 줄어듦 (경계선 없음) · 판 가장자리 = 떨어지는 경계(R+4)
+  pxEllipse(cx,cy+4,r+8,Math.round((r+8)*sq),MAP.ink);pxEllipse(cx,cy+3,r+6,Math.round((r+6)*sq),warn?'#ffb070':MAP.shade);   // 바깥 흙 (축소 가속 중 주황 깜빡임)
+  pxEllipse(cx,cy,r,Math.round(r*sq),MAP.cream);
   R(cx-34,cy-1,12,2,MAP.yellow);R(cx+22,cy-1,12,2,MAP.yellow);
   for(const[x,y,k,a]of S.it||[])sumoIcon(x,Math.round(cy+(y-cy)*sq),k,f,a);   // 기믹 아이템
   const ord=[0,1,2,3].sort((a,b)=>S.P[a][1]-S.P[b][1]),names=[];
@@ -741,8 +753,7 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   const sec=Math.max(0,Math.ceil(S.tm/60));pxBox(212,4,56,18,MAP.ink,MAP.ink);txt(`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,5,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
   if(fl)K('화면 반전!',240,252,'#a070ff','center',10);else if(S.R<C.R0&&S.ph==='play')K(S.fast>0?'링 축소 가속!':'씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
   cdBanner(S,72);
-  if(S.ph==='end'){const w=S.rw,nm=w<0?'무승부!':`${GAME.slots[w]?GAME.slots[w].name:''} 승리!`,col=w<0?'#fff':PCOL[w];
-    banner([[S.tm<=0?'Time Out!':'Finish!','#fff419',24,false],[nm,col,11]],240,72);}}
+  if(S.ph==='end')banner([['Finish!','#fff419',24,false]],240,72);}
 regGame({id:'sumo',title:'쿵야 씨름',icon:'③',
   ctrl:['방향키로 이동','A 버튼으로 돌진 (0.7초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
   gimmick:'<b>줄어드는 씨름판</b> — 8초부터 점점 작아져요 · <b>아이템</b> — 먹으면 넉백 강화 · 상대 화면 반전 · 링 축소 가속',
@@ -783,7 +794,7 @@ const MAP={yellow:'#fff419',blue:'#00ccf3',mint:'#a3e4d5',green:'#f6fef3',cream:
 function wallTiles(x,y,w,h){const t=IMG.tile_wall25;R(x,y,w,h,MAP.cream);if(!t||!t.complete)return;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();for(let yy=y;yy<y+h;yy+=16)for(let xx=x;xx<x+w;xx+=16)g.drawImage(t,xx,yy);g.restore();}
 /* 캐릭터: big = 비율 조정한 원본 그림 (선택 화면 · 게임 속 모두 이 그림 하나) */
 const CHARS=[{id:'yk',name:'양파쿵야',short:'양',big:'big_yk'},{id:'jm',name:'주먹밥쿵야',short:'주',big:'big_jm'},
-  {id:'sk',name:'샐쿵',short:'샐',big:'big_sk'},{id:'mk',name:'무쿵',short:'무',big:'big_mk'},{id:'bk',name:'반계',short:'반',big:'big_bk'}];
+  {id:'sk',name:'샐러리쿵야',short:'샐',big:'big_sk'},{id:'mk',name:'무시쿵야',short:'무',big:'big_mk'},{id:'bk',name:'반계쿵야',short:'반',big:'big_bk'}];
 const charOf=id=>CHARS.find(c=>c.id===id)||CHARS[0];
 /* ---------- 이미지 (core/assets.js 의 CHS) ---------- */
 const IMG={};for(const k in CHS){const v=CHS[k],im=new Image();im.src=typeof v==='string'?v:v.src;IMG[k]=im;}
@@ -1057,8 +1068,8 @@ function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId()),hs=!!(s&&s.id===hostSid()),rl=s&&s.ready?(hs?'START!':'READY!'):'';
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
-      `<div class="pc">${mine&&amP?`<img class="arw" src="${CHS.ui_arrow}">`:''}${s?charImg(s.ch):'<span class="q">'+glyphImg('?',4,'#7fe0ff')+'</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
-      (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${rl||(hs?'START':'READY')}</div>`:`<div class="rst${rl?' on':''}">${s?rl||'대기 중':''}</div>`);}
+      `<div class="pc"><img class="arw${mine&&amP?'':' off'}" src="${CHS.ui_arrow}">${s?charImg(s.ch):'<span class="q">'+glyphImg('?',4,'#7fe0ff')+'</span>'}<div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div></div>`+   /* 화살표 · 캐릭터 · 이름을 한 묶음으로 칸 세로 가운데 (화살표 자리는 모든 칸에 비워 둬서 높이를 맞춤) */
+      (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${rl||(hs?'START':'READY')}</div>`:`<div class="rst fr${rl?' on':''}">${s?rl||'대기 중':'&nbsp;'}</div>`);}
   const cd=L&&L.cd||0;$('lbCd').hidden=!cd;if(cd&&$('lbCd').dataset.v!==String(cd)){$('lbCd').dataset.v=cd;$('lbCd').innerHTML=glyphImg(String(cd),9,'#fff419');}if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
   {const rb=document.querySelector('#scr-lobby [data-act=ready]');if(rb&&PRESS[0]==='ready'&&performance.now()-PRESS[1]<120)rb.classList.add('press'),setTimeout(()=>rb.classList.remove('press'),120);}   /* 다시 그려진 READY 버튼에도 누름 효과 이어서 */
   if(!btns()[sel])sel=0;paintSel();}
