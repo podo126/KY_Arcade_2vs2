@@ -120,12 +120,13 @@ const pileAlpha=L=>1-L*.15;
    → 벽 쪽이 높고 가운데로 갈수록 낮은 불규칙한 산 · 조각마다 x ±1 · 높이 STEP-1 ~ STEP+1 랜덤 · 같은 seed 면 모든 기기에서 같은 모양
    반환: [{dx 벽에서 거리, h 바닥에서 높이, L 흐림 단계 0~4}] (MAXH 에 닿은 칸은 더 안 쌓음) */
 function pileMound(n,seed,o){const H=new Array(o.SL).fill(0),out=[];let s=seed|0;const r=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
-  for(let k=0;k<n;k++){let c=-1,best=1e9;for(let j=0;j<o.SL;j++){if(H[j]>=o.MAXH)continue;const v=H[j]+j*o.SLOPE+r()*o.SLOPE*1.2;if(v<best){best=v;c=j;}}
+  for(let k=0;k<n;k++){let c=-1,best=1e9;for(let j=0;j<o.SL;j++){if(H[j]>=o.MAXH)continue;const v=H[j]+j*o.SLOPE+r()*(o.RND!=null?o.RND:o.SLOPE*1.2);if(v<best){best=v;c=j;}}
     if(c<0)break;const h=H[c];out.push({dx:c*o.SW+Math.floor(r()*3)-1,h,L:Math.min(4,Math.floor(h*5/o.MAXH))});H[c]+=o.STEP+Math.floor(r()*3)-1;}
   return out;}
 /* 시작 표시 (3종 공통): 3 → 2 → 1 → START! 만 · 카운트다운은 프레임 0~180, START! 는 시작 뒤 0.75초 */
 const CD_F=180;
-function cdBanner(S,cy=135){if(S.ph==='cd')banner([[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]],240,cy);else if(S.ph==='play'&&S.f-CD_F<45)banner([['START!','#fff419',24,false]],240,cy);}
+let CD_SHOW='';   /* 게임 화면 가운데 큰 도트 글자(대기방 카운트다운과 같은 모양 · #gCd) · 게임마다 그릴 때 정함 */
+function cdBanner(S){CD_SHOW=S.ph==='cd'?String(Math.max(1,Math.ceil(S.t/60))):S.ph==='play'&&S.f-CD_F<45?'START!':'';}
 /* DOM 에 쓰는 큰 도트 글자(대기방 빈 자리 ? · 시작 카운트다운): Neo둥근모 16도트로 그린 그림을 정수배로 확대한 이미지 → 눌림 · 번짐 없음 */
 const GLY={};
 function glyphImg(t,k,col){const F='16px '+FONT,key=t+'|'+k+'|'+col;let G=GLY[key];
@@ -313,7 +314,7 @@ function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});ren
 function charImg(id,k=2){const B=CHS[charOf(id).big];return `<img src="${B.src}" style="width:${B.w*k}px;height:${B.h*k}px">`;}
 function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   const hn=L?L.slots.filter(s=>s&&!s.bot).length:0,need=needHumans();
-  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와 ':need>1?`${need}명 이상 들어와 `:''}모두 <b>READY</b> 후 방장이 <b>START</b> 하면 3초 뒤 시작`+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
+  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와 ':need>1?`${need}명 이상 들어와 `:''}모두 <b>READY</b> 후 방장이 <b>START</b> 하면 시작`+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId()),hs=!!(s&&s.id===hostSid()),rl=s&&s.ready?(hs?'START!':'READY!'):'';
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
@@ -333,9 +334,7 @@ function hostReady(id){const s=LOBBY.slots.find(s=>s&&s.id===id);if(!s)return;
 /* 방장: 모두 READY + 방장 START 인지 매 프레임 확인 → 3초 카운트 (누가 READY 를 풀거나 새로 들어오면 취소) */
 function lobbyTick(){if(!(screen==='lobby'||screen==='settings'&&SET_BACK==='lobby')||!LOBBY||GAME||!amHost())return;const hum=LOBBY.slots.filter(s=>s&&!s.bot),all=hum.length>=needHumans()&&hum.every(s=>s.ready),now=performance.now();
   if(!all){CD_END=0;const h=hum.find(s=>s.id===hostSid());if(LOBBY.cd||h&&h.ready){LOBBY.cd=0;if(h)h.ready=false;pushLobby();}return;}   /* 누가 READY 를 풀면 방장 START 도 풀림 */
-  if(!CD_END)CD_END=now+COUNT_SEC*1000;
-  const c=Math.max(0,Math.ceil((CD_END-now)/1000));if(c!==LOBBY.cd&&c>0){LOBBY.cd=c;pushLobby();}
-  if(now>=CD_END){CD_END=0;LOBBY.cd=0;lobbyStart();}}
+  CD_END=0;LOBBY.cd=0;lobbyStart();}   /* 대기방 카운트다운 없음: 모두 READY + 방장 START → 바로 게임 (카운트다운은 게임 화면에서 3초) */
 /* 경기 = 미니게임 3판 연속 (GAMES 순서) → 3판이 모두 끝나면 최종 결과 (게임마다 순위 점수 1위 4 · 2위 3 · 3위 2 · 4위 1) */
 let MATCH=null;
 function lobbyStart(){if(!amHost())return;const used=new Set(LOBBY.slots.filter(Boolean).map(s=>s.ch));
@@ -481,7 +480,8 @@ function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=M
   updBoard(S);}
 function draw(S,pd){const f=performance.now()/16.67|0;g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;
   if(SHAKE>0){g.translate(Math.round((Math.random()*2-1)*SHAKE),Math.round((Math.random()*2-1)*SHAKE));SHAKE=SHAKE>.5?SHAKE*.82:0;}
-  GDEF.draw(g,S,pd,viewIndex(),f);}
+  CD_SHOW='';GDEF.draw(g,S,pd,viewIndex(),f);
+  const el=$('gCd');if(el.dataset.v!==CD_SHOW){el.dataset.v=CD_SHOW;el.hidden=!CD_SHOW;if(CD_SHOW)el.innerHTML=glyphImg(CD_SHOW,CD_SHOW.length>2?7:9,'#fff419');}}   /* 3 · 2 · 1 · START! */
 /* ---------- 시작 ---------- */
 $('logoImg').src=LOGO;$('nameIn').value=CFG.name;
 applyFilter();fit();show('main');requestAnimationFrame(loop);

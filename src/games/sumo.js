@@ -19,6 +19,8 @@ class SumoSim{
   round(){this.ph='cd';this.t=180;this.rt=0;this.R=SUMO.R0;this.rw=-1;this.dir=[0,0,0,0];   /* 카운트다운 3초 · 한 판 */
     this.P=SUMO.START.map(([x,y],i)=>({x,y,vx:0,vy:0,fx:i%2?-1:1,fy:0,st:'in',t:0,dash:0,cd:0,last:-1,lt:-999,sq:0,pw:0}));
     this.it=[];this.nextIt=SITEM.FIRST*60;this.flip=null;this.fast=0;this.pop=[];}
+  /* 화면 반전 중(먹은 사람 제외)인 사람의 방향키는 보이는 화면 기준으로 뒤집어 적용 → 화면에서 누른 쪽으로 캐릭터가 감 (AI 는 원래 방향) */
+  vdir(i,d){const F=this.flip;if(!F||F.by===i||!d)return d;return F.ax?(d===1?3:d===3?1:d):(d===2?4:d===4?2:d);}
   /* 아이템: 씨름판 안 빈 곳에 떨어뜨림 · 먹으면 발동 */
   items(){const I=SITEM;this.it=this.it.filter(o=>++o.a<I.LIFE*60);
     if(--this.nextIt<=0){this.nextIt=(I.EVERY-1+Math.random()*2)*60;
@@ -35,7 +37,7 @@ class SumoSim{
     this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 8초부터 30초 동안 천천히 줄어듦 · 축소 가속 중이면 바로 + 2.5배
     if(this.fast>0){this.fast--;this.R-=sp0*2.5;}else if(this.rt>SUMO.SHRINK[0]*60)this.R-=sp0;this.R=Math.max(SUMO.R1,this.R);
     this.items();
-    this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
+    this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.slots[i].bot?this.dir[i]:this.vdir(i,this.dir[i]);
       if(d){p.vx+=SUMO_DX[d]*SUMO.ACC;p.vy+=SUMO_DY[d]*SUMO.ACC;p.fx=SUMO_DX[d];p.fy=SUMO_DY[d];}
       p.vx*=SUMO.FRIC;p.vy*=SUMO.FRIC;const sp=Math.hypot(p.vx,p.vy),mx=p.dash>0?9:SUMO.MAX;if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
       p.x+=p.vx;p.y+=p.vy;if(p.dash>0)p.dash--;if(p.cd>0)p.cd--;if(p.sq>0)p.sq--;if(p.pw>0)p.pw--;});
@@ -97,7 +99,7 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   for(let i=0;i<4;i++){const bx=i<2?6+i*100:280+(i-2)*100;pxBox(bx,4,94,18,MAP.ink,MAP.ink);R(bx+3,7,4,12,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',bx+50,5,'#fff','center',8);}
   const sec=Math.max(0,Math.ceil(S.tm/60));pxBox(212,4,56,18,MAP.ink,MAP.ink);txt(`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,5,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
   if(fl)K('화면 반전!',240,252,'#a070ff','center',10);else if(S.R<C.R0&&S.ph==='play')K(S.fast>0?'링 축소 가속!':'씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
-  cdBanner(S,72);
+  cdBanner(S);
   if(S.ph==='end')banner([['Finish!','#fff419',24,false]],240,72);}
 regGame({id:'sumo',title:'식당 자리뺏기',icon:'③',
   ctrl:['방향키로 이동','A 버튼으로 돌진 (0.7초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],

@@ -351,6 +351,8 @@ body.touch .how-x .keys{display:none}
 .pslot .pcn{margin:8px 0 0}
 .pslot .rst{width:92%;padding:8px 0;font:32px var(--pf);text-align:center;color:var(--dim);--L:rgba(0,0,0,.28);--F:rgba(0,0,0,.18);--H:transparent;--D:transparent;--S:transparent}
 .pslot .rst.on{--L:var(--ink);--F:var(--ok);--H:#aaf496;--D:#38a824;--S:rgba(0,20,40,.35);color:#062600}
+/* 게임 시작 카운트다운 (대기방 카운트다운과 같은 큰 도트 글자) · 게임 화면 가운데 · 화면 필터 위 */
+#gCd{position:absolute;left:12px;top:90px;width:960px;height:540px;display:flex;align-items:center;justify-content:center;z-index:55;pointer-events:none}#gCd[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -387,6 +389,7 @@ body.touch .how-x .keys{display:none}
   </section>
   <!-- 게임: 게임 화면 + 개인 점수표 -->
   <section class="scr" id="scr-game">
+    <div id="gCd" hidden></div>
     <div id="gHead"><b id="gTitle" class="ol"></b><span id="gSpec" hidden><b class="sd" data-sd="-1">◀</b><span id="gSpecN" class="ol2"></span><b class="sd" data-sd="1">▶</b></span><span id="gRoom"></span></div>
     <canvas id="gc"></canvas>
     <aside id="board" class="fr">
@@ -615,13 +618,13 @@ function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}
 /* 판정 칸 세모: 7줄(폭 2~14) 도트 세모를 칸 가운데 기준으로 회전 · 세로 위치는 bbox 가운데와 무게중심 사이 → 눈으로 봤을 때 가운데 (시각 보정) */
 const CHOP_TRI=(()=>{const P=[];for(let k=0;k<7;k++)for(let x=-k-1;x<=k;x++)P.push([x+.5,k-3.5]);return P;})();   /* 위쪽 세모 (꼭짓점 위 · 가운데 기준 도트 중심 좌표) */
 function chopTri(cx,cy,d,c){for(const[px,py]of CHOP_TRI){const[x,y]=d===1?[px,py]:d===3?[px,-py]:d===4?[py,px]:[-py,px];R(Math.round(cx+x-.5),Math.round(cy+y-.5),1,1,c);}}
-/* 썬 재료가 양쪽 벽에 번갈아 불규칙한 산 모양으로 쌓임 (pileMound · 벽 쪽이 높음) · 위로 갈수록 채도 낮고 투명 (pileImg) · 모든 기기에서 같은 모양 */
-const CHOP_MOUND=()=>({SL:5,SW:6,STEP:4,SLOPE:8,MAXH:QH-22-(CHOP.HITY+14)-4});   /* 요리사 구간(경계선 아래) 안에서만 · 캐릭터 뒤로 조금 */   /* 함수: QH 는 core.js(뒤에 읽힘)에 있음 */
-function chopPile(i,pd,me){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},X=qx(i),S2=[[],[]];let j=0;
-  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q==null||q>=3||pd.N[n].b)continue;S2[j&1].push(n);j++;}
-  for(let side=0;side<2;side++){const L=S2[side],P=pileMound(L.length,i*2+side+7,CHOP_MOUND());
-    P.forEach((p,k)=>{const n=L[k],key=KITEM[n%3],HV=chopHalves(key);if(!HV)return;const im=pileImg(side?HV.b:HV.a,key+(side?'b':'a'),p.L);if(!im)return;
-      g.globalAlpha=pileAlpha(p.L);g.drawImage(im,side?X+QW-21-p.dx:X+1+p.dx,QH-22-p.h);g.globalAlpha=1;});}}
+/* 썬 재료가 요리사 구간 바닥 전체(캐릭터 뒤 포함)에 랜덤 위치로 바닥부터 점점 쌓임, 경계선(밑줄)까지 (pileMound · 칸 20개 · 기울기 없음)
+   위로 갈수록 채도 낮고 투명 (pileImg) · 모든 기기에서 같은 모양 */
+const CHOP_MOUND=()=>({SL:20,SW:5,STEP:4,SLOPE:0,RND:10,MAXH:QH-24-(CHOP.HITY+14)});   /* 함수: QH 는 core.js(뒤에 읽힘)에 있음 */
+function chopPile(i,pd,me){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},X=qx(i),L=[];
+  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q==null||q>=3||pd.N[n].b)continue;L.push(n);}
+  pileMound(L.length,i+11,CHOP_MOUND()).forEach((p,k)=>{const n=L[k],key=KITEM[n%3],HV=chopHalves(key);if(!HV)return;const b=n&1,im=pileImg(b?HV.b:HV.a,key+(b?'b':'a'),p.L);if(!im)return;
+    g.globalAlpha=pileAlpha(p.L);g.drawImage(im,X+1+p.dx,QH-22-p.h);g.globalAlpha=1;});}
 /* 세로 4분할 그리기: 칸마다 위 = 레인 4줄 + 판정 칸 + 도마, 아래 = 누른 칸 아래로 이동하는 요리사 쿵야 */
 function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY,LY=HY+14,CROSS=14*CHOP.FALL/(HY-TY);   /* LY = 재료 구간 / 요리사 구간 경계 · CROSS = 재료 가운데가 경계에 닿는 프레임(판정 시각 뒤) */
   for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);R(X,LY,QW,QH-LY,'#efe6c4');R(X,LY,QW,2,'#d9cfa4');   /* 아래 요리사 구간: 바닥 색 따로 + 경계선 */
@@ -695,6 +698,8 @@ class SumoSim{
   round(){this.ph='cd';this.t=180;this.rt=0;this.R=SUMO.R0;this.rw=-1;this.dir=[0,0,0,0];   /* 카운트다운 3초 · 한 판 */
     this.P=SUMO.START.map(([x,y],i)=>({x,y,vx:0,vy:0,fx:i%2?-1:1,fy:0,st:'in',t:0,dash:0,cd:0,last:-1,lt:-999,sq:0,pw:0}));
     this.it=[];this.nextIt=SITEM.FIRST*60;this.flip=null;this.fast=0;this.pop=[];}
+  /* 화면 반전 중(먹은 사람 제외)인 사람의 방향키는 보이는 화면 기준으로 뒤집어 적용 → 화면에서 누른 쪽으로 캐릭터가 감 (AI 는 원래 방향) */
+  vdir(i,d){const F=this.flip;if(!F||F.by===i||!d)return d;return F.ax?(d===1?3:d===3?1:d):(d===2?4:d===4?2:d);}
   /* 아이템: 씨름판 안 빈 곳에 떨어뜨림 · 먹으면 발동 */
   items(){const I=SITEM;this.it=this.it.filter(o=>++o.a<I.LIFE*60);
     if(--this.nextIt<=0){this.nextIt=(I.EVERY-1+Math.random()*2)*60;
@@ -711,7 +716,7 @@ class SumoSim{
     this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 8초부터 30초 동안 천천히 줄어듦 · 축소 가속 중이면 바로 + 2.5배
     if(this.fast>0){this.fast--;this.R-=sp0*2.5;}else if(this.rt>SUMO.SHRINK[0]*60)this.R-=sp0;this.R=Math.max(SUMO.R1,this.R);
     this.items();
-    this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
+    this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.slots[i].bot?this.dir[i]:this.vdir(i,this.dir[i]);
       if(d){p.vx+=SUMO_DX[d]*SUMO.ACC;p.vy+=SUMO_DY[d]*SUMO.ACC;p.fx=SUMO_DX[d];p.fy=SUMO_DY[d];}
       p.vx*=SUMO.FRIC;p.vy*=SUMO.FRIC;const sp=Math.hypot(p.vx,p.vy),mx=p.dash>0?9:SUMO.MAX;if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
       p.x+=p.vx;p.y+=p.vy;if(p.dash>0)p.dash--;if(p.cd>0)p.cd--;if(p.sq>0)p.sq--;if(p.pw>0)p.pw--;});
@@ -773,7 +778,7 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   for(let i=0;i<4;i++){const bx=i<2?6+i*100:280+(i-2)*100;pxBox(bx,4,94,18,MAP.ink,MAP.ink);R(bx+3,7,4,12,PCOL[i]);K(GAME.slots[i]?GAME.slots[i].name.slice(0,6):'',bx+50,5,'#fff','center',8);}
   const sec=Math.max(0,Math.ceil(S.tm/60));pxBox(212,4,56,18,MAP.ink,MAP.ink);txt(`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,240,5,sec<=10&&S.ph==='play'&&(f&16)?'#ff5a5a':'#fff','center',10);
   if(fl)K('화면 반전!',240,252,'#a070ff','center',10);else if(S.R<C.R0&&S.ph==='play')K(S.fast>0?'링 축소 가속!':'씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
-  cdBanner(S,72);
+  cdBanner(S);
   if(S.ph==='end')banner([['Finish!','#fff419',24,false]],240,72);}
 regGame({id:'sumo',title:'식당 자리뺏기',icon:'③',
   ctrl:['방향키로 이동','A 버튼으로 돌진 (0.7초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
@@ -907,12 +912,13 @@ const pileAlpha=L=>1-L*.15;
    → 벽 쪽이 높고 가운데로 갈수록 낮은 불규칙한 산 · 조각마다 x ±1 · 높이 STEP-1 ~ STEP+1 랜덤 · 같은 seed 면 모든 기기에서 같은 모양
    반환: [{dx 벽에서 거리, h 바닥에서 높이, L 흐림 단계 0~4}] (MAXH 에 닿은 칸은 더 안 쌓음) */
 function pileMound(n,seed,o){const H=new Array(o.SL).fill(0),out=[];let s=seed|0;const r=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
-  for(let k=0;k<n;k++){let c=-1,best=1e9;for(let j=0;j<o.SL;j++){if(H[j]>=o.MAXH)continue;const v=H[j]+j*o.SLOPE+r()*o.SLOPE*1.2;if(v<best){best=v;c=j;}}
+  for(let k=0;k<n;k++){let c=-1,best=1e9;for(let j=0;j<o.SL;j++){if(H[j]>=o.MAXH)continue;const v=H[j]+j*o.SLOPE+r()*(o.RND!=null?o.RND:o.SLOPE*1.2);if(v<best){best=v;c=j;}}
     if(c<0)break;const h=H[c];out.push({dx:c*o.SW+Math.floor(r()*3)-1,h,L:Math.min(4,Math.floor(h*5/o.MAXH))});H[c]+=o.STEP+Math.floor(r()*3)-1;}
   return out;}
 /* 시작 표시 (3종 공통): 3 → 2 → 1 → START! 만 · 카운트다운은 프레임 0~180, START! 는 시작 뒤 0.75초 */
 const CD_F=180;
-function cdBanner(S,cy=135){if(S.ph==='cd')banner([[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]],240,cy);else if(S.ph==='play'&&S.f-CD_F<45)banner([['START!','#fff419',24,false]],240,cy);}
+let CD_SHOW='';   /* 게임 화면 가운데 큰 도트 글자(대기방 카운트다운과 같은 모양 · #gCd) · 게임마다 그릴 때 정함 */
+function cdBanner(S){CD_SHOW=S.ph==='cd'?String(Math.max(1,Math.ceil(S.t/60))):S.ph==='play'&&S.f-CD_F<45?'START!':'';}
 /* DOM 에 쓰는 큰 도트 글자(대기방 빈 자리 ? · 시작 카운트다운): Neo둥근모 16도트로 그린 그림을 정수배로 확대한 이미지 → 눌림 · 번짐 없음 */
 const GLY={};
 function glyphImg(t,k,col){const F='16px '+FONT,key=t+'|'+k+'|'+col;let G=GLY[key];
@@ -1100,7 +1106,7 @@ function pushLobby(){if(!isLocal()&&NET.isHost)NET.send({t:'lobby',L:LOBBY});ren
 function charImg(id,k=2){const B=CHS[charOf(id).big];return `<img src="${B.src}" style="width:${B.w*k}px;height:${B.h*k}px">`;}
 function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
   const hn=L?L.slots.filter(s=>s&&!s.bot).length:0,need=needHumans();
-  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와 ':need>1?`${need}명 이상 들어와 `:''}모두 <b>READY</b> 후 방장이 <b>START</b> 하면 3초 뒤 시작`+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
+  $('lbInfo').innerHTML=(isLocal()?'연습 모드 · ':NET.role==='spectator'?'관전 중 · ':'')+`입장 <b>${hn} / 4</b> · ${need>=4?'4명이 모두 들어와 ':need>1?`${need}명 이상 들어와 `:''}모두 <b>READY</b> 후 방장이 <b>START</b> 하면 시작`+(hn<need?` · <b>${need-hn}명</b> 더 기다리는 중`:'');
   for(let i=0;i<4;i++){const el=$('slot'+i),s=L&&L.slots[i],mine=!!(s&&s.id===myId()),hs=!!(s&&s.id===hostSid()),rl=s&&s.ready?(hs?'START!':'READY!'):'';
     el.className='pslot fr'+(mine?' me':'')+(s?'':' empty')+(s&&s.ready?' rd':'');el.style.setProperty('--pc',PCOL[i]);
     el.innerHTML=`<div class="pn"><span class="pp" style="background:${PCOL[i]}">${i+1}P</span><b class="ol2">${s?esc(s.name):'빈 자리'}</b>${mine?'<small>나</small>':''}</div>`+
@@ -1120,9 +1126,7 @@ function hostReady(id){const s=LOBBY.slots.find(s=>s&&s.id===id);if(!s)return;
 /* 방장: 모두 READY + 방장 START 인지 매 프레임 확인 → 3초 카운트 (누가 READY 를 풀거나 새로 들어오면 취소) */
 function lobbyTick(){if(!(screen==='lobby'||screen==='settings'&&SET_BACK==='lobby')||!LOBBY||GAME||!amHost())return;const hum=LOBBY.slots.filter(s=>s&&!s.bot),all=hum.length>=needHumans()&&hum.every(s=>s.ready),now=performance.now();
   if(!all){CD_END=0;const h=hum.find(s=>s.id===hostSid());if(LOBBY.cd||h&&h.ready){LOBBY.cd=0;if(h)h.ready=false;pushLobby();}return;}   /* 누가 READY 를 풀면 방장 START 도 풀림 */
-  if(!CD_END)CD_END=now+COUNT_SEC*1000;
-  const c=Math.max(0,Math.ceil((CD_END-now)/1000));if(c!==LOBBY.cd&&c>0){LOBBY.cd=c;pushLobby();}
-  if(now>=CD_END){CD_END=0;LOBBY.cd=0;lobbyStart();}}
+  CD_END=0;LOBBY.cd=0;lobbyStart();}   /* 대기방 카운트다운 없음: 모두 READY + 방장 START → 바로 게임 (카운트다운은 게임 화면에서 3초) */
 /* 경기 = 미니게임 3판 연속 (GAMES 순서) → 3판이 모두 끝나면 최종 결과 (게임마다 순위 점수 1위 4 · 2위 3 · 3위 2 · 4위 1) */
 let MATCH=null;
 function lobbyStart(){if(!amHost())return;const used=new Set(LOBBY.slots.filter(Boolean).map(s=>s.ch));
@@ -1268,7 +1272,8 @@ function loop(now){requestAnimationFrame(loop);pollPad();howTick(now);const dt=M
   updBoard(S);}
 function draw(S,pd){const f=performance.now()/16.67|0;g.setTransform(CS,0,0,CS,0,0);g.imageSmoothingEnabled=false;
   if(SHAKE>0){g.translate(Math.round((Math.random()*2-1)*SHAKE),Math.round((Math.random()*2-1)*SHAKE));SHAKE=SHAKE>.5?SHAKE*.82:0;}
-  GDEF.draw(g,S,pd,viewIndex(),f);}
+  CD_SHOW='';GDEF.draw(g,S,pd,viewIndex(),f);
+  const el=$('gCd');if(el.dataset.v!==CD_SHOW){el.dataset.v=CD_SHOW;el.hidden=!CD_SHOW;if(CD_SHOW)el.innerHTML=glyphImg(CD_SHOW,CD_SHOW.length>2?7:9,'#fff419');}}   /* 3 · 2 · 1 · START! */
 /* ---------- 시작 ---------- */
 $('logoImg').src=LOGO;$('nameIn').value=CFG.name;
 applyFilter();fit();show('main');requestAnimationFrame(loop);

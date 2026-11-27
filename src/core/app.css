@@ -335,3 +335,5 @@ body.touch .how-x .keys{display:none}
 .pslot .pcn{margin:8px 0 0}
 .pslot .rst{width:92%;padding:8px 0;font:32px var(--pf);text-align:center;color:var(--dim);--L:rgba(0,0,0,.28);--F:rgba(0,0,0,.18);--H:transparent;--D:transparent;--S:transparent}
 .pslot .rst.on{--L:var(--ink);--F:var(--ok);--H:#aaf496;--D:#38a824;--S:rgba(0,20,40,.35);color:#062600}
+/* 게임 시작 카운트다운 (대기방 카운트다운과 같은 큰 도트 글자) · 게임 화면 가운데 · 화면 필터 위 */
+#gCd{position:absolute;left:12px;top:90px;width:960px;height:540px;display:flex;align-items:center;justify-content:center;z-index:55;pointer-events:none}#gCd[hidden]{display:none}
