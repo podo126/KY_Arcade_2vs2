@@ -61,19 +61,19 @@ function chopChefs(S,pd,me,f){const C=CHEF;if(S.f<C.f-5||C.f<0){C.x=[];C.pt=[];}
 /* 판정 칸 세모: 7줄(폭 2~14) 도트 세모를 칸 가운데 기준으로 회전 · 세로 위치는 bbox 가운데와 무게중심 사이 → 눈으로 봤을 때 가운데 (시각 보정) */
 const CHOP_TRI=(()=>{const P=[];for(let k=0;k<7;k++)for(let x=-k-1;x<=k;x++)P.push([x+.5,k-3.5]);return P;})();   /* 위쪽 세모 (꼭짓점 위 · 가운데 기준 도트 중심 좌표) */
 function chopTri(cx,cy,d,c){for(const[px,py]of CHOP_TRI){const[x,y]=d===1?[px,py]:d===3?[px,-py]:d===4?[py,px]:[-py,px];R(Math.round(cx+x-.5),Math.round(cy+y-.5),1,1,c);}}
-/* 썬 재료가 요리사 뒤 바닥에 쌓임: 썬 순서대로 반쪽 조각을 9칸 x 최대 9층 무더기로 (층마다 엇갈리게) · 위치는 번호로 정해져 모든 기기에서 같음 */
-function chopPile(i,pd,me,LY){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},L=[];
-  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q!=null&&q<3&&!pd.N[n].b)L.push(n);}
-  const x0=chopX(i)+2,MAX=81,s=Math.max(0,L.length-MAX);
-  for(let j=s;j<L.length;j++){const n=L[j],k=j-s,row=Math.floor(k/9),col=k%9,HV=chopHalves(KITEM[n%3]);if(!HV)continue;
-    const r=chopRng(n*31+i),x=x0+col*11+(row&1?5:0)+Math.round(r()*2-1),y=QH-24-row*5-(col===0||col===8?0:col===1||col===7?2:4)+Math.round(r()*2-1);
-    if(y<LY+2)continue;g.drawImage(n&1?HV.a:HV.b,x-4,y);}}
+/* 썬 재료가 양쪽 벽에 번갈아 불규칙한 산 모양으로 쌓임 (pileMound · 벽 쪽이 높음) · 위로 갈수록 채도 낮고 투명 (pileImg) · 모든 기기에서 같은 모양 */
+const CHOP_MOUND=()=>({SL:5,SW:6,STEP:4,SLOPE:8,MAXH:QH-22-(CHOP.HITY+14)-4});   /* 요리사 구간(경계선 아래) 안에서만 · 캐릭터 뒤로 조금 */   /* 함수: QH 는 core.js(뒤에 읽힘)에 있음 */
+function chopPile(i,pd,me){const J=pd.J[i]||{},M=i===me&&pd.myJ?pd.myJ:{},X=qx(i),S2=[[],[]];let j=0;
+  for(let n=0;n<(pd.N?pd.N.length:0);n++){const q=J[n]!=null?J[n]:M[n];if(q==null||q>=3||pd.N[n].b)continue;S2[j&1].push(n);j++;}
+  for(let side=0;side<2;side++){const L=S2[side],P=pileMound(L.length,i*2+side+7,CHOP_MOUND());
+    P.forEach((p,k)=>{const n=L[k],key=KITEM[n%3],HV=chopHalves(key);if(!HV)return;const im=pileImg(side?HV.b:HV.a,key+(side?'b':'a'),p.L);if(!im)return;
+      g.globalAlpha=pileAlpha(p.L);g.drawImage(im,side?X+QW-21-p.dx:X+1+p.dx,QH-22-p.h);g.globalAlpha=1;});}}
 /* 세로 4분할 그리기: 칸마다 위 = 레인 4줄 + 판정 칸 + 도마, 아래 = 누른 칸 아래로 이동하는 요리사 쿵야 */
 function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CHOP.TOPY,LY=HY+14,CROSS=14*CHOP.FALL/(HY-TY);   /* LY = 재료 구간 / 요리사 구간 경계 · CROSS = 재료 가운데가 경계에 닿는 프레임(판정 시각 뒤) */
   for(let i=0;i<4;i++){const X=qx(i),x=chopX(i);R(X,0,QW,QH,i===me?MAP.hi:MAP.green);R(X,LY,QW,QH-LY,'#efe6c4');R(X,LY,QW,2,'#d9cfa4');   /* 아래 요리사 구간: 바닥 색 따로 + 경계선 */
+    chopPile(i,pd,me);   /* 썬 재료 무더기: 내려오는 줄 · 판정 칸보다 아래 레이어 */
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx+9,TY,2,HY-TY,MAP.shade);}
     for(let d=1;d<=4;d++){const lx=chopLX(i,d);R(lx-1,HY-11,22,22,MAP.blue);R(lx,HY-10,20,20,MAP.cream);chopTri(lx+10,HY,d,MAP.blue);}   /* 판정 칸 (재료 크기 20) · 방향 세모 */
-    chopPile(i,pd,me,LY);
     const c=S.combo[i];if(c>=2)K(`${c} COMBO`,X+QW/2,QB+2,c>=30?'#fff419':'#fff','center',9);}
   // 떨어지는 재료
   if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-CROSS-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
@@ -97,7 +97,7 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
   for(let i=0;i<4;i++)quadFrame(i,S,me);
   cdBanner(S);
   if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
-regGame({id:'chop',title:'주방 난타',icon:'②',
+regGame({id:'chop',title:'최고의 주방 알바',icon:'②',
   ctrl:['내 이름이 적힌 세로 칸','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
   gimmick:'<b>돌</b> — 돌은 누르지 마세요! 누르면 콤보 끊김',
   win:'60초 동안 개인 점수 1위! (4명 모두 같은 악보)',

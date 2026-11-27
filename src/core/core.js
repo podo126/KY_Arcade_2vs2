@@ -108,6 +108,21 @@ function banner(lines,cx=240,cy=135){const B=lines.map(([t,c,sz,kr=true])=>{t=St
 /* 도트 상자: 모서리 1도트 깎기 + 1도트 테두리 + 아래 2도트 그림자 (UI 창과 같은 모양) */
 function pxBox(x,y,w,h,fill,line){R(x+1,y+h+1,w-2,2,'rgba(0,20,40,.3)');R(x+1,y-1,w-2,1,line);R(x+1,y+h,w-2,1,line);R(x-1,y+1,1,h-2,line);R(x+w,y+1,1,h-2,line);
   R(x,y,1,1,line);R(x+w-1,y,1,1,line);R(x,y+h-1,1,1,line);R(x+w-1,y+h-1,1,1,line);R(x+1,y,w-2,h,fill);R(x,y+1,1,h-2,fill);R(x+w-1,y+1,1,h-2,fill);}
+/* 벽 쪽 무더기(순발력 깨진 그릇 · 주방 썬 재료) 공용: 위로 쌓일수록 채도를 낮춘 그림 + 투명하게 → 앞의 화살표 · 재료 · 접시가 잘 보임
+   L = 0(맨 아래, 원래 색) ~ 4(가장 위) · 단계마다 채도 -22% · 불투명도 1 → .4 */
+const PILE_C={};
+function pileImg(src,key,L){const k=key+'|'+L;if(PILE_C[k])return PILE_C[k];if(!src||(src.complete===false)||!src.width)return null;
+  const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const x=c.getContext('2d');x.drawImage(src,0,0);if(L>0){const D=x.getImageData(0,0,c.width,c.height),a=D.data,s=Math.min(1,L*.22);
+    for(let o=0;o<a.length;o+=4){const y=a[o]*.3+a[o+1]*.59+a[o+2]*.11;for(let j=0;j<3;j++)a[o+j]=Math.round(a[o+j]*(1-s)+y*s);}x.putImageData(D,0,0);}
+  return PILE_C[k]=c;}
+const pileAlpha=L=>1-L*.15;
+/* 산 모양 배치: 벽에서부터 SL개 칸(칸 폭 SW) · 칸마다 쌓인 높이를 기억 → 다음 조각은 "높이 + 벽에서 먼 정도 x SLOPE + 랜덤"이 가장 낮은 칸에
+   → 벽 쪽이 높고 가운데로 갈수록 낮은 불규칙한 산 · 조각마다 x ±1 · 높이 STEP-1 ~ STEP+1 랜덤 · 같은 seed 면 모든 기기에서 같은 모양
+   반환: [{dx 벽에서 거리, h 바닥에서 높이, L 흐림 단계 0~4}] (MAXH 에 닿은 칸은 더 안 쌓음) */
+function pileMound(n,seed,o){const H=new Array(o.SL).fill(0),out=[];let s=seed|0;const r=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+  for(let k=0;k<n;k++){let c=-1,best=1e9;for(let j=0;j<o.SL;j++){if(H[j]>=o.MAXH)continue;const v=H[j]+j*o.SLOPE+r()*o.SLOPE*1.2;if(v<best){best=v;c=j;}}
+    if(c<0)break;const h=H[c];out.push({dx:c*o.SW+Math.floor(r()*3)-1,h,L:Math.min(4,Math.floor(h*5/o.MAXH))});H[c]+=o.STEP+Math.floor(r()*3)-1;}
+  return out;}
 /* 시작 표시 (3종 공통): 3 → 2 → 1 → START! 만 · 카운트다운은 프레임 0~180, START! 는 시작 뒤 0.75초 */
 const CD_F=180;
 function cdBanner(S,cy=135){if(S.ph==='cd')banner([[Math.max(1,Math.ceil(S.t/60)),'#fff',24,false]],240,cy);else if(S.ph==='play'&&S.f-CD_F<45)banner([['START!','#fff419',24,false]],240,cy);}

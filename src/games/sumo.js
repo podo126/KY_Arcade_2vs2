@@ -99,7 +99,7 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   if(fl)K('화면 반전!',240,252,'#a070ff','center',10);else if(S.R<C.R0&&S.ph==='play')K(S.fast>0?'링 축소 가속!':'씨름판이 줄어들어요!',240,252,'#ff5a5a','center',10);
   cdBanner(S,72);
   if(S.ph==='end')banner([['Finish!','#fff419',24,false]],240,72);}
-regGame({id:'sumo',title:'쿵야 씨름',icon:'③',
+regGame({id:'sumo',title:'식당 자리뺏기',icon:'③',
   ctrl:['방향키로 이동','A 버튼으로 돌진 (0.7초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
   gimmick:'<b>줄어드는 씨름판</b> — 8초부터 점점 작아져요 · <b>아이템</b> — 먹으면 넉백 강화 · 상대 화면 반전 · 링 축소 가속',
   win:'마지막까지 남으면 +500 · 밀어내면 +300 · 개인 점수 1위 (한 판 · 60초)',
