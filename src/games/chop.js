@@ -4,14 +4,14 @@
    │ 판정은 각자 기기 화면 기준(prep)으로 하고, 방장은 점수만 합산합니다.
    └───────────────────────────────────────────────────────── */
 const KITEM=['kc_carrot','kc_pimento','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 피망 · 토마토) */
-const CHOP={PEPPER:.13,PEPPER_FROM:6,   /* 기믹: 6초 뒤부터 재료의 13%가 돌(kc_stone) — 누르면 콤보 끊김 · -50 (변수 이름은 예전 고추 그대로) */
-  SEC:60,FALL:80,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
+const CHOP={PEPPER:.13,PEPPER_FROM:4,   /* 기믹: 4초 뒤부터 재료의 13%가 돌(kc_stone) — 누르면 콤보 끊김 · -50 (변수 이름은 예전 고추 그대로) */
+  SEC:60,FALL:56,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
 const chopX=i=>qx(i)+5;   /* 세로 칸 안 레인 영역 왼쪽 (너비 110) */
 const chopLX=(i,d)=>chopX(i)+8+CHOP.COL[d]*24;   /* 레인 왼쪽 x */
 function chopRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function chopChart(seed,start){const r=chopRng(seed),N=[];let t=start+60;const end=start+CHOP.SEC*60-60;
-  while(t<end){const p=(t-start)/(CHOP.SEC*60),gap=Math.round(30-10*p),d=1+Math.floor(r()*4),hot=r()<CHOP.PEPPER&&t-start>CHOP.PEPPER_FROM*60;N.push({T:t,d,b:hot?1:0});
-    if(r()<.18+.15*p&&t+gap/2<end)N.push({T:t+Math.round(gap/2),d:1+Math.floor(r()*4),b:0});t+=gap;}return N;}
+  while(t<end){const p=(t-start)/(CHOP.SEC*60),gap=Math.round(22-8*p),d=1+Math.floor(r()*4),hot=r()<CHOP.PEPPER&&t-start>CHOP.PEPPER_FROM*60;N.push({T:t,d,b:hot?1:0});
+    if(r()<.25+.2*p&&t+gap/2<end)N.push({T:t+Math.round(gap/2),d:1+Math.floor(r()*4),b:0});t+=gap;}return N;}
 class ChopSim{
   constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=180;this.tm=CHOP.SEC*60;
     this.seed=(Math.random()*1e9)|0;this.start=180;   /* 악보 시작 = 카운트다운(3초) 끝 */

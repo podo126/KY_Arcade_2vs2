@@ -328,3 +328,7 @@ body.touch .how-x .keys{display:none}
 .hbtn{border:0;font-size:16px;height:40px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
 #pad div{border:0;box-shadow:0 4px 0 rgba(0,0,0,.35)}
 #abtn{border:0;box-shadow:0 6px 0 rgba(0,0,0,.35)}
+/* 버튼 누름: 아래로 3px 내려가며 그림자가 사라짐 (짧게) */
+.btn{transition:transform .08s,filter .08s}
+.btn.press,.btn:active{transform:translateY(3px)!important;--S:transparent;filter:brightness(.92)}
+.hbtn:active,#gSpec .sd:active{transform:translateY(2px);filter:brightness(.9)}

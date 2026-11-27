@@ -227,8 +227,11 @@ function spatialMove(d){const L=btns();if(!L.length)return;const cur=L[sel]||L[0
 function btns(){return[...document.querySelectorAll('#scr-'+screen+' .btn:not([hidden])')];}
 function paintSel(){btns().forEach((b,i)=>b.classList.toggle('sel',i===sel));}
 function toast(m,ms=2200){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms);}
-document.addEventListener('click',e=>{const b=e.target.closest('.btn');if(!b)return;AU.init();const L=btns();sel=Math.max(0,L.indexOf(b));paintSel();act(b.dataset.act);});
-function onOK(){if(screen==='game')return;if(HOW_ON){closeHow();return;}const b=btns()[sel];if(b){AU.sfx('ok');act(b.dataset.act);}}
+/* 버튼 누름 효과 (마우스 · 터치 · Enter 모두): 2px 눌렸다가 돌아옴 */
+let PRESS=['',0];
+function pressFx(b){PRESS=[b.dataset.act,performance.now()];b.classList.remove('press');void b.offsetWidth;b.classList.add('press');clearTimeout(b._pt);b._pt=setTimeout(()=>b.classList.remove('press'),160);}
+document.addEventListener('click',e=>{const b=e.target.closest('.btn');if(!b)return;AU.init();const L=btns();sel=Math.max(0,L.indexOf(b));paintSel();pressFx(b);act(b.dataset.act);});
+function onOK(){if(screen==='game')return;if(HOW_ON){closeHow();return;}const b=btns()[sel];if(b){AU.sfx('ok');pressFx(b);act(b.dataset.act);}}
 function onBack(){if(HOW_ON){closeHow();return;}if(screen==='settings'){AU.sfx('move');closeSettings();}}   /* Esc = 게임 설명 · 설정 닫기만 (나가기는 버튼으로) */
 function onDir(d){if(HOW_ON)return;if(screen==='game'){if(isSpec()){if(d===2||d===4)specSet(SPEC_I+(d===2?1:-1));return;}if(GDEF&&GDEF.controls.dir==='bits'){sendBits();return;}if(GDEF&&GDEF.controls.dir)sendDir(d,GDEF.controls.dir==='tap');return;}
   spatialMove(d);}
@@ -302,6 +305,7 @@ function renderLobby(){const L=LOBBY,amP=isLocal()||NET.role==='player';
       `<div class="pc">${mine&&amP?`<img class="arw" src="${CHS.ui_arrow}">`:''}${s?charImg(s.ch):'<span class="q">'+glyphImg('?',4,'#7fe0ff')+'</span>'}</div><div class="pcn">${s?esc(charOf(s.ch).name):'입장 대기 중'}</div>`+
       (mine&&amP?`<div class="btn rdy ${s.ready?'fr-on on':'fr-item'}" data-act="ready">${rl||(hs?'START':'READY')}</div>`:`<div class="rst${rl?' on':''}">${s?rl||'대기 중':''}</div>`);}
   const cd=L&&L.cd||0;$('lbCd').hidden=!cd;if(cd&&$('lbCd').dataset.v!==String(cd)){$('lbCd').dataset.v=cd;$('lbCd').innerHTML=glyphImg(String(cd),9,'#fff419');}if(cd!==LAST_CD){LAST_CD=cd;if(cd>0)AU.sfx('beep');}
+  {const rb=document.querySelector('#scr-lobby [data-act=ready]');if(rb&&PRESS[0]==='ready'&&performance.now()-PRESS[1]<120)rb.classList.add('press'),setTimeout(()=>rb.classList.remove('press'),120);}   /* 다시 그려진 READY 버튼에도 누름 효과 이어서 */
   if(!btns()[sel])sel=0;paintSel();}
 /* 처음 대기방에 들어오면 내 READY 버튼에 커서 */
 function focusMain(){const L=btns(),i=L.findIndex(b=>b.dataset.act==='ready');sel=i<0?0:i;paintSel();}

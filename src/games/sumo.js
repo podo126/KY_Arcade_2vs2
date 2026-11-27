@@ -1,17 +1,17 @@
 /* ┌─────────────────────────────────────────────────────────
    │ ③ 쿵야 씨름 — 둥근 씨름판에서 부딪쳐 상대를 밖으로 밀어내기 (개인전 · 4명 난투)
-   │ 방향키 이동 · A 돌진(1초 재사용) · 60초 동안 한 판 (12초부터 씨름판이 줄어듦)
+   │ 방향키 이동 · A 돌진(0.7초 재사용) · 60초 동안 한 판 (8초부터 씨름판이 줄어듦)
    │ 승리 = 마지막까지 남은 한 명 · 시간이 다 되면 남은 쿵야 중 가운데에 가장 가까운 쿵야 승리
    │ 기믹 아이템: 씨름판 안에 랜덤으로 떨어짐 → 먹으면 발동 (넉백 강화 · 상대 화면 반전 · 씨름판 축소 가속)
    │ 개인 점수: 상대를 떨어뜨림 +300 · 판 승리 +500 · 혼자 떨어짐 -50
    │ (예전 2:2 씨름을 개인전 · 비율 조정한 원본 그림(big_*) 1배 · 정수 좌표로 다시 만듦)
    └───────────────────────────────────────────────────────── */
 /* 조절값: SEC 시간 · SHRINK 줄어들기 시작(초)·줄어드는 시간(초) · R0 처음 씨름판 반지름 · R1 최소 · PR 몸 반지름 · ACC 가속 · FRIC 마찰 · MAX 최고 속도 · DASH 돌진 힘 · DCD 돌진 재사용(프레임) · SQ 화면 세로 눌림 */
-const SUMO={SEC:60,SHRINK:[12,8],CX:240,CY:150,R0:138,R1:72,PR:17,ACC:.22,FRIC:.9,MAX:2.1,DASH:5.4,DCD:60,SQ:.6,KO:300,WIN:500,SELF:50,
+const SUMO={SEC:60,SHRINK:[8,8],CX:240,CY:150,R0:138,R1:72,PR:17,ACC:.3,FRIC:.9,MAX:2.8,DASH:6.6,DCD:40,SQ:.6,KO:300,WIN:500,SELF:50,
   START:[[172,100],[308,100],[172,200],[308,200]]};
 /* 기믹 아이템: FIRST 첫 등장(초) · EVERY 등장 간격(초, ±1) · LIFE 바닥에 남는 시간(초) · MAX 동시에 최대 · 효과 시간(초) PW 넉백 강화 · FLIP 화면 반전 · FAST 축소 가속 · PICK 먹는 거리
    종류 0 넉백 강화(먹은 쿵야가 부딪치면 2배로 날림) · 1 화면 반전(먹은 쿵야를 뺀 모두의 화면이 좌우/상하로 뒤집힘) · 2 축소 가속(바로 줄어들기 시작 + 2.5배 빠르게) */
-const SITEM={FIRST:6,EVERY:6,LIFE:9,MAX:2,PW:6,FLIP:5,FAST:4,PICK:24,NAME:['넉백 UP','화면 반전','링 축소'],COL:['#ff5a5a','#a070ff','#ff9a30'],
+const SITEM={FIRST:4,EVERY:4,LIFE:7,MAX:2,PW:6,FLIP:5,FAST:4,PICK:24,NAME:['넉백 UP','화면 반전','링 축소'],COL:['#ff5a5a','#a070ff','#ff9a30'],
   ICON:[['....X..','...XX..','..XX...','.XXXXX.','...XX..','..XX...','..X....'],['.X.....','XXXXXX.','.X.....','.......','.....X.','.XXXXXX','.....X.'],['..XXX..','.X...X.','X..X..X','X.XXX.X','X..X..X','.X...X.','..XXX..']]};
 const SUMO_DX=[0,0,1,0,-1],SUMO_DY=[0,-1,0,1,0];
 class SumoSim{
@@ -32,7 +32,7 @@ class SumoSim{
   step(){this.f++;
     if(this.ph==='cd'){if(this.t%60===0&&this.t>0)this.ev.push('beep');if(--this.t<=0){this.ph='play';this.ev.push('go');}return;}
     if(this.ph==='end'){if(--this.t<=0)this.done=true;return;}
-    this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 12초부터 8초 동안 줄어듦 · 축소 가속 중이면 바로 + 2.5배
+    this.tm--;this.rt++;const sp0=(SUMO.R0-SUMO.R1)/(SUMO.SHRINK[1]*60);   // 8초부터 8초 동안 줄어듦 · 축소 가속 중이면 바로 + 2.5배
     if(this.fast>0){this.fast--;this.R-=sp0*2.5;}else if(this.rt>SUMO.SHRINK[0]*60)this.R-=sp0;this.R=Math.max(SUMO.R1,this.R);
     this.items();
     this.P.forEach((p,i)=>{if(p.st!=='in')return;if(this.slots[i].bot)this.bot(i);const d=this.dir[i];
@@ -102,8 +102,8 @@ function sumoDraw(g,S,pd,me,f){const C=SUMO,cx=C.CX,cy=C.CY,sq=C.SQ;
   if(S.ph==='end'){const w=S.rw,nm=w<0?'무승부!':`${GAME.slots[w]?GAME.slots[w].name:''} 승리!`,col=w<0?'#fff':PCOL[w];
     banner([[S.tm<=0?'Time Out!':'Finish!','#fff419',24,false],[nm,col,11]],240,72);}}
 regGame({id:'sumo',title:'쿵야 씨름',icon:'③',
-  ctrl:['방향키로 이동','A 버튼으로 돌진 (1초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
-  gimmick:'<b>줄어드는 씨름판</b> — 12초부터 점점 작아져요 · <b>아이템</b> — 먹으면 넉백 강화 · 상대 화면 반전 · 링 축소 가속',
+  ctrl:['방향키로 이동','A 버튼으로 돌진 (0.7초마다 한 번)','부딪쳐서 다른 쿵야를 씨름판 밖으로!'],
+  gimmick:'<b>줄어드는 씨름판</b> — 8초부터 점점 작아져요 · <b>아이템</b> — 먹으면 넉백 강화 · 상대 화면 반전 · 링 축소 가속',
   win:'마지막까지 남으면 +500 · 밀어내면 +300 · 개인 점수 1위 (한 판 · 60초)',
   desc:'방향키로 움직이고 A로 돌진! 다른 쿵야를 씨름판 밖으로 밀어내세요<br>개인전 · 한 판 · 씨름판이 점점 줄어들어요',
   controls:{dir:'hold',a:true,label:'방향키 + A 버튼',hint:'<span class="kk">↑</span><span class="kk">↓</span><span class="kk">←</span><span class="kk">→</span> 이동 · <span class="kk">Z</span><span class="kk">Space</span> 돌진'},
