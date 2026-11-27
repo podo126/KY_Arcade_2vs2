@@ -14,7 +14,7 @@ function qkRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(s
 /* 접시 순서표: 모든 기기에서 같은 시드 → 같은 순서 · d = 접시가 놓인 쪽 2(▶) / 4(◀) · r = 반대 접시 · g = 황금 접시 */
 function qkChart(seed){const r=qkRng(seed),N=[];for(let k=0;k<QK.LEN;k++){const rv=k>=QK.REV_FROM&&r()<QK.REV;N.push({d:r()<.5?4:2,r:rv?1:0,g:!rv&&k>10&&r()<QK.GOLD?1:0});}return N;}
 class QuickSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=300;   /* 시작 카운트다운 5초 */
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=180;   /* 시작 카운트다운 3초 */
     this.tm=QK.SEC*60;
     this.seed=(Math.random()*1e9)|0;this.N=qkChart(this.seed);this.k=[0,0,0,0];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.miss=[0,0,0,0];this.st=[-99,-99,-99,-99];
     this.fx=[];this.bt=[0,0,0,0];this.my={k:0,stun:-99,fx:[]};}

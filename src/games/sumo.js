@@ -11,7 +11,7 @@ const SUMO={SEC:60,SHRINK:[12,8],LAST:6,CX:240,CY:150,R0:124,R1:72,PR:17,ACC:.22
 const SUMO_DX=[0,0,1,0,-1],SUMO_DY=[0,-1,0,1,0];
 class SumoSim{
   constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ko=[0,0,0,0];this.ev=[];this.done=false;this.wins=[0,0,0,0];this.r=0;this.dir=[0,0,0,0];this.tm=SUMO.SEC*60;this.round();}
-  round(){this.ph='cd';this.t=this.r?180:300;this.rt=0;this.R=SUMO.R0;this.rw=-1;this.dir=[0,0,0,0];   /* 남은 전체 시간(tm)은 이어짐 · 첫 판 카운트다운 5초 · 2판부터 3초 */
+  round(){this.ph='cd';this.t=180;this.rt=0;this.R=SUMO.R0;this.rw=-1;this.dir=[0,0,0,0];   /* 남은 전체 시간(tm)은 이어짐 · 카운트다운 3초 */
     this.P=SUMO.START.map(([x,y],i)=>({x,y,vx:0,vy:0,fx:i%2?-1:1,fy:0,st:'in',t:0,dash:0,cd:0,last:-1,lt:-999,sq:0}));}
   input(i,e){if('d' in e)this.dir[i]=e.d;if(e.a&&this.ph==='play'){const p=this.P[i];if(p.st==='in'&&p.cd<=0){p.vx+=p.fx*SUMO.DASH;p.vy+=p.fy*SUMO.DASH;p.dash=14;p.cd=SUMO.DCD;this.ev.push('tap');}}}
   step(){this.f++;

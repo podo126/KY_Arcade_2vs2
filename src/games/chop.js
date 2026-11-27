@@ -3,8 +3,8 @@
    │ 4명 모두 같은 악보 · PERFECT 100 · GREAT 60 · GOOD 30 · 콤보 10마다 배율 +0.5 (최대 3배) · 60초
    │ 판정은 각자 기기 화면 기준(prep)으로 하고, 방장은 점수만 합산합니다.
    └───────────────────────────────────────────────────────── */
-const KITEM=['kc_carrot','kc_tofu','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 두부 · 토마토) */
-const CHOP={PEPPER:.13,PEPPER_FROM:6,   /* 기믹: 6초 뒤부터 재료의 13%가 매운 고추 — 누르면 콤보 끊김 · -50 */
+const KITEM=['kc_carrot','kc_pimento','kc_tomato'];   /* 주방 재료 리소스 20x20 (당근 · 피망 · 토마토) */
+const CHOP={PEPPER:.13,PEPPER_FROM:6,   /* 기믹: 6초 뒤부터 재료의 13%가 돌(kc_stone) — 누르면 콤보 끊김 · -50 (변수 이름은 예전 고추 그대로) */
   SEC:60,FALL:80,HITY:168,TOPY:40,WIN:[4,8,12],PTS:[100,60,30],QN:['PERFECT','GREAT','GOOD'],QC:['#fff419','#58d838','#00ccf3'],DIRS:['','↑','→','↓','←'],COL:[0,1,2,3,0]};   /* COL: 방향(1↑ 2→ 3↓ 4←) → 왼쪽부터 칸 번호 (← ↑ → ↓ 순서) */
 const chopX=i=>qx(i)+5;   /* 세로 칸 안 레인 영역 왼쪽 (너비 110) */
 const chopLX=(i,d)=>chopX(i)+8+CHOP.COL[d]*24;   /* 레인 왼쪽 x */
@@ -13,8 +13,8 @@ function chopChart(seed,start){const r=chopRng(seed),N=[];let t=start+60;const e
   while(t<end){const p=(t-start)/(CHOP.SEC*60),gap=Math.round(30-10*p),d=1+Math.floor(r()*4),hot=r()<CHOP.PEPPER&&t-start>CHOP.PEPPER_FROM*60;N.push({T:t,d,b:hot?1:0});
     if(r()<.18+.15*p&&t+gap/2<end)N.push({T:t+Math.round(gap/2),d:1+Math.floor(r()*4),b:0});t+=gap;}return N;}
 class ChopSim{
-  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=300;this.tm=CHOP.SEC*60;
-    this.seed=(Math.random()*1e9)|0;this.start=300;   /* 악보 시작 = 카운트다운(5초) 끝 */
+  constructor(slots,ctx){this.slots=slots;this.local=ctx.local;this.f=0;this.ps=[0,0,0,0];this.ev=[];this.done=false;this.ph='cd';this.t=180;this.tm=CHOP.SEC*60;
+    this.seed=(Math.random()*1e9)|0;this.start=180;   /* 악보 시작 = 카운트다운(3초) 끝 */
     this.N=chopChart(this.seed,this.start);this.J=[{},{},{},{}];this.combo=[0,0,0,0];this.best=[0,0,0,0];this.fxs=[];this.jn=[[],[],[],[]];this.bq=[[],[],[],[]];this.pos=[0,0,0,0];this.mv=[0,0,0,0];}
   get pd(){return{N:this.N,J:this.J,myJ:this.myJ||(this.myJ={})};}
   mult(c){return Math.min(3,1+Math.floor(c/10)*.5);}
@@ -68,11 +68,10 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
   // 떨어지는 재료
   if(pd.N)for(let n=0;n<pd.N.length;n++){const no=pd.N[n],dt=no.T-S.f;if(dt>CHOP.FALL||dt<-14)continue;const y=HY-dt/CHOP.FALL*(HY-TY);
     for(let i=0;i<4;i++){if(pd.J[i]&&pd.J[i][n]!=null||i===me&&pd.myJ&&pd.myJ[n]!=null)continue;const lx=chopLX(i,no.d),im=IMG[KITEM[n%3]];
-      if(no.b){const yy=Math.round(y)-9,X=lx+3;R(X+6,yy,4,3,'#3a8a28');R(X+7,yy-2,2,2,'#3a8a28');R(X+3,yy+3,10,9,'#e83a2a');R(X+4,yy+12,8,3,'#e83a2a');R(X+6,yy+15,4,2,'#c82a1a');R(X+4,yy+4,2,4,'#ff9a8a');continue;}   /* 매운 고추 (도트) */
-      if(im&&im.complete)g.drawImage(im,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,'#e8a040');}}
+      const st=no.b?IMG.kc_stone:im;if(st&&st.complete)g.drawImage(st,lx,Math.round(y)-10);else R(lx,Math.round(y)-10,20,20,no.b?'#525252':'#e8a040');}}   /* 돌 = 누르면 안 되는 기믹 */
   // 썰기 효과: 사선으로 반 갈라져 튀는 재료 + 1픽셀 조각
   for(const[i,q,at,d,nn]of S.fxs){const k=S.f-at,lx=chopLX(i,d),tx=qx(i)+QW/2;
-    if(q===3){K('Miss!',tx,HY-44-k,'#ff5a5a','center',10);R(lx+2-k,HY-6,4,4,'#e83a2a');R(lx+14+k,HY-6,4,4,'#e83a2a');continue;}
+    if(q===3){K('Miss!',tx,HY-44-k,'#ff5a5a','center',10);const sh=IMG.kc_stone_hit;if(sh&&sh.complete)g.drawImage(sh,lx+(k<4?(k&1?1:-1):0),HY-10);continue;}   /* 돌을 내리침: 반짝이는 돌 */
     const y0=HY-10,HV=chopHalves(KITEM[(nn!=null?nn:at)%3]),fl=Math.round(k*k*.07),dx=Math.round(k*1.3);
     if(HV){g.drawImage(HV.a,lx-dx,y0-Math.round(k*.9)+fl);g.drawImage(HV.b,lx+dx,y0+Math.round(k*.4)+fl);}   /* 사선(/)으로 갈라진 두 조각 · 정수 좌표 */
     if(k<4)for(let j=-4;j<=23;j++)R(lx+19-j,y0+j,1,1,'#fff');   /* 썰리는 순간 흰 사선 */
@@ -86,7 +85,7 @@ function chopDraw(g,S,pd,me,f){R(0,0,480,270,MAP.cream);const HY=CHOP.HITY,TY=CH
   if(S.ph==='end')banner([['Time Out!','#fff419',24,false]]);}
 regGame({id:'chop',title:'주방 난타',icon:'②',
   ctrl:['내 이름이 적힌 세로 칸','재료가 <b>화살표 칸</b>에 닿을 때 같은 방향키','콤보가 이어질수록 점수 UP'],
-  gimmick:'<b>매운 고추</b> — 고추는 누르지 마세요! 누르면 콤보 끊김',
+  gimmick:'<b>돌</b> — 돌은 누르지 마세요! 누르면 콤보 끊김',
   win:'60초 동안 개인 점수 1위! (4명 모두 같은 악보)',
   desc:'떨어지는 재료가 화살표에 닿을 때 같은 방향키로 썰기!<br>4명 모두 같은 악보 · 콤보가 이어질수록 점수 배율 UP · 45초',
   controls:{dir:'tap',a:false,label:'방향키 4개',hint:'<span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span> 재료가 화살표에 닿을 때 같은 방향!'},

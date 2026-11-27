@@ -202,7 +202,9 @@ body.touch .how-x .keys{display:none}
 .pslot .pp{flex:none;font:16px var(--pf);color:#000;padding:5px 6px;border:3px solid #000}
 .pslot .pn b{font-size:32px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pslot .pn small{flex:none;font-size:16px;background:var(--yellow);color:#000;padding:1px 6px;border:2px solid #000}
-.pslot .pc{flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:0;padding-bottom:6px}
+.pslot .pc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;padding-bottom:6px}
+.pslot .pc .arw{width:60px;height:60px;margin-bottom:20px;animation:arwBob .8s steps(1) infinite}   /* 내 캐릭터 위 화살표 (30x30 도트 2배) */
+@keyframes arwBob{50%{transform:translateY(6px)}}
 .pslot .pc img{image-rendering:pixelated;max-width:100%}
 .pslot .pc .q{font:64px var(--pf);color:#7fe0ff;margin-bottom:40px}
 .pslot .pcn{font-size:16px;color:var(--dim);margin-bottom:10px}
